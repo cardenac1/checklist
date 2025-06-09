@@ -798,32 +798,26 @@ select {
 
 
 
-            <form id="editForm"></form>
 
-            <div class="nav-buttons">
+<form id="editForm"></form>
 
-                <button id="prevButton" onclick="navigateDetails(-1)">Previous</button>
+<div class="nav-buttons" style="justify-content:center;">
+  <button id="prevButton" onclick="navigateDetails(-1)">Previous</button>
+  <button id="nextButton" onclick="navigateDetails(1)">Next</button>
+  <button onclick="backToList()">Back to List</button>
+</div> <!-- ← close nav-buttons here -->
 
-                <button id="nextButton" onclick="navigateDetails(1)">Next</button>
+<br/>   <!-- now this will create a visible break -->
 
-                 <button onclick="backToList()">Back to List</button>
-                <br> 
-                <br/>
-
-<!-- Note generation buttons -->
-<div style="display: flex; gap: 10px; margin-top: 20px;">
-  <button style="padding: 6px 12px;" onclick="generateNoteRTF('consult')">Consult Note</button>
-  <button style="padding: 6px 12px;" onclick="generateNoteRTF('trauma')">Trauma Note</button>
+<div style="display: flex; gap: 10px; margin-top: 20px; "justify-content:center;">
+  <button style="padding: 6px 12px;" onclick="generateNoteRTF('consult')">
+    Consult Note
+  </button>
+  <button style="padding: 6px 12px;" onclick="generateNoteRTF('trauma')">
+    Trauma Note
+  </button>
 </div>
 
-
-
-
-            </div>
-
-            
-
-            <br> </br>
 
             
 
