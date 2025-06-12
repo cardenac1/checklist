@@ -2634,6 +2634,13 @@ function toggleOrdersView() {
          extractLabValue('APTT:', 'ptt');
          extractLabValue('Fibrinogen:', 'fib');
 
+extractLabValue('Troponin I, High Sensitivity:', 'trop');
+
+// Extract pancreatic enzymes
+extractLabValue('Amylase:', 'amylase');
+extractLabValue('Lipase:', 'lipase');
+
+
 
 
 
@@ -3598,6 +3605,61 @@ function generateWarnings(data) {
             }
         }
     }
+
+
+
+// Chloride check - 2 warnings only
+if (data.labs.cl && data.labs.cl[0] !== undefined) {
+    const cl = data.labs.cl[0];
+    const clPrev = data.labs.cl[1];
+    const clStr = clPrev !== undefined ? `*${cl}* (*${clPrev}*)` : `*${cl}*`;
+    
+    if (cl < 96) {
+        warnings.push(`Hypochloremia!!! Cl: ${clStr}`);
+    } else if (cl > 106) {
+        warnings.push(`Hyperchloremia!!! Cl: ${clStr}`);
+    }
+} else {
+    warnings.push('no Cl');
+}
+
+// Troponin check - 1 warning only
+if (data.labs.trop && data.labs.trop[0] !== undefined) {
+    const trop = data.labs.trop[0];
+    const tropPrev = data.labs.trop[1];
+    const tropStr = tropPrev !== undefined ? `*${trop}* (*${tropPrev}*)` : `*${trop}*`;
+    
+    if (trop > 0.04) {
+        warnings.push(`TROPONIN ELEVATED!!! ${tropStr}`);
+    }
+}
+
+// Amylase check - 1 warning only
+if (data.labs.amylase && data.labs.amylase[0] !== undefined) {
+    const amylase = data.labs.amylase[0];
+    const amylasePrev = data.labs.amylase[1];
+    const amylaseStr = amylasePrev !== undefined ? `*${amylase}* (*${amylasePrev}*)` : `*${amylase}*`;
+    
+    if (amylase > 110) {
+        warnings.push(`Amylase elevated!!! ${amylaseStr}`);
+    }
+}
+
+// Lipase check - 1 warning only
+if (data.labs.lipase && data.labs.lipase[0] !== undefined) {
+    const lipase = data.labs.lipase[0];
+    const lipasePrev = data.labs.lipase[1];
+    const lipaseStr = lipasePrev !== undefined ? `*${lipase}* (*${lipasePrev}*)` : `*${lipase}*`;
+    
+    if (lipase > 140) {
+        warnings.push(`Lipase elevated!!! ${lipaseStr}`);
+    }
+}
+
+
+
+
+
     
     // LFT checks
     if ((data.labs.ast && data.labs.ast[0] !== undefined && data.labs.ast[0] > 40) || 
