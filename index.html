@@ -2827,23 +2827,37 @@ function toggleOrdersView() {
                 data.output = parseFloat(outputMatch[1].replace(/,/g, ''));
             }
 
-            // Extract oxygen therapy
-            const o2Match = text.match(/Oxygen Therapy:\s*([^\n]+)/i);
-            if (o2Match) {
-                let o2therapy = o2Match[1].trim();
-                if (o2therapy.toLowerCase().includes('room air')) {
-                    o2therapy = 'RA';
-                } else if (o2therapy.toLowerCase().includes('high flow nasal cannula')) {
-                    o2therapy = 'HFNC';
-                } else if (o2therapy.toLowerCase().includes('nasal cannula')) {
-                    o2therapy = 'NC';
-                } else if (o2therapy.toLowerCase().includes('non-rebreather')) {
-                    o2therapy = 'NRB';
-                } else if (o2therapy.toLowerCase().includes('ventilator')) {
-                    o2therapy = 'Vent';
-                }
-                data.o2therapy = o2therapy;
-            }
+
+  // ——— Oxygen Therapy ———
+  const o2TherapyEntries = Array.from(
+    text.matchAll(/Oxygen Therapy:\s*([^\(]+)\s*\((\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})\)/gi)
+  );
+  if (o2TherapyEntries.length) {
+    // sort by timestamp ascending
+    o2TherapyEntries.sort((a, b) => new Date(a[2]) - new Date(b[2]));
+    const latest = o2TherapyEntries[o2TherapyEntries.length - 1];
+    data.o2therapyRaw = latest[1].trim();  // e.g. "High-Flow nasal cannula"
+
+    // now map to your short codes:
+    const raw = data.o2therapyRaw.toLowerCase();
+    if (/room air/.test(raw))                  data.o2therapyCode = 'RA';
+    else if (/high[- ]flow nasal cannula/.test(raw)) data.o2therapyCode = 'HFNC';
+    else if (/nasal cannula/.test(raw))         data.o2therapyCode = 'NC';
+    else if (/non[- ]rebreather/.test(raw))     data.o2therapyCode = 'NRB';
+    else if (/ventilator/.test(raw))            data.o2therapyCode = 'Vent';
+  }
+
+  // ——— Oxygen Flow Rate ———
+  const flowEntries = Array.from(
+    text.matchAll(/Oxygen Flow Rate:\s*([\d.]+\s*L\/min)\s*\((\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})\)/gi)
+  );
+  if (flowEntries.length) {
+    flowEntries.sort((a, b) => new Date(a[2]) - new Date(b[2]));
+    data.o2flowRaw = flowEntries[flowEntries.length - 1][1].trim();  // e.g. "50 L/min"
+  }
+
+
+		
 
             // Extract age
             const ageMatch = text.match(/Age:\s*(\d+)\s*Years/i);
@@ -3581,6 +3595,16 @@ function generateWarnings(data) {
 
 
 
+
+  // ——— Oxygen therapy warning ———
+  if (data.o2therapyCode && data.o2therapyCode !== 'RA') {
+    // build “On 50 L/min HFNC!!!” or “On 2 L/min NC!!!”
+    const flow = data.o2flowRaw ? data.o2flowRaw + ' ' : '';
+    warnings.push(`On ${flow}${data.o2therapyCode}!!!`);
+  }
+
+
+	
 
 
 
