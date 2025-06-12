@@ -2828,34 +2828,98 @@ function toggleOrdersView() {
             }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
   // ——— Oxygen Therapy ———
   const o2TherapyEntries = Array.from(
-    text.matchAll(/Oxygen Therapy:\s*([^\(]+)\s*\((\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})\)/gi)
+    text.matchAll(
+      /Oxygen Therapy:\s*([^\(]+)\s*\((\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})\)/gi
+    )
   );
   if (o2TherapyEntries.length) {
-    // sort by timestamp ascending
     o2TherapyEntries.sort((a, b) => new Date(a[2]) - new Date(b[2]));
-    const latest = o2TherapyEntries[o2TherapyEntries.length - 1];
-    data.o2therapyRaw = latest[1].trim();  // e.g. "High-Flow nasal cannula"
-
-    // now map to your short codes:
+    data.o2therapyRaw  = o2TherapyEntries.pop()[1].trim();
     const raw = data.o2therapyRaw.toLowerCase();
-    if (/room air/.test(raw))                  data.o2therapyCode = 'RA';
-    else if (/high[- ]flow nasal cannula/.test(raw)) data.o2therapyCode = 'HFNC';
-    else if (/nasal cannula/.test(raw))         data.o2therapyCode = 'NC';
-    else if (/non[- ]rebreather/.test(raw))     data.o2therapyCode = 'NRB';
-    else if (/ventilator/.test(raw))            data.o2therapyCode = 'Vent';
+
+    // map mechanical vents → “Vent”, everything else as before
+    if (/room air/.test(raw))                                   data.o2therapyCode = 'RA';
+    else if (/high[- ]flow nasal cannula/.test(raw))            data.o2therapyCode = 'HFNC';
+    else if (/nasal cannula/.test(raw))                         data.o2therapyCode = 'NC';
+    else if (/mechanical ventilator/.test(raw))                 data.o2therapyCode = 'Vent';
+    else if (/non-?rebreather/.test(raw))                       data.o2therapyCode = 'NRB';
+    else                                                         data.o2therapyCode = 'O2';
   }
 
   // ——— Oxygen Flow Rate ———
   const flowEntries = Array.from(
-    text.matchAll(/Oxygen Flow Rate:\s*([\d.]+\s*L\/min)\s*\((\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})\)/gi)
+    text.matchAll(
+      /Oxygen Flow Rate:\s*([\d.]+\s*L\/min)\s*\((\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})\)/gi
+    )
   );
   if (flowEntries.length) {
     flowEntries.sort((a, b) => new Date(a[2]) - new Date(b[2]));
-    data.o2flowRaw = flowEntries[flowEntries.length - 1][1].trim();  // e.g. "50 L/min"
+    data.o2flowRaw = flowEntries.pop()[1].trim();  // e.g. "50 L/min"
   }
 
+  // ——— Ventilator Settings ———
+  // Mode
+  const modeEntries = Array.from(
+    text.matchAll(/Ventilator Mode:\s*([^\(]+)\s*\(([^)]+)\)/gi)
+  );
+  if (modeEntries.length) {
+    modeEntries.sort((a, b) => new Date(a[2]) - new Date(b[2]));
+    data.ventModeRaw = modeEntries.pop()[1].trim();
+  }
+  // Frequency
+  const freqEntries = Array.from(
+    text.matchAll(/Ventilator Frequency, Mandatory:\s*(\d+)\s*br\/min\s*\(([^)]+)\)/gi)
+  );
+  if (freqEntries.length) {
+    freqEntries.sort((a, b) => new Date(a[2]) - new Date(b[2]));
+    data.ventFrequencyRaw = freqEntries.pop()[1];
+  }
+  // Tidal Volume
+  const tvEntries = Array.from(
+    text.matchAll(/Tidal Volume, Delivered:\s*(\d+)\s*mL\s*\(([^)]+)\)/gi)
+  );
+  if (tvEntries.length) {
+    tvEntries.sort((a, b) => new Date(a[2]) - new Date(b[2]));
+    data.ventTidalRaw = tvEntries.pop()[1];
+  }
+  // PEEP
+  const peepEntries = Array.from(
+    text.matchAll(/Positive End Expiratory Pressure:\s*(\d+)\s*cmH2O\s*\(([^)]+)\)/gi)
+  );
+  if (peepEntries.length) {
+    peepEntries.sort((a, b) => new Date(a[2]) - new Date(b[2]));
+    data.ventPeepRaw = peepEntries.pop()[1];
+  }
+  // FiO2
+  const fio2Entries = Array.from(
+    text.matchAll(/FIO2:\s*(\d+)\s*%\s*\(([^)]+)\)/gi)
+  );
+  if (fio2Entries.length) {
+    fio2Entries.sort((a, b) => new Date(a[2]) - new Date(b[2]));
+    data.ventFiO2Raw = fio2Entries.pop()[1] + '%';
+  }
+
+
+
+
+		
 
 		
 
@@ -3596,19 +3660,26 @@ function generateWarnings(data) {
 
 
 
-  // ——— Oxygen therapy warning ———
+  // ——— Oxygen / Ventilator Warning ———
   if (data.o2therapyCode && data.o2therapyCode !== 'RA') {
-    // build “On 50 L/min HFNC!!!” or “On 2 L/min NC!!!”
-    const flow = data.o2flowRaw ? data.o2flowRaw + ' ' : '';
-    warnings.push(`On ${flow}${data.o2therapyCode}!!!`);
+    if (data.o2therapyCode === 'Vent') {
+      // build “ACVC 14/380/8/30%” style string
+      let mode = data.ventModeRaw || '';
+      // normalize to “ACVC” from “AC/VC+”
+      mode = mode.replace(/[\/\+\s]+/g, '');
+      const freq  = data.ventFrequencyRaw || '';
+      const tv    = data.ventTidalRaw    || '';
+      const peep  = data.ventPeepRaw     || '';
+      const fio2  = data.ventFiO2Raw     || '';
+      const settings = `${mode} ${freq}/${tv}/${peep}/${fio2}`;
+      warnings.push(`On vent: ${settings}!!!`);
+    }
+    else {
+      // regular O₂ warning
+      const flow = data.o2flowRaw ? data.o2flowRaw + ' ' : '';
+      warnings.push(`On ${flow}${data.o2therapyCode}!!!`);
+    }
   }
-
-
-	
-
-
-
-
 
 
 
