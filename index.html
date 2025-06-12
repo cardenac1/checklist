@@ -441,141 +441,241 @@
             font-family: inherit;
         }
 
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .controls {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .nav-buttons {
-                grid-template-columns: 1fr;
-            }
-            
-            .view-selector {
-                flex-direction: column;
-            }
-            
-            .view-button {
-                width: 100%;
-            }
-        }
-
-        /* Import Modal */
-        .import-textarea {
-            width: 100%;
-            min-height: 300px;
-            background: var(--card-bg);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-            padding: 10px;
-            font-family: 'Courier New', monospace;
-            border-radius: 5px;
-            font-size: 0.9em;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        /* Column Selector */
-        .column-selector {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 0.5rem;
-            padding: 0.5rem;
-            background: var(--dark-bg);
-            border-radius: 0.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .column-button {
-            padding: 0.5rem;
-            background: var(--card-bg);
-            border: 2px solid var(--border);
-            border-radius: 0.25rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            font-size: 0.9rem;
-            color: var(--text-primary);
-        }
-
-        .column-button:hover {
-            border-color: var(--primary);
-        }
-
-        .column-button.selected {
-            background: var(--success);
-            border-color: var(--success);
-            color: white;
-        }
-
-        /* Table View */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            font-size: 0.85em;
-            overflow-x: auto;
-            display: block;
-        }
-
-        .data-table th,
-        .data-table td {
-            padding: 8px;
-            border: 1px solid var(--border);
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        .data-table th {
-            background: var(--card-bg);
-            color: var(--accent-4);
-            position: sticky;
-            left: 0;
-            z-index: 1;
-        }
-
-        .data-table tr:nth-child(even) {
-            background: var(--card-bg);
-        }
-
-        /* Add this to your style section */
-        label button {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            border-radius: 0.25rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: inherit;
-        }
-
-        label button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
-        }
-
-        .orders-section {
-            background: var(--card-bg);
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-            white-space: pre-wrap;
-            font-family: monospace;
-            font-size: 0.9rem;
-            border: 1px solid var(--border);
-        }
-
-
-.small-input {
-    font-size: 16px !important;
-    transform: scale(0.875); /* Makes it look like 14px */
-    transform-origin: left center;
-    width: 114.28%; /* Compensate for scale */
+/* Enhanced Mobile Responsive CSS - Replace the existing @media query */
+@media (max-width: 768px) {
+    .controls {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.25rem;
+    }
+    
+    .nav-buttons {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    /* Fix for details header on mobile */
+    .details-header {
+        padding: 0.75rem;
+        position: relative; /* Change from sticky to relative on mobile */
+        background: var(--card-bg);
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .sticky-text {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Make view selector more mobile-friendly */
+    .view-selector {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 0.25rem;
+        margin-top: 0.5rem;
+    }
+    
+    .view-button {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8rem;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Add top padding to editForm to prevent content overlap */
+    #editForm {
+        padding: 1rem;
+        padding-top: 1rem; /* Ensure content isn't hidden */
+        max-width: 100%;
+        margin: 0;
+    }
+    
+    /* Make form elements more mobile-friendly */
+    textarea, input[type="text"] {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 0.75rem;
+        margin: 0.25rem 0 0.75rem;
+    }
+    
+    label {
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Improve button spacing and sizing on mobile */
+    button {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.85rem;
+        min-height: 44px; /* Better touch target */
+    }
+    
+    /* Stack label buttons vertically on mobile */
+    label button {
+        margin-left: 0;
+        margin-top: 0.5rem;
+        display: block;
+        width: 100%;
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    /* Better modal sizing on mobile */
+    .modal-content {
+        margin: 2% auto;
+        width: 95%;
+        max-width: none;
+        padding: 1rem;
+        max-height: 95vh;
+    }
+    
+    /* Improve search on mobile */
+    .search-container {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    #searchInput {
+        margin-bottom: 0.25rem;
+    }
+    
+    /* Column selector improvements */
+    .column-selector {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 0.25rem;
+    }
+    
+    .column-button {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8rem;
+    }
+    
+    /* Row list improvements for mobile */
+    .row-list {
+        gap: 0.75rem;
+    }
+    
+    .row-item {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    /* FAB positioning adjustment for mobile */
+    .fab {
+        bottom: 1rem;
+        right: 1rem;
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    
+    /* Header improvements for mobile */
+    .header {
+        padding: 0.75rem;
+    }
+    
+    .census-number {
+        font-size: 1.5rem;
+    }
+    
+    /* Container padding adjustment */
+    .container {
+        padding: 0 0.75rem 2rem 0.75rem;
+    }
+    
+    /* Warning messages styling for mobile */
+    .warning-messages {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .warning-message {
+        font-size: 0.95rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    /* Orders section for mobile */
+    .orders-section {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Table view improvements for mobile */
+    .data-table {
+        font-size: 0.75rem;
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 0.5rem 0.25rem;
+        min-width: 80px;
+    }
+    
+    /* Import textarea sizing for mobile */
+    .import-textarea {
+        min-height: 200px;
+        font-size: 0.85rem;
+    }
 }
 
+/* Extra small devices (phones in portrait mode) */
+@media (max-width: 480px) {
+    .view-selector {
+        grid-template-columns: 1fr;
+        gap: 0.25rem;
+    }
+    
+    .view-button {
+        width: 100%;
+        padding: 0.6rem;
+        font-size: 0.9rem;
+    }
+    
+    .controls {
+        grid-template-columns: 1fr;
+    }
+    
+    .sticky-text {
+        font-size: 1.1rem;
+    }
+    
+    .census-number {
+        font-size: 1.3rem;
+    }
+    
+    /* Ensure proper touch targets */
+    button, .view-button, .column-button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
 
+/* Landscape orientation improvements */
+@media (max-width: 768px) and (orientation: landscape) {
+    .details-header {
+        padding: 0.5rem;
+    }
+    
+    .view-selector {
+        grid-template-columns: 1fr 1fr 1fr;
+        margin-top: 0.25rem;
+    }
+    
+    .view-button {
+        padding: 0.4rem 0.25rem;
+        font-size: 0.75rem;
+    }
+    
+    #editForm {
+        padding: 0.75rem;
+    }
+}
 
 
     </style>
