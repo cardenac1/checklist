@@ -626,20 +626,7 @@
         text-align: center;
     }
     
-    /* Specific positioning for the 7 items in a 3x2 (+1) layout */
-    .controls > *:nth-child(1) { grid-column: 1; grid-row: 1; } /* Import */
-    .controls > *:nth-child(2) { grid-column: 2; grid-row: 1; } /* Column Options */
-    .controls > *:nth-child(3) { grid-column: 3; grid-row: 1; } /* Sort Select */
-    .controls > *:nth-child(4) { grid-column: 1; grid-row: 2; } /* Refresh */
-    .controls > *:nth-child(5) { grid-column: 2; grid-row: 2; } /* Search */
-    .controls > *:nth-child(6) { grid-column: 3; grid-row: 2; } /* Update List */
-    .controls > *:nth-child(7) { 
-        grid-column: 1 / -1; /* Span across all 3 columns */
-        grid-row: 3; 
-        margin-top: 0.25rem;
-        max-width: 50%;
-        justify-self: center; /* Center the export button */
-    } /* Export - centered on 3rd row */
+   
     
     /* Rest of your existing mobile styles... */
     .nav-buttons {
