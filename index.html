@@ -441,6 +441,45 @@
             font-family: inherit;
         }
 
+
+
+
+	    
+/* Desktop view selector improvements - add this before the mobile media query */
+.view-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-top: 1rem;
+    max-width: 600px;
+}
+
+.view-button {
+    padding: 0.6rem 1rem;
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    white-space: nowrap;
+}
+
+.view-button:hover {
+    border-color: var(--primary);
+    background: var(--card-hover);
+}
+
+.view-button.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
 /* Enhanced Mobile Responsive CSS - Replace the existing @media query */
 @media (max-width: 768px) {
     .controls {
