@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Med List - Modern</title>
+
+<!-- Add this for Chrome extension compatibility -->
+<script>
+// Check if running as extension or web page
+const IS_EXTENSION = typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync;
+</script>
 <style>
     * {
         margin: 0;
@@ -1754,6 +1760,267 @@ ${finalLine}`;
             
             return newPatients;
         }
+
+
+
+
+// ============ CHROME SYNC STORAGE INTEGRATION ============
+// This syncs across ALL devices where you're logged into Chrome!
+
+const CHROME_SYNC = {
+    // Chrome sync has 100KB limit total, 8KB per item
+    CHUNK_SIZE: 4000, // Safe chunk size for data splitting
+    
+    isAvailable() {
+        // Works in Chrome, Edge, Brave, etc.
+        return typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync;
+    },
+    
+    async save(data) {
+        if (!this.isAvailable()) {
+            console.log('Chrome sync not available');
+            return false;
+        }
+        
+        try {
+            const csvContent = Papa.unparse([MASTER_HEADERS, ...data]);
+            
+            // Check size
+            const sizeInBytes = new Blob([csvContent]).size;
+            console.log(`Data size: ${(sizeInBytes/1024).toFixed(2)}KB`);
+            
+            if (sizeInBytes > 90000) { // Leave some room under 100KB limit
+                alert('Data too large for Chrome Sync. Please export some old entries.');
+                return false;
+            }
+            
+            // Clear old data
+            await chrome.storage.sync.clear();
+            
+            // If data is small enough, save directly
+            if (sizeInBytes < 8000) {
+                await chrome.storage.sync.set({
+                    medlist: csvContent,
+                    timestamp: new Date().toISOString(),
+                    version: '2.0'
+                });
+            } else {
+                // Split into chunks
+                const chunks = this.splitIntoChunks(csvContent);
+                const saveData = {
+                    chunkCount: chunks.length,
+                    timestamp: new Date().toISOString(),
+                    version: '2.0'
+                };
+                
+                // Save each chunk
+                for (let i = 0; i < chunks.length; i++) {
+                    saveData[`chunk_${i}`] = chunks[i];
+                }
+                
+                await chrome.storage.sync.set(saveData);
+            }
+            
+            this.showStatus('✅ Synced to Chrome');
+            return true;
+            
+        } catch (error) {
+            console.error('Chrome sync error:', error);
+            if (error.message.includes('QUOTA_BYTES')) {
+                alert('Storage limit reached. Please export some old entries.');
+            }
+            return false;
+        }
+    },
+    
+    async load() {
+        if (!this.isAvailable()) return null;
+        
+        try {
+            const data = await chrome.storage.sync.get(null);
+            
+            if (data.medlist) {
+                // Simple single-chunk data
+                return data.medlist;
+            } else if (data.chunkCount) {
+                // Reassemble chunks
+                let csvContent = '';
+                for (let i = 0; i < data.chunkCount; i++) {
+                    csvContent += data[`chunk_${i}`] || '';
+                }
+                return csvContent;
+            }
+            
+            return null;
+            
+        } catch (error) {
+            console.error('Chrome sync load error:', error);
+            return null;
+        }
+    },
+    
+    splitIntoChunks(str) {
+        const chunks = [];
+        for (let i = 0; i < str.length; i += this.CHUNK_SIZE) {
+            chunks.push(str.slice(i, i + this.CHUNK_SIZE));
+        }
+        return chunks;
+    },
+    
+    showStatus(message) {
+        const status = document.createElement('div');
+        status.style.cssText = `
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            padding: 10px 20px;
+            background: var(--success);
+            color: white;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+        `;
+        status.textContent = message;
+        document.body.appendChild(status);
+        
+        setTimeout(() => {
+            status.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => status.remove(), 300);
+        }, 2000);
+    },
+    
+    async getStorageInfo() {
+        if (!this.isAvailable()) return null;
+        
+        try {
+            const data = await chrome.storage.sync.get(null);
+            const used = new Blob([JSON.stringify(data)]).size;
+            const total = 102400; // 100KB limit
+            
+            return {
+                used: used,
+                total: total,
+                percentage: ((used/total) * 100).toFixed(1)
+            };
+        } catch (error) {
+            return null;
+        }
+    }
+};
+
+// Add Chrome Sync button to controls
+function addChromeSyncButton() {
+    const controls = document.querySelector('.controls');
+    if (!document.getElementById('chromeSyncBtn') && CHROME_SYNC.isAvailable()) {
+        const syncBtn = document.createElement('button');
+        syncBtn.id = 'chromeSyncBtn';
+        syncBtn.innerHTML = '🔄 Chrome Sync';
+        syncBtn.onclick = toggleChromeSync;
+        controls.appendChild(syncBtn);
+        
+        // Check if already enabled
+        chrome.storage.local.get(['chromeSyncEnabled'], function(result) {
+            if (result.chromeSyncEnabled) {
+                enableChromeSync();
+            }
+        });
+    }
+}
+
+// Toggle Chrome Sync
+async function toggleChromeSync() {
+    const btn = document.getElementById('chromeSyncBtn');
+    const isEnabled = btn.innerHTML.includes('✅');
+    
+    if (isEnabled) {
+        // Disable
+        chrome.storage.local.set({chromeSyncEnabled: false});
+        btn.innerHTML = '🔄 Chrome Sync';
+        btn.style.background = '';
+        CHROME_SYNC.showStatus('Chrome Sync disabled');
+    } else {
+        // Enable
+        chrome.storage.local.set({chromeSyncEnabled: true});
+        enableChromeSync();
+    }
+}
+
+// Enable Chrome Sync
+async function enableChromeSync() {
+    const btn = document.getElementById('chromeSyncBtn');
+    btn.innerHTML = '✅ Chrome Sync';
+    btn.style.background = 'var(--success)';
+    
+    // Load existing data
+    const savedData = await CHROME_SYNC.load();
+    if (savedData) {
+        Papa.parse(savedData, {
+            complete: function(results) {
+                if (results.data[0] && results.data[0][0] === 'Type') {
+                    if (confirm('Found synced data from another device. Load it?')) {
+                        parsedData = results.data.slice(1);
+                        headers = MASTER_HEADERS;
+                        populateColumnSelector();
+                        populateColumnSelect();
+                        displayRows();
+                        updateCensus();
+                        CHROME_SYNC.showStatus('Loaded from Chrome Sync');
+                    }
+                }
+            },
+            header: false,
+            skipEmptyLines: true
+        });
+    }
+    
+    // Show storage info
+    const info = await CHROME_SYNC.getStorageInfo();
+    if (info) {
+        console.log(`Chrome Sync Storage: ${info.percentage}% used (${(info.used/1024).toFixed(1)}KB / ${(info.total/1024).toFixed(1)}KB)`);
+    }
+}
+
+// Modify your existing saveCSVToLocalStorage function
+const originalSaveToLocal = saveCSVToLocalStorage;
+saveCSVToLocalStorage = function() {
+    // Call original
+    originalSaveToLocal();
+    
+    // Also save to Chrome Sync if enabled
+    chrome.storage.local.get(['chromeSyncEnabled'], function(result) {
+        if (result.chromeSyncEnabled) {
+            CHROME_SYNC.save(parsedData);
+        }
+    });
+};
+
+// Initialize on page load
+window.addEventListener('load', function() {
+    setTimeout(addChromeSyncButton, 500);
+    
+    // Listen for changes from other devices
+    if (CHROME_SYNC.isAvailable()) {
+        chrome.storage.onChanged.addListener((changes, namespace) => {
+            if (namespace === 'sync' && changes.timestamp) {
+                // Data changed on another device
+                if (confirm('Data updated on another device. Reload?')) {
+                    location.reload();
+                }
+            }
+        });
+    }
+});
+
+// ============ END CHROME SYNC INTEGRATION ============
+
+
+
+
     </script>
+
+
+
+
 </body>
 </html>
