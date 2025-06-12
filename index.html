@@ -593,19 +593,12 @@
 @media (max-width: 768px) {
     /* MAIN PAGE BUTTON GRIDS */
     /* MAIN PAGE BUTTON GRIDS - 3x3 with visible grid */
-    .controls {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: repeat(3, 1fr);
-        gap: 0.3rem;
-        margin-bottom: 0.5rem;
-        padding: 0.4rem;
-        background: rgba(30, 30, 30, 0.4);
-        border: 1px solid var(--border);
-        border-radius: 0.4rem;
-        height: 150px; /* Fixed height makes grid visible */
-        width: 100%;
-    }
+.controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.3rem;
+    margin-bottom: 0.5rem;
+}
     
     /* Make buttons smaller and snap to grid */
     .controls button,
