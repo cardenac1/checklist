@@ -2840,58 +2840,89 @@ function toggleOrdersView() {
 
 
 
+// Helper: parse "MM/DD/YY HH:MM:SS" into a Date
+function parseTS(dateStr, timeStr) {
+  const [mo, day, yr] = dateStr.split('/').map(n => parseInt(n, 10));
+  const [h, m, s]    = timeStr.split(':').map(n => parseInt(n, 10));
+  return new Date(2000 + yr, mo - 1, day, h, m, s);
+}
 
 // ——— Oxygen Therapy ———
-const o2TherapyEntries = Array.from(
-  text.matchAll(
-    /Oxygen Therapy:\s*([^\(]+)\s*\((\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})\)/gi
-  )
-);
-if (o2TherapyEntries.length) {
-  // sort by the timestamp string
-  o2TherapyEntries.sort((a,b) => new Date(a[2]) - new Date(b[2]));
-  // take the last (most recent)
-  data.o2therapyRaw  = o2TherapyEntries.pop()[1].trim();
-  const raw = data.o2therapyRaw.toLowerCase();
+const o2Entries = [];
+const o2Regex = /Oxygen Therapy:\s*([^(]+)\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi;
+let m;
+while ((m = o2Regex.exec(text)) !== null) {
+  o2Entries.push({
+    desc: m[1].trim(),
+    ts:   parseTS(m[2], m[3])
+  });
+}
+if (o2Entries.length) {
+  // pick the latest
+  o2Entries.sort((a, b) => a.ts - b.ts);
+  const latest = o2Entries.pop();
+  data.o2therapyRaw  = latest.desc;
+  const rawLower = latest.desc.toLowerCase();
 
   // map to short codes
-  if (/room air/.test(raw))                      data.o2therapyCode = 'RA';
-  else if (/high[- ]flow nasal cannula/.test(raw))data.o2therapyCode = 'HFNC';
-  else if (/nasal cannula/.test(raw) && !/high/.test(raw)) data.o2therapyCode = 'NC';
-  else if (/ventilator/.test(raw))                data.o2therapyCode = 'Vent';
-  else if (/non-?rebreather/.test(raw))           data.o2therapyCode = 'NRB';
-  else                                            data.o2therapyCode = 'O2';
+  if (/room air/.test(rawLower))                data.o2therapyCode = 'RA';
+  else if (/high[- ]flow nasal cannula/.test(rawLower)) data.o2therapyCode = 'HFNC';
+  else if (/nasal cannula/.test(rawLower))       data.o2therapyCode = 'NC';
+  else if (/ventilator/.test(rawLower))          data.o2therapyCode = 'Vent';
+  else if (/non-?rebreather/.test(rawLower))     data.o2therapyCode = 'NRB';
+  else                                           data.o2therapyCode = 'O2';
 }
 
 // ——— Oxygen Flow Rate ———
-const flowEntries = Array.from(
-  text.matchAll(
-    /Oxygen Flow Rate:\s*([\d.]+\s*L\/min)\s*\((\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})\)/gi
-  )
-);
+const flowEntries = [];
+const flowRegex = /Oxygen Flow Rate:\s*([\d.]+\s*L\/min)\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi;
+while ((m = flowRegex.exec(text)) !== null) {
+  flowEntries.push({
+    rate: m[1].trim(),
+    ts:   parseTS(m[2], m[3])
+  });
+}
 if (flowEntries.length) {
-  flowEntries.sort((a,b) => new Date(a[2]) - new Date(b[2]));
-  data.o2flowRaw = flowEntries.pop()[1].trim();  // e.g. "50 L/min"
+  flowEntries.sort((a, b) => a.ts - b.ts);
+  data.o2flowRaw = flowEntries.pop().rate;
 }
 
 // ——— Ventilator Settings ———
-// All of these use the same pattern: capture the value, capture the timestamp
-const pickLatest = (regex) => {
-  const arr = Array.from(text.matchAll(regex));
+function pickLatest(regex) {
+  const arr = [];
+  let mm;
+  while ((mm = regex.exec(text)) !== null) {
+    arr.push({
+      val: mm[1].trim(),
+      ts:  parseTS(mm[2], mm[3])
+    });
+  }
   if (!arr.length) return null;
-  arr.sort((a,b) => new Date(a[2]) - new Date(b[2]));
-  return arr.pop()[1].trim();
-};
+  arr.sort((a,b) => a.ts - b.ts);
+  return arr.pop().val;
+}
 
-data.ventModeRaw      = pickLatest(/Ventilator Mode:\s*([^\(]+)\s*\((\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})\)/gi);
-data.ventFrequencyRaw = pickLatest(/Ventilator Frequency, Mandatory:\s*(\d+)\s*br\/min\s*\((\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})\)/gi);
-data.ventTidalRaw     = pickLatest(/Tidal Volume, Delivered:\s*(\d+)\s*mL\s*\((\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})\)/gi);
-data.ventPeepRaw      = pickLatest(/Positive End Expiratory Pressure:\s*(\d+)\s*cmH2O\s*\((\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})\)/gi);
-data.ventFiO2Raw      = pickLatest(/FIO2:\s*(\d+)\s*%\s*\((\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})\)/gi);
+data.ventModeRaw      = pickLatest(/Ventilator Mode:\s*([^(]+)\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi);
+data.ventFrequencyRaw = pickLatest(/Ventilator Frequency, Mandatory:\s*(\d+)\s*br\/min\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi);
+data.ventTidalRaw     = pickLatest(/Tidal Volume, Delivered:\s*(\d+)\s*mL\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi);
+data.ventPeepRaw      = pickLatest(/Positive End Expiratory Pressure:\s*(\d+)\s*cmH2O\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi);
+data.ventFiO2Raw      = pickLatest(/FIO2:\s*(\d+)\s*%\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi);
 
-// Now data.o2therapyRaw, data.o2therapyCode, data.o2flowRaw,
-// and ventModeRaw/frequency/tidal/peep/FiO2Raw are all set.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
 		
 
 		
@@ -3631,28 +3662,24 @@ function generateWarnings(data) {
     }
 
 
+// Now in generateWarnings(data):
 
-
-  // ——— Oxygen / Ventilator Warning ———
-  if (data.o2therapyCode && data.o2therapyCode !== 'RA') {
-    if (data.o2therapyCode === 'Vent') {
-      // build “ACVC 14/380/8/30%” style string
-      let mode = data.ventModeRaw || '';
-      // normalize to “ACVC” from “AC/VC+”
-      mode = mode.replace(/[\/\+\s]+/g, '');
-      const freq  = data.ventFrequencyRaw || '';
-      const tv    = data.ventTidalRaw    || '';
-      const peep  = data.ventPeepRaw     || '';
-      const fio2  = data.ventFiO2Raw     || '';
-      const settings = `${mode} ${freq}/${tv}/${peep}/${fio2}`;
-      warnings.push(`On vent: ${settings}!!!`);
-    }
-    else {
-      // regular O₂ warning
-      const flow = data.o2flowRaw ? data.o2flowRaw + ' ' : '';
-      warnings.push(`On ${flow}${data.o2therapyCode}!!!`);
-    }
+if (data.o2therapyCode && data.o2therapyCode !== 'RA') {
+  if (data.o2therapyCode === 'Vent') {
+    // Build settings string: 14/380/8/30%
+    const mode     = data.ventModeRaw     ? data.ventModeRaw.replace(/[\s\/\+]+/g,'') : '';
+    const freq     = data.ventFrequencyRaw || '';
+    const tv       = data.ventTidalRaw     || '';
+    const peep     = data.ventPeepRaw      || '';
+    const fio2     = data.ventFiO2Raw      || '';
+    const settings = [freq, tv, peep, fio2].join('/');
+    warnings.push(`On vent: ${mode} ${settings}!!!`);
+  } else {
+    const flow = data.o2flowRaw ? data.o2flowRaw + ' ' : '';
+    warnings.push(`On ${flow}${data.o2therapyCode}!!!`);
   }
+}
+
 
 
 
