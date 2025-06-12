@@ -2465,6 +2465,10 @@ function toggleOrdersView() {
 
 
         // ============ LAB DATA EXTRACTION FUNCTIONS ============
+
+
+
+
         function extractLabValues(text) {
             const data = {
                 vitals: {},
@@ -2554,8 +2558,8 @@ function toggleOrdersView() {
                     const times = [];
                     
                     matches.forEach(match => {
-                        const valueMatch = match.match(/:\s*([\d.]+)/);
-                        const dateTimeMatch = match.match(/\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/);
+                         const valueMatch = match.match(/:\s*[<>]?\s*([\d.]+)/);
+            const dateTimeMatch = match.match(/\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/);
                         if (valueMatch) {
                             values.push(parseFloat(valueMatch[1]));
                             if (dateTimeMatch) {
