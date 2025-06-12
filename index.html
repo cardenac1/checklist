@@ -3,761 +3,582 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Med List - Modern</title>
-
-<!-- Add this for Chrome extension compatibility -->
-<script>
-// Check if running as extension or web page
-const IS_EXTENSION = typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync;
-</script>
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+    <title>Ultimate Patient List</title>
+    
+    <!-- Check if running as extension -->
+    <script>
+    let IS_EXTENSION = false;
+    try {
+        IS_EXTENSION = typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync;
+    } catch (e) {
+        IS_EXTENSION = false;
     }
-
-    :root {
-        --primary: #3b82f6;
-        --primary-dark: #2563eb;
-        --secondary: #06b6d4;
-        --danger: #ef4444;
-        --success: #10b981;
-        --dark-bg: #121212;
-        --card-bg: #1e1e1e;
-        --card-hover: #333333;
-        --border: #444444;
-        --text-primary: #f1f5f9;
-        --text-secondary: #94a3b8;
-        --accent-1: #00e5ff;
-        --accent-2: #f26363;
-        --accent-3: #79e89f;
-        --accent-4: #ffffff;
-        --accent-5: #ff8000;
-    }
-
-    body {
-        background-color: var(--dark-bg);
-        color: var(--text-primary);
-        font-family: monospace, monospace;
-        margin: 0;
-        padding: 0;
-        min-height: 100vh;
-    }
-
-    /* Header */
-    .header {
-        background: var(--card-bg);
-        padding: 1rem;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-        margin-bottom: 1rem;
-    }
-
-    .header-content {
-        max-width: 1200px;
-        margin: 0 auto;
-        text-align: center;
-    }
-
-    .census {
-        font-size: 1.2rem;
-        color: var(--text-secondary);
-    }
-
-    .census-number {
-        font-size: 2rem;
-        font-weight: bold;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    /* Container */
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 1rem 2rem 1rem;
-    }
-
-    /* File Input */
-    .file-input-wrapper {
-        position: relative;
-        overflow: hidden;
-        display: inline-block;
-        cursor: pointer;
-        margin-bottom: 0.5rem;
-        width: 100%;
-    }
-
-    .file-input-wrapper input[type="file"] {
-        position: absolute;
-        left: -9999px;
-    }
-
-    .file-input-label {
-        display: block;
-        padding: 0.75rem 1.5rem;
-        background: var(--card-bg);
-        border: 2px dashed var(--primary);
-        border-radius: 0.5rem;
-        transition: all 0.3s ease;
-        text-align: center;
-        width: 100%;
-    }
-
-    /* Make upload button match other buttons */
-    .controls .file-input-label {
-        padding: 0.75rem 1rem;
-        border: none;
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-        color: white;
-        font-weight: 500;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    .controls .file-input-wrapper:hover .file-input-label {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-        border: none;
-    }
-
-    .file-input-wrapper:hover .file-input-label {
-        background: var(--card-hover);
-        border-color: var(--secondary);
-    }
-
-    /* Controls */
-    .controls {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
-
-    /* Buttons */
-    button {
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-        color: white;
-        border: none;
-        padding: 0.75rem 1rem;
-        border-radius: 0.5rem;
-        font-size: 0.9rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        font-family: inherit;
-    }
-
-    button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
-    }
-
-    button:active {
-        transform: translateY(0);
-    }
-
-    button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    /* Select */
-    select {
-        background: var(--card-bg);
-        color: var(--text-primary);
-        border: 1px solid var(--border);
-        padding: 0.75rem;
-        border-radius: 0.5rem;
-        font-size: 0.9rem;
-        cursor: pointer;
-        font-family: inherit;
-    }
-
-    /* Hidden Elements */
-    #columnDropdown {
-        margin: 0;
-        transition: all 0.3s ease;
-    }
-
-    #columnDropdown[style*="display: none"] {
-        display: none !important;
-        height: 0 !important;
-        overflow: hidden !important;
-    }
-
-    /* Search */
-    .search-wrapper {
-        margin: 0;
-        height: 0;
-        overflow: visible;
-    }
-
-    .search-container {
-        display: flex;
-        gap: 0.5rem;
-        background: var(--card-bg);
-        padding: 0.75rem;
-        border-radius: 0.5rem;
-        margin-bottom: 0.5rem;
-        opacity: 0;
-        transform: translateY(-10px);
-        visibility: hidden;
-        transition: all 0.3s ease;
-    }
-
-    .search-container.active {
-        opacity: 1;
-        transform: translateY(0);
-        visibility: visible;
-    }
-
-    #searchInput {
-        flex: 1;
-        padding: 0.5rem;
-        background: var(--dark-bg);
-        border: 1px solid var(--border);
-        border-radius: 0.25rem;
-        color: var(--text-primary);
-        font-size: 0.9rem;
-        font-family: inherit;
-    }
-
-    #searchInput:focus {
-        outline: none;
-        border-color: var(--primary);
-    }
-
-    /* Row List */
-    .row-list {
-        list-style: none;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        margin-top: 1rem;
-    }
-
-.row-item {
-    background: var(--card-bg);
-    padding: 1rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    font-size: 1.2rem;
-    border-left: 4px solid transparent;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-weight: 500;
-}
-    .row-item:hover {
-        background: var(--card-hover);
-        transform: translateX(5px);
-        border-left-color: var(--primary);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Type indicators */
-    .type-indicator {
-        padding: 2px 6px;
-        border-radius: 3px;
-        font-size: 0.8em;
-        font-weight: bold;
-        text-align: center;
-        min-width: 20px;
-    }
-
-    .type-indicator.patient {
-        background: var(--primary);
-        color: white;
-    }
-
-    .type-indicator.consult {
-        background: var(--secondary);
-        color: white;
-    }
-
-    /* Colored Text */
-    .colored-text-1 { color: var(--accent-1); }
-    .colored-text-2 { color: var(--accent-2); }
-    .colored-text-3 { color: var(--accent-3); }
-    .colored-text-4 { color: var(--accent-4); }
-    .colored-text-5 { color: var(--accent-5); }
-
-    /* Floating Action Button */
-    .fab {
-        position: fixed;
-        bottom: 2rem;
-        right: 2rem;
-        width: 56px;
-        height: 56px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.8rem;
-        color: white;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-        transition: all 0.3s ease;
-        z-index: 1000;
-        border: none;
-    }
-
-    .fab:hover {
-        transform: scale(1.1) rotate(90deg);
-        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
-    }
-
-    /* Column Selector */
-    .column-selector {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 0.5rem;
-        padding: 0.5rem;
-        background: var(--dark-bg);
-        border-radius: 0.5rem;
-        margin-top: 0.5rem;
-    }
-
-    .column-button {
-        padding: 0.5rem;
-        background: var(--card-bg);
-        border: 2px solid var(--border);
-        border-radius: 0.25rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-align: center;
-        font-size: 0.9rem;
-        color: var(--text-primary);
-    }
-
-    .column-button:hover {
-        border-color: var(--primary);
-    }
-
-    .column-button.selected {
-        background: var(--success);
-        border-color: var(--success);
-        color: white;
-    }
-
-    /* Modal */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 2000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.9);
-        animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    .modal-content {
-        background: var(--card-bg);
-        margin: 5% auto;
-        padding: 1.5rem;
-        border-radius: 0.5rem;
-        width: 90%;
-        max-width: 500px;
-        max-height: 80vh;
-        overflow-y: auto;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        animation: slideIn 0.3s ease;
-    }
-
-    @keyframes slideIn {
-        from {
-            transform: translateY(-50px);
-            opacity: 0;
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        to {
-            transform: translateY(0);
-            opacity: 1;
+
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #06b6d4;
+            --danger: #ef4444;
+            --success: #10b981;
+            --dark-bg: #121212;
+            --card-bg: #1e1e1e;
+            --card-hover: #333333;
+            --border: #444444;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-1: #00e5ff;
+            --accent-2: #f26363;
+            --accent-3: #79e89f;
+            --accent-4: #ffffff;
+            --accent-5: #ff8000;
         }
-    }
 
-    .modal-content h2 {
-        margin-bottom: 1rem;
-        color: var(--primary);
-    }
-
-    #newEntryFields {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
-    }
-
-    #newEntryFields input {
-        padding: 0.5rem;
-        background: var(--dark-bg);
-        border: 1px solid var(--border);
-        border-radius: 0.25rem;
-        color: var(--text-primary);
-        font-size: 0.9rem;
-        font-family: inherit;
-    }
-
-    #newEntryFields input:focus {
-        outline: none;
-        border-color: var(--primary);
-    }
-
-    /* Details View */
-    .details-view {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: var(--dark-bg);
-        z-index: 1500;
-        overflow-y: auto;
-    }
-
-    .details-header {
-        background: var(--card-bg);
-        padding: 1rem;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    }
-
-    .sticky-text {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: var(--primary);
-    }
-
-    #editForm {
-        padding: 1.5rem;
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
-    textarea {
-        width: 100%;
-        padding: 0.75rem;
-        background: var(--card-bg);
-        color: var(--text-primary);
-        border: 1px solid var(--border);
-        border-radius: 0.25rem;
-        font-size: 1rem;
-        font-family: inherit;
-        margin: 0.5rem 0 1rem;
-        resize: none;
-        transition: all 0.3s ease;
-        overflow: hidden;
-    }
-
-    textarea:focus {
-        outline: none;
-        border-color: var(--primary);
-    }
-
-    label {
-        display: block;
-        margin-top: 0.75rem;
-        color: var(--text-secondary);
-        font-weight: 500;
-        font-size: 0.9rem;
-        text-transform: uppercase;
-    }
-
-
-.nav-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 0.75rem;
-    margin: 1rem 0;
-}
-
-.nav-buttons button {
-    min-width: 0;  /* Reset any minimum width */
-    flex: 1;       /* Make all buttons equal width in their row */
-}
-
-
-
-.delete-button {
-    background: linear-gradient(135deg, var(--danger), #dc2626);
-}
-    .convert-button {
-        width: 100%;
-        margin-bottom: 1rem;
-    }
-
-    /* Mobile Responsive Styles */
-    @media (max-width: 768px) {
         body {
-            font-size: 14px;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: monospace;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
         }
 
+        /* Header */
         .header {
-            padding: 0.75rem;
-            margin-bottom: 0.75rem;
+            background: var(--card-bg);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1rem;
         }
 
         .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
             text-align: center;
         }
 
         .census {
-            font-size: 1rem;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
         }
 
         .census-number {
-            font-size: 1.5rem;
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
+        /* Container */
         .container {
-            padding: 0 0.5rem 1rem 0.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem 2rem 1rem;
         }
 
+        /* File Input */
         .file-input-wrapper {
-            margin-bottom: 0;
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: -9999px;
         }
 
         .file-input-label {
-            padding: 0.55rem 0.4rem;
-            font-size: 0.75rem;
-            border: 1px solid var(--primary);
+            display: block;
+            padding: 0.75rem 1.5rem;
+            background: var(--card-bg);
+            border: 2px dashed var(--primary);
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            text-align: center;
+            width: 100%;
         }
 
-        .controls button, 
-        .controls select, 
         .controls .file-input-label {
-            padding: 0.55rem 0.4rem !important;
-            font-size: 0.75rem !important;
-            width: 100% !important;
-            height: 44px !important;
-            box-sizing: border-box;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        button, select {
-            padding: 0.55rem 0.4rem;
-            font-size: 0.75rem;
-            width: 100%;
-        }
-
-        .search-container {
-            flex-direction: column;
-            padding: 0.5rem;
-        }
-
-        #searchInput {
-            width: 100%;
-            padding: 0.5rem;
-            font-size: 0.8rem;
-        }
-
-        .row-item {
-            padding: 0.8rem;
-            font-size: 1rem;
-            display: flex !important;
-            flex-direction: column;
-            grid-template-columns: none !important;
-            align-items: flex-start;
-            gap: 0.5rem;
-            text-rendering: optimizeLegibility;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
             font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
-        .type-indicator {
+        .controls .file-input-wrapper:hover .file-input-label {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Controls */
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.5rem;
             margin-bottom: 0.5rem;
         }
 
-        .fab {
-            bottom: 1rem;
-            right: 1rem;
-            width: 48px;
-            height: 48px;
-            font-size: 1.5rem;
+        /* Buttons */
+        button {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            font-family: inherit;
         }
 
-        .column-selector {
-            grid-template-columns: 1fr 1fr;
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Select */
+        select {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        /* Row List */
+        .row-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .row-item {
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            border-left: 4px solid transparent;
+            font-size: 1rem;
+            position: relative;
+        }
+
+        .row-item:hover {
+            background: var(--card-hover);
+            transform: translateX(5px);
+            border-left-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Colored Text */
+        .colored-text-1 { color: var(--accent-1); }
+        .colored-text-2 { color: var(--accent-2); }
+        .colored-text-3 { color: var(--accent-3); }
+        .colored-text-4 { color: var(--accent-4); }
+        .colored-text-5 { color: var(--accent-5); }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            border: none;
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .modal-content {
-            margin: 10% auto;
-            width: 95%;
+            background: var(--card-bg);
+            margin: 5% auto;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Details View */
+        .details-view {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            z-index: 1500;
+            overflow-y: auto;
+        }
+
+        .details-header {
+            background: var(--card-bg);
             padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .sticky-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .view-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .view-button {
+            padding: 0.5rem 1rem;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-button.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        #editForm {
+            padding: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            font-size: 1rem;
+            font-family: inherit;
+            margin: 0.5rem 0 1rem;
+            resize: none;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        label {
+            display: block;
+            margin-top: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-transform: uppercase;
         }
 
         .nav-buttons {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: auto auto;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .delete-button {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+        }
+
+        /* Chart Check Mode Specific */
+        .chart-check-controls {
+            display: flex;
+            flex-wrap: wrap;
             gap: 0.5rem;
             margin: 1rem 0;
         }
 
-        .nav-buttons button {
-            width: 100%;
-            padding: 1rem 0.5rem;
-            font-size: 0.9rem;
-            height: 50px;
-            margin: 0;
+        .warning-messages {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px solid var(--danger);
         }
 
-        .nav-buttons button:nth-child(1) {
-            grid-column: 1;
-            grid-row: 1;
-        }
-        
-        .nav-buttons button:nth-child(2) {
-            grid-column: 2;
-            grid-row: 1;
-        }
-        
-        .nav-buttons button:nth-child(3) {
-            grid-column: 3;
-            grid-row: 1;
-        }
-        
-        .nav-buttons button:nth-child(4) {
-            grid-column: 1;
-            grid-row: 2;
-        }
-        
-        .nav-buttons button:nth-child(5) {
-            grid-column: 2;
-            grid-row: 2;
-        }
-        
-        .nav-buttons button:nth-child(6) {
-            grid-column: 3;
-            grid-row: 2;
+        .warning-message {
+            color: var(--danger);
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 1.2em;
         }
 
-        .nav-buttons .delete-button {
-            background: linear-gradient(135deg, var(--danger), #dc2626);
-            margin: 0;
-            padding: 1rem 0.5rem;
-            font-size: 0.9rem;
-            height: 50px;
-            width: 100%;
+        /* Search Container */
+        .search-wrapper {
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
-        .details-header {
+        .search-wrapper.expanded {
+            margin-bottom: 4rem;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--card-bg);
             padding: 0.75rem;
+            border-radius: 0.5rem;
+            opacity: 0;
+            transform: translateY(-10px);
+            visibility: hidden;
+            transition: all 0.3s ease;
+            position: absolute;
+            width: 100%;
+            z-index: 10;
         }
 
-        .sticky-text {
-            font-size: 1.2rem;
-            text-align: center;
+        .search-container.active {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
         }
 
-        #editForm {
-            padding: 1rem;
-        }
-
-        textarea {
+        #searchInput {
+            flex: 1;
+            padding: 0.5rem;
+            background: var(--dark-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            color: var(--text-primary);
             font-size: 0.9rem;
-            padding: 0.6rem;
+            font-family: inherit;
         }
 
-        label {
-            font-size: 0.8rem;
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .nav-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .view-selector {
+                flex-direction: column;
+            }
+            
+            .view-button {
+                width: 100%;
+            }
+        }
+
+        /* Import Modal */
+        .import-textarea {
+            width: 100%;
+            min-height: 300px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Column Selector */
+        .column-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: var(--dark-bg);
+            border-radius: 0.5rem;
             margin-top: 0.5rem;
         }
-    }
 
-    /* Very small screens */
-    @media (max-width: 480px) {
-        .column-selector {
-            grid-template-columns: 1fr;
-        }
-        
-        .controls {
-            grid-template-columns: 1fr 1fr;
-            gap: 0.3rem;
-        }
-
-        button, select {
-            padding: 0.5rem 0.3rem;
-            font-size: 0.7rem;
-        }
-        
-        .nav-buttons {
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 0.3rem;
-        }
-        
-        .nav-buttons button {
-            padding: 0.8rem 0.3rem;
-            font-size: 0.85rem;
-            height: 45px;
-        }
-        
-        .nav-buttons .delete-button {
-            padding: 0.5rem 0.2rem;
-            font-size: 0.7rem;
-        }
-
-        .row-item {
-            padding: 0.6rem;
-            font-size: 0.9rem;
-        }
-
-        .sticky-text {
-            font-size: 1rem;
-        }
-
-        #editForm {
-            padding: 0.75rem;
-        }
-
-        textarea {
-            font-size: 0.85rem;
+        .column-button {
             padding: 0.5rem;
-        }
-    }
-
-    /* Extra small screens */
-    @media (max-width: 360px) {
-        .nav-buttons button {
-            padding: 0.4rem 0.1rem;
-            font-size: 0.65rem;
-        }
-        
-        .nav-buttons .delete-button {
-            padding: 0.4rem 0.1rem;
-            font-size: 0.65rem;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-primary);
         }
 
-        button, select {
-            padding: 0.4rem 0.2rem;
-            font-size: 0.65rem;
+        .column-button:hover {
+            border-color: var(--primary);
         }
-    }
-</style>
+
+        .column-button.selected {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        /* Table View */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 0.85em;
+            overflow-x: auto;
+            display: block;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 8px;
+            border: 1px solid var(--border);
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .data-table th {
+            background: var(--card-bg);
+            color: var(--accent-4);
+            position: sticky;
+            left: 0;
+            z-index: 1;
+        }
+
+        .data-table tr:nth-child(even) {
+            background: var(--card-bg);
+        }
+
+        /* Add this to your style section */
+        label button {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        label button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+        }
+
+        .orders-section {
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 0.9rem;
+            border: 1px solid var(--border);
+        }
+
+
+.small-input {
+    font-size: 16px !important;
+    transform: scale(0.875); /* Makes it look like 14px */
+    transform-origin: left center;
+    width: 114.28%; /* Compensate for scale */
+}
+
+
+
+
+    </style>
 </head>
 <body>
     <!-- Header with Census -->
@@ -773,18 +594,19 @@ const IS_EXTENSION = typeof chrome !== 'undefined' && chrome.storage && chrome.s
         <!-- Controls -->
         <div class="controls">
             <div class="file-input-wrapper">
-                <input type="file" id="fileInput" accept=".csv">
+                <input type="file" id="fileInput" accept=".json">
                 <label for="fileInput" class="file-input-label">
-                    📁 Upload
+                    📁 Import
                 </label>
             </div>
-            <button onclick="toggleColumnDropdown()">Column options</button>
+            <button onclick="toggleColumnDropdown()">Column Options</button>
             <select id="columnSelect" onchange="sortRows()">
-                <option value="">Select Column to Sort</option>
+                <option value="">Sort by</option>
             </select>
-            <button onclick="toggleSearch()">🔍 Search</button>
-            <button onclick="resortRows()">🔄 Re-sort</button>
-            <button id="exportButtonMain" onclick="exportCSV()">📥 Export</button>
+            <button onclick="resortRows()">🔄</button>
+            <button onclick="toggleSearch()">🔍</button>
+            <button onclick="showUpdateListModal()">Update List</button>
+            <button id="exportButtonMain" onclick="exportData()">Export</button>
         </div>
 
         <!-- Column Dropdown -->
@@ -812,14 +634,12 @@ const IS_EXTENSION = typeof chrome !== 'undefined' && chrome.storage && chrome.s
             <div class="modal-content">
                 <h2>Add New Entry</h2>
                 
-                <!-- Entry Type Selection -->
                 <div id="entryTypeSelection" class="nav-buttons">
                     <button type="button" onclick="showManualEntry()">✏️ Manual Entry</button>
                     <button type="button" onclick="showPasteEntry()">📋 Paste Entry</button>
                     <button type="button" onclick="closeAddEntryModal()">Cancel</button>
                 </div>
 
-                <!-- Manual Entry Form -->
                 <form id="addEntryForm" onsubmit="addEntry(event)" style="display: none;">
                     <div id="newEntryFields"></div>
                     <div class="nav-buttons">
@@ -828,10 +648,9 @@ const IS_EXTENSION = typeof chrome !== 'undefined' && chrome.storage && chrome.s
                     </div>
                 </form>
 
-                <!-- Paste Entry Form -->
                 <div id="pasteEntrySection" style="display: none;">
                     <label for="pasteTextArea">Paste Cerner patient list data:</label>
-                    <textarea id="pasteTextArea" placeholder="Paste patient list here..." rows="10" style="width: 100%; margin: 0.5rem 0; font-family: monospace; font-size: 0.9rem;"></textarea>
+                    <textarea id="pasteTextArea" class="import-textarea" placeholder="Paste patient list here..." rows="10"></textarea>
                     <div class="nav-buttons">
                         <button type="button" onclick="processPastedEntry()">Process & Add</button>
                         <button type="button" onclick="backToEntrySelection()">← Back</button>
@@ -840,10 +659,26 @@ const IS_EXTENSION = typeof chrome !== 'undefined' && chrome.storage && chrome.s
             </div>
         </div>
 
+        <!-- Update List Modal -->
+        <div id="updateListModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeUpdateListModal()" style="float: right; font-size: 30px; cursor: pointer; color: var(--danger);">&times;</span>
+                <h2>Update Patient List</h2>
+                <p style="color: var(--accent-4); margin-bottom: 10px;">Paste the patient list below:</p>
+                <textarea id="updateListData" class="import-textarea" placeholder="Paste patient list here..."></textarea>
+                <button class="button" onclick="processUpdateList()">Update List</button>
+            </div>
+        </div>
+
         <!-- Details View -->
         <div class="details-view" id="detailsView">
             <div class="details-header">
                 <div id="stickyTextContainer" class="sticky-text"></div>
+                <div class="view-selector">
+                    <button class="view-button active" onclick="switchView('basic')">Details</button>
+                    <button class="view-button" onclick="switchView('chartcheck')">📊 Chart Check</button>
+                    <button class="view-button" onclick="switchView('consult')">Consult Mode</button>
+                </div>
             </div>
 
             <form id="editForm"></form>
@@ -852,114 +687,298 @@ const IS_EXTENSION = typeof chrome !== 'undefined' && chrome.storage && chrome.s
                 <button id="prevButton" onclick="navigateDetails(-1)">← Previous</button>
                 <button id="nextButton" onclick="navigateDetails(1)">Next →</button>
                 <button onclick="backToList()">Back to List</button>
+                <button class="delete-button" onclick="deleteCurrentEntry()">🗑️ Delete Entry</button>
             </div>
 
-            <div class="nav-buttons">
-                <button onclick="generateNoteRTF('consult')">Consult</button>
-                <button onclick="generateNoteRTF('trauma')">Trauma</button>
-                <button class="delete-button" onclick="deleteCurrentEntry()">🗑️ Delete Entry</button>
+            <!-- Consult-specific buttons (shown in consult mode) -->
+            <div id="consultControls" class="hidden">
+                <div class="nav-buttons">
+                    <button id="convertTypeBtn" onclick="convertEntryType()">Convert to Patient</button>
+                    <button onclick="exportToRTF('consult')">Generate Consult Note</button>
+                    <button onclick="exportToRTF('trauma')">Generate Trauma Note</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Papa Parse CDN -->
+    <!-- Import Data Modal -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeImportModal()" style="float: right; font-size: 30px; cursor: pointer; color: var(--danger);">&times;</span>
+            <h2>Import Lab Data</h2>
+            <textarea id="importData" class="import-textarea" placeholder="Paste your vitals, labs, and meds data here..."></textarea>
+            <button class="button" onclick="processImportedData()">Process Data</button>
+        </div>
+    </div>
+
+    <!-- Table View Modal -->
+    <div id="tableModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeTableModal()" style="float: right; font-size: 30px; cursor: pointer; color: var(--danger);">&times;</span>
+            <h2>Lab Values Table</h2>
+            <div id="tableContainer"></div>
+        </div>
+    </div>
+
+    <!-- Graph View Modal -->
+    <div id="graphModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeGraphModal()" style="float: right; font-size: 30px; cursor: pointer; color: var(--danger);">&times;</span>
+            <h2>Vital Signs Graphs</h2>
+            <div style="margin-bottom: 20px;">
+                <button class="button" onclick="showVitalGraph('temp')">Temperature</button>
+                <button class="button" onclick="showVitalGraph('hr')">Heart Rate</button>
+                <button class="button" onclick="showVitalGraph('bp')">Blood Pressure</button>
+                <button class="button" onclick="showVitalGraph('o2')">O2 Saturation</button>
+            </div>
+            <canvas id="vitalChart" width="400" height="300"></canvas>
+        </div>
+    </div>
+
+    <!-- Include Papa Parse and Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
     <script>
-        let parsedData = [];
-        let headers = [];
-        let currentRowIndex = -1;
+        // ============ GLOBAL VARIABLES ============
+        let patientData = [];
+        let currentPatientIndex = -1;
+        let currentViewMode = 'basic'; // basic, chartcheck, consult
         let selectedColumns = [1, 2, 3]; // Default to Name, RM, MRN
         let filteredIndexes = [];
+        let labData = {};
+        let lastImportedData = '';
+        let fullOrdersText = '';
+        let showFullOrders = false;
+        let currentChart = null;
+
+        // Master headers structure
+        const MASTER_HEADERS = [
+            'Type',      // "Patient" or "Consult"
+            'Name',      
+            'RM',        
+            'MRN',       
+            'Att',       
+            'A/G',       // Age/Gender - Consult only
+            'CC',        // Chief Complaint - Consult only
+            'Problems',  // Patient only (maps to HPI for consults)
+            'HPI',       // Consult only
+            'ROS',       // Consult only
+            'PMH',       // Consult only
+            'Meds',      // Consult only
+            'All',       // Allergies - Consult only
+            'Surg hx',   // Consult only
+            'FSH',       // Family/Social History - Consult only
+            'ICS',       
+            'VIOLIN',    
+            'PE',        // Physical Exam - Consult only
+            'ORDERS',    
+            'To do',     
+            'Priority',
+            // Chart Check specific fields (stored but not shown in basic view)
+            'ImportedData', // Store raw imported data
+            'LabData'       // Store processed lab data
+        ];
+
+        const PATIENT_COLUMNS = [0, 1, 2, 3, 4, 7, 15, 16, 18, 19, 20];
+        const CONSULT_COLUMNS = [0, 1, 2, 3, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20];
 
         const colors = [
             'colored-text-1', 'colored-text-2', 'colored-text-3',
             'colored-text-4', 'colored-text-5'
         ];
 
-        // Master headers structure
-        const MASTER_HEADERS = [
-            'Type',      // NEW: "Patient" or "Consult"
-            'Name',      // Shared
-            'RM',        // Shared
-            'MRN',       // Shared
-            'Att',       // Patient only
-            'A/G',       // Consult only
-            'CC',        // Consult only
-            'Problems',  // Patient only (maps to HPI for consults)
-            'HPI',       // Consult only
-            'ROS',       // Consult only
-            'PMH',       // Consult only
-            'Meds',      // Consult only
-            'All',       // Consult only
-            'Surg hx',   // Consult only
-            'FSH',       // Consult only
-            'ICS',       // Patient only
-            'VIOLIN',    // Shared
-            'PE',        // Consult only
-            'ORDERS',    // Patient only
-            'To do',     // Shared
-            'Priority'   // Shared
-        ];
+        // ============ INITIALIZATION ============
+        window.onload = function() {
+            loadFromLocalStorage();
+            setupEventListeners();
+            updateCensus();
+            
+           
+        };
 
-const PATIENT_COLUMNS = [0, 1, 2, 3, 4, 7, 15, 16, 18, 19, 20];
-const CONSULT_COLUMNS = [0, 1, 2, 3, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20];
-
-
-        // Update census count
-        function updateCensus() {
-            document.getElementById('censusCount').textContent = parsedData.length;
+        function setupEventListeners() {
+            document.getElementById('fileInput').addEventListener('change', handleFileUpload);
         }
 
-        document.getElementById('fileInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                Papa.parse(file, {
-                    complete: function(results) {
-                        // Check if it's the new format with Type column
-                        if (results.data[0] && results.data[0][0] === 'Type') {
-                            // New format
-                            parsedData = results.data.slice(1);
-                            headers = MASTER_HEADERS;
-                        } else {
-                            // Old format - migrate it
-                            headers = MASTER_HEADERS;
-                            parsedData = results.data.slice(1).map(row => {
-                                const newRow = new Array(MASTER_HEADERS.length).fill('');
-                                newRow[0] = 'Patient';
-                                newRow[1] = row[0] || '';
-                                newRow[2] = row[1] || '';
-                                newRow[3] = row[2] || '';
-                                newRow[4] = row[3] || '';
-                                newRow[7] = row[4] || '';
-                                newRow[16] = row[5] || '';
-                                newRow[17] = row[6] || '';
-                                newRow[19] = row[7] || '';
-                                newRow[20] = row[8] || '';
-                                newRow[21] = row[9] || '';
-                                return newRow;
-                            });
-                        }
-                        
+        // ============ DATA MANAGEMENT ============
+        function saveToLocalStorage() {
+            try {
+                const dataToSave = {
+                    version: '2.0',
+                    timestamp: new Date().toISOString(),
+                    patients: patientData
+                };
+                localStorage.setItem('ultimatePatientList', JSON.stringify(dataToSave));
+                
+
+            } catch (e) {
+                console.error('Error saving to localStorage:', e);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('ultimatePatientList');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.patients && Array.isArray(parsed.patients)) {
+                        patientData = parsed.patients;
+                        displayRows();
                         populateColumnSelector();
                         populateColumnSelect();
-                        displayRows();
-                        saveCSVToLocalStorage();
                         updateCensus();
-                    },
-                    error: function(error) {
-                        console.error('Error parsing CSV:', error);
-                    },
-                    header: false,
-                    skipEmptyLines: true
+                    }
+                }
+            } catch (e) {
+                console.error('Error loading from localStorage:', e);
+            }
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const jsonData = JSON.parse(e.target.result);
+                        
+                        // Check if it's the new JSON format
+                        if (jsonData.patients && Array.isArray(jsonData.patients)) {
+                            patientData = jsonData.patients;
+                        } else if (Array.isArray(jsonData)) {
+                            // Handle if it's just an array of patients
+                            patientData = jsonData;
+                        } else {
+                            alert('Invalid JSON format');
+                            return;
+                        }
+                        
+                        displayRows();
+                        populateColumnSelector();
+                        populateColumnSelect();
+                        saveToLocalStorage();
+                        updateCensus();
+                    } catch (error) {
+                        alert('Error parsing JSON file: ' + error.message);
+                        console.error('Error parsing JSON:', error);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function exportData() {
+            exportJSON();
+        }
+
+        function exportJSON() {
+            if (patientData.length === 0) {
+                alert('No data to export');
+                return;
+            }
+
+            const dataToExport = {
+                version: '2.0',
+                exportDate: new Date().toISOString(),
+                patients: patientData
+            };
+
+            downloadFile(JSON.stringify(dataToExport, null, 2), 'patient_list.json', 'application/json');
+        }
+
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // ============ UI FUNCTIONS ============
+        function updateCensus() {
+            document.getElementById('censusCount').textContent = patientData.length;
+        }
+
+        function displayRows() {
+            const rowList = document.getElementById('rowList');
+            rowList.innerHTML = '';
+            
+            patientData.forEach((patient, index) => {
+                const listItem = document.createElement('li');
+                listItem.className = 'row-item';
+                
+                // Display the selected columns vertically
+                selectedColumns.forEach((colIndex, idx) => {
+                    const header = MASTER_HEADERS[colIndex];
+                    const value = patient[header] || '';
+                    if (value) {
+                        const span = document.createElement('span');
+                        span.className = colors[idx % colors.length];
+                        span.textContent = value;
+                        span.style.display = 'block';
+                        if (idx === 0) {
+                            span.style.fontSize = '1.2rem';
+                            span.style.fontWeight = 'bold';
+                        }
+                        listItem.appendChild(span);
+                    }
+                });
+                
+                listItem.onclick = () => showDetails(index);
+                rowList.appendChild(listItem);
+            });
+            
+            updateCensus();
+        }
+
+        function displayFilteredRows(filteredData) {
+            const rowList = document.getElementById('rowList');
+            rowList.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                const noResultsItem = document.createElement('li');
+                noResultsItem.className = 'row-item';
+                noResultsItem.style.textAlign = 'center';
+                noResultsItem.style.color = 'var(--text-secondary)';
+                noResultsItem.textContent = 'No results found';
+                rowList.appendChild(noResultsItem);
+            } else {
+                filteredData.forEach((patient, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'row-item';
+                    
+                    // Display the selected columns vertically
+                    selectedColumns.forEach((colIndex, idx) => {
+                        const header = MASTER_HEADERS[colIndex];
+                        const value = patient[header] || '';
+                        if (value) {
+                            const span = document.createElement('span');
+                            span.className = colors[idx % colors.length];
+                            span.textContent = value;
+                            span.style.display = 'block';
+                            if (idx === 0) {
+                                span.style.fontSize = '1.2rem';
+                                span.style.fontWeight = 'bold';
+                            }
+                            listItem.appendChild(span);
+                        }
+                    });
+                    
+                    const originalIndex = filteredIndexes[index];
+                    listItem.onclick = () => showDetails(originalIndex);
+                    
+                    rowList.appendChild(listItem);
                 });
             }
-        });
+        }
 
         function populateColumnSelector() {
             const columnSelector = document.getElementById('columnSelector');
             columnSelector.innerHTML = '';
-            headers.forEach((header, colIndex) => {
+            MASTER_HEADERS.slice(0, -2).forEach((header, colIndex) => {
                 const button = document.createElement('div');
                 button.className = 'column-button';
                 button.textContent = header;
@@ -976,79 +995,34 @@ const CONSULT_COLUMNS = [0, 1, 2, 3, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
                 selectedColumns = selectedColumns.filter(col => col !== colIndex);
                 button.classList.remove('selected');
             } else {
-                selectedColumns.push(colIndex);
-                button.classList.add('selected');
+                if (selectedColumns.length < 5) { // Limit to 5 columns
+                    selectedColumns.push(colIndex);
+                    selectedColumns.sort((a, b) => a - b);
+                    button.classList.add('selected');
+                } else {
+                    alert('Maximum 5 columns can be selected');
+                }
             }
             displayRows();
         }
 
         function populateColumnSelect() {
             const columnSelect = document.getElementById('columnSelect');
-            columnSelect.innerHTML = '<option value="">Select Column to Sort</option>';
-            headers.forEach((header, colIndex) => {
+            columnSelect.innerHTML = '<option value="">Sort by</option>';
+            MASTER_HEADERS.slice(0, -2).forEach((header, index) => {
                 const option = document.createElement('option');
-                option.value = colIndex;
+                option.value = header;
                 option.textContent = header;
                 columnSelect.appendChild(option);
             });
         }
 
- 
-
-
-
-
-
-
-
-
-
-
-
-
-function displayRows() {
-    const rowList = document.getElementById('rowList');
-    rowList.innerHTML = '';
-    parsedData.forEach((row, index) => {
-        const listItem = document.createElement('li');
-        listItem.className = 'row-item';
-        
-        // Display: Name, Room, MRN (always show these three)
-        const displayColumns = [1, 2, 3]; // Name, RM, MRN
-        displayColumns.forEach((colIndex, idx) => {
-            const span = document.createElement('span');
-            span.className = colors[idx % colors.length];
-            span.textContent = row[colIndex] || '';
-            listItem.appendChild(span);
-        });
-        
-        listItem.onclick = () => showDetails(index);
-        rowList.appendChild(listItem);
-    });
-    updateCensus();
-}
-
-
-
-
-
-
-
-
-
-
-
         function sortRows() {
-            const columnIndex = document.getElementById('columnSelect').value;
-            if (columnIndex !== "") {
-                parsedData.sort((a, b) => {
-                    const valueA = a[columnIndex] ? a[columnIndex].toLowerCase() : "";
-                    const valueB = b[columnIndex] ? b[columnIndex].toLowerCase() : "";
-
-                    if (valueA === "" && valueB === "") return 0;
-                    if (valueA === "") return 1;
-                    if (valueB === "") return -1;
-
+            const column = document.getElementById('columnSelect').value;
+            if (column) {
+                patientData.sort((a, b) => {
+                    const valueA = (a[column] || '').toString().toLowerCase();
+                    const valueB = (b[column] || '').toString().toLowerCase();
                     return valueA.localeCompare(valueB);
                 });
                 displayRows();
@@ -1056,34 +1030,25 @@ function displayRows() {
         }
 
         function resortRows() {
-            const columnIndex = document.getElementById('columnSelect').value;
-            if (columnIndex !== "") {
-                parsedData.sort((a, b) => {
-                    let valueA = a[columnIndex] ? a[columnIndex].toLowerCase() : "";
-                    let valueB = b[columnIndex] ? b[columnIndex].toLowerCase() : "";
-
-                    if (valueA === "" && valueB === "") return 0;
-                    if (valueA === "") return 1;
-                    if (valueB === "") return -1;
-
-                    const numA = parseFloat(valueA);
-                    const numB = parseFloat(valueB);
-
-                    if (!isNaN(numA) && !isNaN(numB)) {
-                        return numA - numB;
-                    }
-
-                    return valueA.localeCompare(valueB);
-                });
-                displayRows();
-            }
+            sortRows();
         }
 
+        function toggleColumnDropdown() {
+            const dropdown = document.getElementById('columnDropdown');
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // ============ SEARCH FUNCTIONS ============
         function toggleSearch() {
             const searchContainer = document.getElementById('searchContainer');
+            const searchWrapper = document.querySelector('.search-wrapper');
+            
             searchContainer.classList.toggle('active');
             if (searchContainer.classList.contains('active')) {
+                searchWrapper.classList.add('expanded');
                 document.getElementById('searchInput').focus();
+            } else {
+                searchWrapper.classList.remove('expanded');
             }
         }
 
@@ -1095,290 +1060,306 @@ function displayRows() {
                 return;
             }
 
-            // Clear previous filtered indexes
             filteredIndexes = [];
             const filteredData = [];
 
-            // Search through each row
-            parsedData.forEach((row, index) => {
-                const matchFound = row.some(colValue => {
-                    // Convert to string and check if it includes search term
-                    const valueStr = (colValue || '').toString().toLowerCase();
-                    return valueStr.includes(searchTerm);
+            patientData.forEach((patient, index) => {
+                const matchFound = Object.values(patient).some(value => {
+                    return (value || '').toString().toLowerCase().includes(searchTerm);
                 });
                 
                 if (matchFound) {
                     filteredIndexes.push(index);
-                    filteredData.push(row);
+                    filteredData.push(patient);
                 }
             });
 
-            console.log('Search results:', filteredData.length, 'matches found');
             displayFilteredRows(filteredData);
-        }
-
-        function displayFilteredRows(filteredData) {
-            const rowList = document.getElementById('rowList');
-            rowList.innerHTML = '';
-
-            if (filteredData.length === 0) {
-                const noResultsItem = document.createElement('li');
-                noResultsItem.className = 'row-item';
-                noResultsItem.style.textAlign = 'center';
-                noResultsItem.style.color = 'var(--text-secondary)';
-                noResultsItem.textContent = 'No results found';
-                rowList.appendChild(noResultsItem);
-            } else {
-                filteredData.forEach((row, index) => {
-                    const listItem = document.createElement('li');
-                    listItem.className = 'row-item';
-                    
-                    // Check if it's a consult or patient
-                    const isConsult = row[0] === 'Consult';
-                    
-                    // Create type indicator
-                    const typeIndicator = document.createElement('span');
-                    typeIndicator.className = `type-indicator ${isConsult ? 'consult' : 'patient'}`;
-                    typeIndicator.textContent = isConsult ? 'C' : 'P';
-                    
-                    // Create container for indicator
-                    const indicatorContainer = document.createElement('span');
-                    indicatorContainer.appendChild(typeIndicator);
-                    
-                    // Add to list item
-                    listItem.appendChild(indicatorContainer);
-                    
-                    // Display: Name, Room, MRN
-                    const displayColumns = [1, 2, 3];
-                    displayColumns.forEach((colIndex, idx) => {
-                        const span = document.createElement('span');
-                        span.className = colors[idx % colors.length];
-                        span.textContent = row[colIndex] || '';
-                        listItem.appendChild(span);
-                    });
-                    
-                    // Use the correct index from filteredIndexes
-                    const originalIndex = filteredIndexes[index];
-                    listItem.onclick = () => showDetails(originalIndex);
-                    
-                    rowList.appendChild(listItem);
-                });
-            }
         }
 
         function clearSearch() {
             document.getElementById('searchInput').value = '';
             filteredIndexes = [];
             displayRows();
+            const searchWrapper = document.querySelector('.search-wrapper');
+            searchWrapper.classList.remove('expanded');
             document.getElementById('searchContainer').classList.remove('active');
         }
 
+        // ============ DETAILS VIEW ============
         function showDetails(index) {
-            currentRowIndex = index;
+            currentPatientIndex = index;
             const detailsView = document.getElementById('detailsView');
-            const form = document.getElementById('editForm');
-            const stickyTextContainer = document.getElementById('stickyTextContainer');
-
-            form.innerHTML = '';
-
-            const title = parsedData[index][1]; // Name is at index 1 now
-            const isConsult = parsedData[index][0] === 'Consult';
-            stickyTextContainer.textContent = title;
-
-            // Add conversion button
-            const convertBtn = document.createElement('button');
-            convertBtn.className = 'convert-button';
-            if (isConsult) {
-                convertBtn.innerHTML = '🔄 Convert to Patient';
-                convertBtn.style.background = 'var(--primary)';
-            } else {
-                convertBtn.innerHTML = '🔄 Convert to Consult';
-                convertBtn.style.background = 'var(--secondary)';
-            }
-            convertBtn.onclick = () => {
-                if (isConsult) {
-                    convertToPatient(index);
-                } else {
-                    convertToConsult(index);
-                }
-            };
-            form.appendChild(convertBtn);
-
-            // Show only relevant fields based on type
-            const columnsToShow = isConsult ? CONSULT_COLUMNS : PATIENT_COLUMNS;
+            const patient = patientData[index];
             
-            columnsToShow.forEach((colIndex) => {
-                // Skip the Type column in edit view
-                if (colIndex === 0) return;
-                
-                const label = document.createElement('label');
-                label.textContent = MASTER_HEADERS[colIndex];
-
-                const textarea = document.createElement('textarea');
-                textarea.value = parsedData[index][colIndex] || '';
-                textarea.setAttribute('data-col-index', colIndex);
-
-                form.appendChild(label);
-                form.appendChild(textarea);
-
-                textarea.addEventListener('input', function() {
-                    autoResizeTextarea(this);
-                    const colIdx = parseInt(this.getAttribute('data-col-index'));
-                    parsedData[currentRowIndex][colIdx] = this.value;
-                    if (colIdx === 1) { // Name column
-                        stickyTextContainer.textContent = this.value;
-                    }
-                    saveCSVToLocalStorage();
-                    displayRows();
-                });
-            });
-
+            document.getElementById('stickyTextContainer').textContent = patient.Name || 'Unnamed Patient';
+            
+            // Show appropriate view based on current mode
+            switchView(currentViewMode);
+            
             detailsView.style.display = 'block';
             updateNavButtons();
-
-            setTimeout(() => {
-                const textareas = form.querySelectorAll('textarea');
-                textareas.forEach(textarea => autoResizeTextarea(textarea));
-            }, 100);
         }
 
-
-
-
-function convertToConsult(index) {
-    if (confirm('Convert this patient to a consult? This will add additional fields for consult documentation.')) {
-        const row = parsedData[index];
-        
-        // Change type
-        row[0] = 'Consult';
-        
-        // Copy Problems to HPI (index 7 to index 8)
-        row[8] = row[7]; 
-        
-        // Clear patient-specific fields
-        row[4] = '';  // Clear Att
-        row[7] = '';  // Clear Problems (it's been copied to HPI)
-        row[15] = ''; // Clear ICS (was incorrectly 16)
-        row[18] = ''; // Clear ORDERS (was incorrectly 19)
-        
-        saveCSVToLocalStorage();
-        showDetails(index); // Refresh the details view
-        displayRows();
-        
-        alert('Patient converted to consult. You can now fill in the additional consult fields.');
-    }
-}
-
-        function convertToPatient(index) {
-            if (confirm('Convert this consult to a regular patient? Some consult-specific fields will be hidden (but data preserved).')) {
-                const row = parsedData[index];
+        function switchView(mode) {
+            currentViewMode = mode;
+            const patient = patientData[currentPatientIndex];
+            
+            // Update active button
+            document.querySelectorAll('.view-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.view-button[onclick*="${mode}"]`).classList.add('active');
+            
+            // Hide all mode-specific controls
+            document.getElementById('consultControls').classList.add('hidden');
+            
+            // Generate form based on mode
+            const form = document.getElementById('editForm');
+            form.innerHTML = '';
+            
+            let fieldsToShow = [];
+            
+            switch(mode) {
+                case 'basic':
+                    // Show basic fields for both patient and consult types
+                    fieldsToShow = ['Name', 'RM', 'MRN', 'Att', 'Problems', 'ICS', 'VIOLIN', 'ORDERS', 'To do', 'Priority'];
+                    break;
+                    
+                case 'chartcheck':
+                    // Show chart check fields
+                    fieldsToShow = ['Name', 'RM', 'MRN', 'Att', 'Problems', 'ICS', 'VIOLIN', 'ORDERS', 'To do', 'Priority'];
+                    
+                    // Load lab data if stored
+                    if (patient.ImportedData) {
+                        lastImportedData = patient.ImportedData;
+                    }
+                    if (patient.LabData) {
+                        try {
+                            labData = JSON.parse(patient.LabData);
+                        } catch (e) {
+                            labData = {};
+                        }
+                    }
+                    break;
+                    
+                case 'consult':
+                    // Show consult fields
+                    if (patient.Type === 'Consult') {
+                        fieldsToShow = ['Name', 'RM', 'MRN', 'A/G', 'CC', 'HPI', 'ROS', 'PMH', 'Meds', 'All', 'Surg hx', 'FSH', 'VIOLIN', 'PE', 'To do', 'Priority'];
+                    } else {
+                        fieldsToShow = ['Name', 'RM', 'MRN', 'Att', 'Problems', 'ICS', 'VIOLIN', 'ORDERS', 'To do', 'Priority'];
+                    }
+                    document.getElementById('consultControls').classList.remove('hidden');
+                    updateConvertButton();
+                    break;
+            }
+            
+            fieldsToShow.forEach(header => {
+                const label = document.createElement('label');
+                label.textContent = header;
                 
-                // Change type
-                row[0] = 'Patient';
-                
-                // Copy HPI back to Problems if Problems is empty
-                if (!row[7] && row[8]) {
-                    row[7] = row[8];
+                // Add buttons for specific fields in chart check mode
+                if (currentViewMode === 'chartcheck') {
+                    if (header === 'Problems') {
+                        const podBtn = document.createElement('button');
+                        podBtn.textContent = 'Update POD';
+                        podBtn.style.marginLeft = '10px';
+                        podBtn.style.padding = '0.3rem 0.6rem';
+                        podBtn.style.fontSize = '0.8rem';
+                        podBtn.onclick = function(e) {
+                            e.preventDefault();
+                            updatePOD();
+                        };
+                        label.appendChild(podBtn);
+                    } else if (header === 'VIOLIN') {
+                        // Add warning messages before VIOLIN field
+                        const warningDiv = document.createElement('div');
+                        warningDiv.id = 'warningMessages';
+                        warningDiv.className = 'warning-messages hidden';
+                        form.appendChild(warningDiv);
+                        
+                        const btnContainer = document.createElement('span');
+                        btnContainer.style.marginLeft = '10px';
+                        
+                        const importBtn = document.createElement('button');
+                        importBtn.textContent = 'Import Data';
+                        importBtn.style.margin = '0 2px';
+                        importBtn.style.padding = '0.3rem 0.6rem';
+                        importBtn.style.fontSize = '0.8rem';
+                        importBtn.onclick = function(e) {
+                            e.preventDefault();
+                            showImportModal();
+                        };
+                        
+                        const tableBtn = document.createElement('button');
+                        tableBtn.textContent = 'Show Table';
+                        tableBtn.style.margin = '0 2px';
+                        tableBtn.style.padding = '0.3rem 0.6rem';
+                        tableBtn.style.fontSize = '0.8rem';
+                        tableBtn.onclick = function(e) {
+                            e.preventDefault();
+                            showTableView();
+                        };
+                        
+                        const graphBtn = document.createElement('button');
+                        graphBtn.textContent = 'Show Graphs';
+                        graphBtn.style.margin = '0 2px';
+                        graphBtn.style.padding = '0.3rem 0.6rem';
+                        graphBtn.style.fontSize = '0.8rem';
+                        graphBtn.onclick = function(e) {
+                            e.preventDefault();
+                            showGraphView();
+                        };
+                        
+                        btnContainer.appendChild(importBtn);
+                        btnContainer.appendChild(tableBtn);
+                        btnContainer.appendChild(graphBtn);
+                        label.appendChild(btnContainer);
+                    } else if (header === 'ORDERS') {
+                        const btnContainer = document.createElement('span');
+                        btnContainer.style.marginLeft = '10px';
+                        
+                        const abbrevBtn = document.createElement('button');
+                        abbrevBtn.textContent = 'Abbrev Orders';
+                        abbrevBtn.style.margin = '0 2px';
+                        abbrevBtn.style.padding = '0.3rem 0.6rem';
+                        abbrevBtn.style.fontSize = '0.8rem';
+                        abbrevBtn.onclick = function(e) {
+                            e.preventDefault();
+                            updateOrders();
+                        };
+                        
+                        const fullBtn = document.createElement('button');
+                        fullBtn.textContent = 'Full Orders';
+                        fullBtn.style.margin = '0 2px';
+                        fullBtn.style.padding = '0.3rem 0.6rem';
+                        fullBtn.style.fontSize = '0.8rem';
+                        fullBtn.onclick = function(e) {
+                            e.preventDefault();
+                            toggleOrdersView();
+                        };
+                        
+                        btnContainer.appendChild(abbrevBtn);
+                        btnContainer.appendChild(fullBtn);
+                        label.appendChild(btnContainer);
+                    }
                 }
                 
-                saveCSVToLocalStorage();
-                showDetails(index); // Refresh the details view
-                displayRows();
+                const input = header === 'Name' || header === 'RM' || header === 'MRN' || header === 'Att' || header === 'Priority' ? 
+                    document.createElement('input') : document.createElement('textarea');
+                    
+                if (input.tagName === 'INPUT') {
+                    input.type = 'text';
+                }
                 
-                alert('Consult converted to patient entry.');
-            }
+                input.id = `field_${header.replace(/\s+/g, '_')}`;
+                input.value = patient[header] || '';
+                input.addEventListener('input', function() {
+                    patient[header] = this.value;
+                    if (header === 'Name') {
+                        document.getElementById('stickyTextContainer').textContent = this.value || 'Unnamed Patient';
+                    }
+                    saveToLocalStorage();
+                    if (input.tagName === 'TEXTAREA') {
+                        autoResizeTextarea(this);
+                    }
+                });
+                
+                form.appendChild(label);
+                
+                // Add full orders display above ORDERS field
+                if (header === 'ORDERS' && currentViewMode === 'chartcheck') {
+                    const fullOrdersDiv = document.createElement('div');
+                    fullOrdersDiv.id = 'fullOrdersDisplay';
+                    fullOrdersDiv.className = 'orders-section hidden';
+                    form.appendChild(fullOrdersDiv);
+                }
+                
+                form.appendChild(input);
+                
+                if (input.tagName === 'TEXTAREA') {
+                    setTimeout(() => autoResizeTextarea(input), 0);
+                }
+            });
+
+
+
+
+          
         }
+
+
+
 
         function autoResizeTextarea(textarea) {
             textarea.style.height = 'auto';
             textarea.style.height = textarea.scrollHeight + 'px';
         }
 
+        function updateNavButtons() {
+            document.getElementById('prevButton').disabled = currentPatientIndex === 0;
+            document.getElementById('nextButton').disabled = currentPatientIndex === patientData.length - 1;
+        }
+
         function navigateDetails(step) {
-            const newIndex = currentRowIndex + step;
-            if (newIndex >= 0 && newIndex < parsedData.length) {
+            const newIndex = currentPatientIndex + step;
+            if (newIndex >= 0 && newIndex < patientData.length) {
                 showDetails(newIndex);
             }
         }
 
-        function updateNavButtons() {
-            document.getElementById('prevButton').disabled = currentRowIndex === 0;
-            document.getElementById('nextButton').disabled = currentRowIndex === parsedData.length - 1;
-        }
-
         function backToList() {
             document.getElementById('detailsView').style.display = 'none';
-        }
-
-        function exportCSV() {
-            const now = new Date();
-            const formattedDate = String(now.getMonth() + 1).padStart(2, '0') + "." +
-                String(now.getDate()).padStart(2, '0') + "." +
-                String(now.getFullYear()).slice(-2);
-
-            const filename = `list_${formattedDate}.csv`;
-            const csvContent = Papa.unparse([MASTER_HEADERS, ...parsedData]);
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.setAttribute('href', URL.createObjectURL(blob));
-            link.setAttribute('download', filename);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            displayRows();
         }
 
         function deleteCurrentEntry() {
-            if (currentRowIndex !== -1) {
-                const confirmDeletion = confirm("Are you sure you want to delete this entry?");
-                if (confirmDeletion) {
-                    parsedData.splice(currentRowIndex, 1);
+            if (currentPatientIndex !== -1) {
+                if (confirm("Are you sure you want to delete this entry?")) {
+                    patientData.splice(currentPatientIndex, 1);
                     backToList();
                     displayRows();
-                    saveCSVToLocalStorage();
+                    saveToLocalStorage();
                 }
             }
         }
 
-        function addEntry(event) {
-            event.preventDefault();
-            
-            // Create new row with all columns
-            const newEntry = new Array(MASTER_HEADERS.length).fill('');
-            
-            // Get the type from hidden input
-            const typeInput = document.querySelector('#newEntryFields input[data-type="true"]');
-            if (typeInput) {
-                newEntry[0] = typeInput.value;
-            } else {
-                newEntry[0] = 'Patient'; // Default
-            }
-            
-            // Get all other fields
-            const fields = document.querySelectorAll('#newEntryFields input[data-col-index]');
-            fields.forEach((field) => {
-                const colIndex = parseInt(field.getAttribute('data-col-index'));
-                newEntry[colIndex] = field.value.trim();
-            });
+        // ============ ADD/UPDATE ENTRIES ============
+        function showAddEntryModal() {
+            document.getElementById('addEntryModal').style.display = 'block';
+            document.getElementById('entryTypeSelection').style.display = 'block';
+            document.getElementById('addEntryForm').style.display = 'none';
+            document.getElementById('pasteEntrySection').style.display = 'none';
+        }
 
-            // Check if at least name is filled
-            if (!newEntry[1]) {
-                alert('Please enter at least a name.');
-                return;
-            }
+        function closeAddEntryModal() {
+            document.getElementById('addEntryModal').style.display = 'none';
+        }
 
-            parsedData.push(newEntry);
-            displayRows();
-            saveCSVToLocalStorage();
-            closeAddEntryModal();
-            updateCensus();
+        function showManualEntry() {
+            document.getElementById('entryTypeSelection').style.display = 'none';
+            document.getElementById('addEntryForm').style.display = 'block';
+            generateNewEntryFields();
+        }
+
+        function showPasteEntry() {
+            document.getElementById('entryTypeSelection').style.display = 'none';
+            document.getElementById('pasteEntrySection').style.display = 'block';
+            document.getElementById('pasteTextArea').focus();
+        }
+
+        function backToEntrySelection() {
+            document.getElementById('entryTypeSelection').style.display = 'block';
+            document.getElementById('addEntryForm').style.display = 'none';
+            document.getElementById('pasteEntrySection').style.display = 'none';
+            document.getElementById('pasteTextArea').value = '';
         }
 
         function generateNewEntryFields(type = 'Patient') {
             const newEntryFields = document.getElementById('newEntryFields');
             newEntryFields.innerHTML = '';
             
-            // If no type specified, show type selection
             if (!type || type === true) {
                 const typeSelection = document.createElement('div');
                 typeSelection.innerHTML = `
@@ -1392,136 +1373,281 @@ function convertToConsult(index) {
                 return;
             }
             
-            // Add type indicator
             const typeLabel = document.createElement('h3');
             typeLabel.textContent = `New ${type} Entry`;
             typeLabel.style.marginBottom = '1rem';
             typeLabel.style.color = type === 'Consult' ? 'var(--secondary)' : 'var(--primary)';
             newEntryFields.appendChild(typeLabel);
             
-            // Add hidden type field
             const typeInput = document.createElement('input');
             typeInput.type = 'hidden';
             typeInput.value = type;
             typeInput.setAttribute('data-type', 'true');
             newEntryFields.appendChild(typeInput);
 
-            const fieldsToShow = type === 'Consult' ? CONSULT_COLUMNS : PATIENT_COLUMNS;
+            const fieldsToShow = type === 'Consult' ? 
+                ['Name', 'RM', 'MRN', 'A/G', 'CC', 'HPI'] : 
+                ['Name', 'RM', 'MRN', 'Att', 'Problems'];
             
-            fieldsToShow.forEach((colIndex) => {
-                if (colIndex === 0) return; // Skip type field (it's hidden)
-                
+            fieldsToShow.forEach(header => {
                 const input = document.createElement('input');
-                input.placeholder = MASTER_HEADERS[colIndex];
-                input.setAttribute('data-col-index', colIndex);
+                input.placeholder = header;
+                input.setAttribute('data-header', header);
                 newEntryFields.appendChild(input);
             });
         }
 
-        function showAddEntryModal() {
-            document.getElementById('addEntryModal').style.display = 'block';
-            document.getElementById('entryTypeSelection').style.display = 'block';
-            document.getElementById('addEntryForm').style.display = 'none';
-            document.getElementById('pasteEntrySection').style.display = 'none';
+        function addEntry(event) {
+            event.preventDefault();
+            
+            const newPatient = {};
+            MASTER_HEADERS.forEach(header => {
+                newPatient[header] = '';
+            });
+            
+            const typeInput = document.querySelector('#newEntryFields input[data-type="true"]');
+            if (typeInput) {
+                newPatient.Type = typeInput.value;
+            } else {
+                newPatient.Type = 'Patient';
+            }
+            
+            const fields = document.querySelectorAll('#newEntryFields input[data-header]');
+            fields.forEach(field => {
+                const header = field.getAttribute('data-header');
+                newPatient[header] = field.value.trim();
+            });
+
+            if (!newPatient.Name) {
+                alert('Please enter at least a name.');
+                return;
+            }
+
+            patientData.push(newPatient);
+            displayRows();
+            saveToLocalStorage();
+            closeAddEntryModal();
+            updateCensus();
         }
 
-        function closeAddEntryModal() {
-            document.getElementById('addEntryModal').style.display = 'none';
-        }
+        function processPastedEntry() {
+            const pastedText = document.getElementById('pasteTextArea').value.trim();
+            
+            if (!pastedText) {
+                alert('Please paste some data first.');
+                return;
+            }
 
-        function saveCSVToLocalStorage() {
-            const csvContent = Papa.unparse([MASTER_HEADERS, ...parsedData]);
-            localStorage.setItem('csvData', csvContent);
-        }
-
-        function loadCSVFromLocalStorage() {
-            const savedData = localStorage.getItem('csvData');
-            if (savedData) {
-                const results = Papa.parse(savedData, { header: false });
+            const newPatients = parseCernerData(pastedText);
+            
+            if (newPatients && newPatients.length > 0) {
+                newPatients.forEach(patient => {
+                    patientData.push(patient);
+                });
                 
-                // Check if it's old format (without Type column)
-                if (results.data[0] && results.data[0][0] !== 'Type') {
-                    // Migrate old data
-                    headers = MASTER_HEADERS;
-                    parsedData = results.data.slice(1).map(row => {
-                        // Create new row with Type field
-                        const newRow = new Array(MASTER_HEADERS.length).fill('');
-                        newRow[0] = 'Patient'; // Default type
-                        
-                        // Map old columns to new positions
-                        // Old format: Name, RM, MRN, Att, Problems, ICS, VIOLIN, ORDERS, To do, Priority
-                        newRow[1] = row[0] || ''; // Name
-                        newRow[2] = row[1] || ''; // RM
-                        newRow[3] = row[2] || ''; // MRN
-                        newRow[4] = row[3] || ''; // Att
-                        newRow[7] = row[4] || ''; // Problems
-                        newRow[16] = row[5] || ''; // ICS
-                        newRow[17] = row[6] || ''; // VIOLIN
-                        newRow[19] = row[7] || ''; // ORDERS
-                        newRow[20] = row[8] || ''; // To do
-                        newRow[21] = row[9] || ''; // Priority
-                        
-                        return newRow;
-                    });
-                    
-                    // Save migrated data
-                    saveCSVToLocalStorage();
-                } else {
-                    parsedData = results.data.slice(1);
-                    headers = results.data[0];
-                }
-
-                populateColumnSelector();
-                populateColumnSelect();
                 displayRows();
+                saveToLocalStorage();
+                closeAddEntryModal();
                 updateCensus();
+                alert(`Successfully added ${newPatients.length} patient(s)!`);
+            } else {
+                alert('Could not parse the pasted data. Please check the format.');
             }
         }
 
-        function toggleColumnDropdown() {
-            const dropdown = document.getElementById('columnDropdown');
-            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        function parseCernerData(text) {
+            const lines = text.split('\n').filter(line => line.trim());
+            const newPatients = [];
+            
+            lines.forEach(line => {
+                if (!line.trim() || line.toLowerCase().includes('patient list') || 
+                    (line.toLowerCase().includes('room') && line.toLowerCase().includes('name'))) {
+                    return;
+                }
+                
+                let columns = line.split('\t').filter(col => col.trim() !== '');
+                
+                if (columns.length < 3) {
+                    columns = line.split(/\s{2,}/).filter(col => col.trim() !== '');
+                }
+                
+                if (columns.length >= 2) {
+                    let room = '';
+                    let name = '';
+                    let mrn = '';
+                    let att = '';
+                    
+                    columns.forEach(col => {
+                        const trimmed = col.trim();
+                        
+                        if (/^\d{5,10}$/.test(trimmed) && !mrn) {
+                            mrn = trimmed;
+                        } else if (/^(WMC|ICU|CCU|[A-Z]{2,4})\s+/.test(trimmed) && !room) {
+                            room = trimmed;
+                        } else if (trimmed.includes(',') && !name) {
+                            name = trimmed;
+                        } else if ((trimmed.includes('MD') || trimmed.includes('MBBS') || 
+                                 trimmed.includes('DO') || trimmed.includes('Dr')) && !att) {
+                            att = trimmed;
+                        } else if (room && mrn && !name) {
+                            name = trimmed;
+                        }
+                    });
+                    
+                    if (!name && columns.length > 0) {
+                        name = columns.find(c => c.trim() && !c.match(/^\d+$/) && c !== room) || 'Unknown';
+                    }
+                    
+                    if (name) {
+                        const newPatient = {};
+                        MASTER_HEADERS.forEach(header => {
+                            newPatient[header] = '';
+                        });
+                        
+                        newPatient.Type = 'Patient';
+                        newPatient.Name = name;
+                        newPatient.RM = room || 'TBD';
+                        newPatient.MRN = mrn || '';
+                        newPatient.Att = att || '';
+                        
+                        newPatients.push(newPatient);
+                    }
+                }
+            });
+            
+            return newPatients;
         }
 
-        function generateNoteRTF(type) {
-            if (currentRowIndex === -1) {
-                alert("No patient selected.");
+        // ============ UPDATE LIST FUNCTIONS ============
+        function showUpdateListModal() {
+            document.getElementById('updateListModal').style.display = 'block';
+        }
+
+        function closeUpdateListModal() {
+            document.getElementById('updateListModal').style.display = 'none';
+            document.getElementById('updateListData').value = '';
+        }
+
+        function processUpdateList() {
+            const updateText = document.getElementById('updateListData').value;
+            if (!updateText) {
+                alert('Please paste the patient list');
                 return;
             }
             
-            const row = parsedData[currentRowIndex];
-            const patientType = row[0];
+            const newPatients = parseCernerData(updateText);
             
-            // Check if it's a consult
-            if (patientType !== 'Consult') {
+            if (newPatients.length === 0) {
+                alert('No valid patient entries found. Please check the format.');
+                return;
+            }
+            
+            const existingPatientsByMRN = new Map();
+            const existingPatientsByName = new Map();
+            
+            patientData.forEach(patient => {
+                if (patient.MRN) {
+                    existingPatientsByMRN.set(patient.MRN, patient);
+                }
+                if (patient.Name) {
+                    existingPatientsByName.set(patient.Name.toUpperCase(), patient);
+                }
+            });
+            
+            let matchedCount = 0;
+            let newCount = 0;
+            
+            newPatients.forEach(newPatient => {
+                let existingPatient = existingPatientsByMRN.get(newPatient.MRN);
+                
+                if (!existingPatient) {
+                    const nameKey = newPatient.Name.toUpperCase();
+                    existingPatient = existingPatientsByName.get(nameKey);
+                }
+                
+                if (existingPatient) {
+                    existingPatient.RM = newPatient.RM;
+                    existingPatient.MRN = newPatient.MRN;
+                    existingPatient.Att = newPatient.Att;
+                    matchedCount++;
+                } else {
+                    patientData.push(newPatient);
+                    newCount++;
+                }
+            });
+            
+            saveToLocalStorage();
+            closeUpdateListModal();
+            displayRows();
+            
+            alert(`List updated successfully!\n\nTotal patients: ${patientData.length}\nMatched existing: ${matchedCount}\nNew patients: ${newCount}`);
+        }
+
+        // ============ CONSULT MODE FUNCTIONS ============
+        function updateConvertButton() {
+            const patient = patientData[currentPatientIndex];
+            const btn = document.getElementById('convertTypeBtn');
+            if (btn) {
+                if (patient.Type === 'Consult') {
+                    btn.textContent = '🔄 Convert to Patient';
+                } else {
+                    btn.textContent = '🔄 Convert to Consult';
+                }
+            }
+        }
+
+        function convertEntryType() {
+            const patient = patientData[currentPatientIndex];
+            
+            if (patient.Type === 'Consult') {
+                if (confirm('Convert this consult to a regular patient?')) {
+                    patient.Type = 'Patient';
+                    if (!patient.Problems && patient.HPI) {
+                        patient.Problems = patient.HPI;
+                    }
+                    saveToLocalStorage();
+                    switchView('consult');
+                    displayRows();
+                }
+            } else {
+                if (confirm('Convert this patient to a consult?')) {
+                    patient.Type = 'Consult';
+                    if (!patient.HPI && patient.Problems) {
+                        patient.HPI = patient.Problems;
+                    }
+                    saveToLocalStorage();
+                    switchView('consult');
+                    displayRows();
+                }
+            }
+        }
+
+        function exportToRTF(type) {
+            if (currentPatientIndex === -1) return;
+            
+            const patient = patientData[currentPatientIndex];
+            
+            if (patient.Type !== 'Consult') {
                 alert("This is a regular patient entry. Convert to consult first to generate consult/trauma notes.");
                 return;
             }
             
-            // Helper function to get value by header name
-            const get = (headerName) => {
-                const idx = MASTER_HEADERS.indexOf(headerName);
-                return (row[idx] && row[idx].trim()) || "";
-            };
-            
-            // Get all the values using header names
-            const ageGender = get('A/G');
-            const cc = get('CC');
-            const hpi = get('HPI');
-            const ros = get('ROS');
-            const pmh = get('PMH');
-            const meds = get('Meds');
-            const all = get('All');
-            const surghx = get('Surg hx');
-            const fsh = get('FSH');
-            const violin = get('VIOLIN');
-            const pe = get('PE');
-            const plan = get('To do'); // Using "To do" as plan
+            let noteText = "";
+            const ageGender = patient['A/G'] || '';
+            const cc = patient.CC || '';
+            const hpi = patient.HPI || '';
+            const ros = patient.ROS || '';
+            const pmh = patient.PMH || '';
+            const meds = patient.Meds || '';
+            const all = patient.All || '';
+            const surghx = patient['Surg hx'] || '';
+            const fsh = patient.FSH || '';
+            const violin = patient.VIOLIN || '';
+            const pe = patient.PE || '';
+            const plan = patient['To do'] || '';
 
             const pmhPhrase = pmh ? `with PMH ${pmh}` : "with no PMH";
             let finalLine = `\\i Final plan pending attending approval signature.\\i0\\par`;
-
-            let noteText = "";
 
             if (type === "consult") {
                 noteText = 
@@ -1572,455 +1698,2265 @@ ${finalLine}`;
             const filename = type === "consult" ? `consult_note_${timestamp}.rtf` : `trauma_note_${timestamp}.rtf`;
 
             const rtf = `{\\rtf1\\ansi\\deff0\n${noteText}}`;
-            const blob = new Blob([rtf], { type: 'application/rtf' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            downloadFile(rtf, filename, 'application/rtf');
         }
 
-        // Load data on page load
-        window.onload = function() {
-            loadCSVFromLocalStorage();
-        };
+        // ============ CHART CHECK MODE FUNCTIONS ============
 
-        function showManualEntry() {
-            document.getElementById('entryTypeSelection').style.display = 'none';
-            document.getElementById('addEntryForm').style.display = 'block';
-            document.getElementById('pasteEntrySection').style.display = 'none';
-            generateNewEntryFields();
+
+
+
+
+
+
+
+
+
+
+
+
+function updatePOD() {
+    const problemsField = document.getElementById('field_Problems');
+    if (!problemsField) return;
+    
+    const problemsText = problemsField.value;
+    if (!problemsText || !problemsText.trim()) {
+        alert('No problems text found. Please enter some text first.');
+        return;
+    }
+    
+    const lines = problemsText.split('\n');
+    
+    // Find if there's a date anywhere in the problems section
+    let surgeryDate = null;
+    let dateMatch = null;
+    let dateLineIndex = -1;
+    
+    // Look for dates in multiple formats
+    for (let i = 0; i < lines.length; i++) {
+        // Try multiple date formats
+        // Format 1: (MM/DD) or MM/DD
+        dateMatch = lines[i].match(/\(?(\d{1,2})\/(\d{1,2})\)?/);
+        
+        // Format 2: MM/DD/YY or MM/DD/YYYY
+        if (!dateMatch) {
+            dateMatch = lines[i].match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+            if (dateMatch) {
+                // We have year information
+                const month = parseInt(dateMatch[1]);
+                const day = parseInt(dateMatch[2]);
+                const year = parseInt(dateMatch[3]);
+                const fullYear = year < 100 ? 2000 + year : year;
+                surgeryDate = new Date(fullYear, month - 1, day);
+                dateLineIndex = i;
+                break;
+            }
         }
-
-        function showPasteEntry() {
-            document.getElementById('entryTypeSelection').style.display = 'none';
-            document.getElementById('addEntryForm').style.display = 'none';
-            document.getElementById('pasteEntrySection').style.display = 'block';
-            document.getElementById('pasteTextArea').focus();
-        }
-
-        function backToEntrySelection() {
-            document.getElementById('entryTypeSelection').style.display = 'block';
-            document.getElementById('addEntryForm').style.display = 'none';
-            document.getElementById('pasteEntrySection').style.display = 'none';
-            document.getElementById('pasteTextArea').value = '';
-        }
-
-        function processPastedEntry() {
-            const pastedText = document.getElementById('pasteTextArea').value.trim();
+        
+        if (dateMatch && !surgeryDate) {
+            const month = parseInt(dateMatch[1]);
+            const day = parseInt(dateMatch[2]);
+            const currentDate = new Date();
+            const currentYear = currentDate.getFullYear();
             
-            if (!pastedText) {
-                alert('Please paste some data first.');
+            // Create date object for the surgery date
+            surgeryDate = new Date(currentYear, month - 1, day);
+            
+            // If surgery date is in the future, it's probably from last year
+            if (surgeryDate > currentDate) {
+                surgeryDate.setFullYear(currentYear - 1);
+            }
+            dateLineIndex = i;
+            break;
+        }
+    }
+    
+    if (!surgeryDate) {
+        alert('No date found in the problems section.\n\nPlease add a date in one of these formats:\n- MM/DD (e.g., 12/25)\n- (MM/DD) (e.g., (12/25))\n- MM/DD/YY (e.g., 12/25/24)\n- MM/DD/YYYY (e.g., 12/25/2024)');
+        return;
+    }
+    
+    // Calculate days difference
+    const currentDate = new Date();
+    const diffTime = currentDate - surgeryDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    console.log('Surgery date:', surgeryDate);
+    console.log('Current date:', currentDate);
+    console.log('POD:', diffDays);
+    
+    // Look for existing POD in any line
+    let podLineIndex = -1;
+    let podMatch = null;
+    for (let i = 0; i < lines.length; i++) {
+        podMatch = lines[i].match(/POD\s*\d+/i);
+        if (podMatch) {
+            podLineIndex = i;
+            break;
+        }
+    }
+    
+    // Update or add POD
+    if (podLineIndex !== -1) {
+        // Update existing POD line
+        lines[podLineIndex] = lines[podLineIndex].replace(/POD\s*\d+/i, `POD ${diffDays}`);
+    } else {
+        // Add POD at the beginning of the second line
+        if (lines.length === 1) {
+            // If there's only one line, add POD as a new second line
+            lines.push(`POD ${diffDays}`);
+        } else if (lines.length >= 2) {
+            // If there's already a second line, prepend POD to it
+            const secondLine = lines[1].trim();
+            if (secondLine) {
+                // If second line has content, add POD at the beginning with a space
+                lines[1] = `POD ${diffDays} ${secondLine}`;
+            } else {
+                // If second line is empty, just set it to POD
+                lines[1] = `POD ${diffDays}`;
+            }
+        }
+    }
+    
+    // Update the textarea
+    problemsField.value = lines.join('\n');
+    autoResizeTextarea(problemsField);
+    
+    // Save the updated value
+    patientData[currentPatientIndex].Problems = problemsField.value;
+    saveToLocalStorage();
+    
+    // Format the date nicely for the alert
+    const formattedDate = surgeryDate.toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric'
+    });
+    
+    alert(`POD updated to ${diffDays}\n\nCalculated from surgery date: ${formattedDate}\nCurrent date: ${currentDate.toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric'
+    })}`);
+}
+
+
+
+
+
+
+
+
+function showImportModal() {
+    document.getElementById('importModal').style.display = 'block';
+    
+    // Always clear the textarea - don't load any existing data
+    document.getElementById('importData').value = '';
+    
+    // Also clear any existing warnings when opening the import modal
+    const warningDiv = document.getElementById('warningMessages');
+    if (warningDiv) {
+        warningDiv.innerHTML = '';
+        warningDiv.classList.add('hidden');
+    }
+}
+
+
+
+        function closeImportModal() {
+            document.getElementById('importModal').style.display = 'none';
+        }
+
+        function processImportedData() {
+            const importText = document.getElementById('importData').value;
+            if (!importText) return;
+            
+            const patient = patientData[currentPatientIndex];
+            patient.ImportedData = importText;
+            lastImportedData = importText;
+            
+            labData = extractLabValues(importText);
+            patient.LabData = JSON.stringify(labData);
+            
+            const fishbone = generateFishbone(labData);
+            const warnings = generateWarnings(labData);
+            
+            // Update VIOLIN field
+            const violinField = document.getElementById('field_VIOLIN');
+            if (violinField) {
+                violinField.value = fishbone;
+                patient.VIOLIN = fishbone;
+                autoResizeTextarea(violinField);
+            }
+            
+            // Update warnings
+            const warningDiv = document.getElementById('warningMessages');
+            if (warnings.length > 0) {
+                warningDiv.innerHTML = warnings.map(w => `<div class="warning-message">${w}</div>`).join('');
+                warningDiv.classList.remove('hidden');
+            } else {
+                warningDiv.innerHTML = '<div class="warning-message" style="color: var(--accent-3);">All values within normal limits</div>';
+                warningDiv.classList.remove('hidden');
+            }
+            
+            saveToLocalStorage();
+            closeImportModal();
+            document.getElementById('importData').value = '';
+        }
+
+        function showTableView() {
+            document.getElementById('tableModal').style.display = 'block';
+            generateTableView();
+        }
+
+        function closeTableModal() {
+            document.getElementById('tableModal').style.display = 'none';
+        }
+
+        function generateTableView() {
+            if (!labData || Object.keys(labData).length === 0) {
+                document.getElementById('tableContainer').innerHTML = '<p>No lab data available. Please import data first.</p>';
                 return;
             }
-
-            // Parse the pasted data
-            const newPatients = parseCernerData(pastedText);
             
-            if (newPatients && newPatients.length > 0) {
-                // Add all new patients to the existing data
-                newPatients.forEach(patient => {
-                    parsedData.push(patient);
-                });
-                
-                displayRows();
-                saveCSVToLocalStorage();
-                closeAddEntryModal();
-                updateCensus();
-                alert(`Successfully added ${newPatients.length} patient(s)!`);
-            } else {
-                alert('Could not parse the pasted data. Please check the format.');
+            let tableHTML = '<table class="data-table">';
+            tableHTML += '<tr><th>Parameter</th>';
+            
+            const maxValues = Math.max(
+                ...Object.values(labData.labs || {}).map(arr => arr ? arr.length : 0),
+                ...Object.values(labData.vitals || {}).map(arr => arr ? arr.length : 0)
+            );
+            
+            for (let i = 0; i < maxValues; i++) {
+                tableHTML += `<th>Value ${i + 1}</th>`;
             }
-        }
-
-        function parseCernerData(text) {
-            const lines = text.split('\n').filter(line => line.trim());
-            const newPatients = [];
+            tableHTML += '</tr>';
             
-            console.log('Parsing CERNER list, total lines:', lines.length);
-            
-            lines.forEach((line, lineIndex) => {
-                // Skip header rows or empty lines
-                if (!line.trim() || line.toLowerCase().includes('patient list') || 
-                    (line.toLowerCase().includes('room') && line.toLowerCase().includes('name'))) {
-                    return;
-                }
-                
-                // Try tab-delimited first
-                let columns = line.split('\t');
-                
-                // Remove empty columns (common when pasting from CERNER)
-                columns = columns.filter(col => col.trim() !== '');
-                
-                console.log(`Line ${lineIndex}: Found ${columns.length} non-empty columns:`, columns);
-                
-                // If we don't have enough columns, try other delimiters
-                if (columns.length < 3) {
-                    // Try multiple spaces
-                    columns = line.split(/\s{2,}/).filter(col => col.trim() !== '');
-                    console.log(`Line ${lineIndex}: After space split: ${columns.length} columns`);
-                }
-                
-                // If still not enough, try to parse known CERNER formats
-                if (columns.length < 3) {
-                    // Pattern 1: "WMC 5NE 591 A    KRAEMER, RICHARD    1170075    ..."
-                    const match1 = line.match(/^((?:WMC|[A-Z]{2,4})\s+\S+\s+\S+(?:\s+\S+)?)\s+(.*?),\s*(\S+)\s+(\d{5,})/);
-                    if (match1) {
-                        const room = match1[1].trim();
-                        const lastName = match1[2].trim();
-                        const firstName = match1[3].trim();
-                        const mrn = match1[4].trim();
-                        const name = `${lastName}, ${firstName}`;
-                        
-                        columns = [room, name, mrn];
-                        console.log(`Line ${lineIndex}: Parsed using pattern 1:`, columns);
-                    }
-                    
-                    // Pattern 2: Room and name together, then MRN
-                    if (columns.length < 3) {
-                        const match2 = line.match(/^(\S+.*?)\s{2,}(\d{5,})/);
-                        if (match2) {
-                            const roomAndName = match2[1].trim();
-                            const mrn = match2[2].trim();
-                            
-                            // Try to split room and name
-                            const roomNameMatch = roomAndName.match(/^((?:WMC|[A-Z]{2,4})\s+\S+\s+\S+(?:\s+\S+)?)\s+(.+)/);
-                            if (roomNameMatch) {
-                                columns = [roomNameMatch[1].trim(), roomNameMatch[2].trim(), mrn];
-                            } else {
-                                columns = ['', roomAndName, mrn];
-                            }
-                            console.log(`Line ${lineIndex}: Parsed using pattern 2:`, columns);
-                        }
-                    }
-                }
-                
-                // Validate we have at least name and MRN
-                if (columns.length >= 2) {
-                    let room = '';
-                    let name = '';
-                    let mrn = '';
-                    let att = '';
-                    
-                    // Try to identify columns by content
-                    columns.forEach((col, idx) => {
-                        const trimmed = col.trim();
-                        
-                        // MRN is usually 5-10 digits
-                        if (/^\d{5,10}$/.test(trimmed) && !mrn) {
-                            mrn = trimmed;
-                        }
-                        // Room usually starts with unit code
-                        else if (/^(WMC|ICU|CCU|[A-Z]{2,4})\s+/.test(trimmed) && !room) {
-                            room = trimmed;
-                        }
-                        // Name usually contains comma
-                        else if (trimmed.includes(',') && !name) {
-                            name = trimmed;
-                        }
-                        // Attending often contains "MD" or "MBBS" or "DO"
-                        else if ((trimmed.includes('MD') || trimmed.includes('MBBS') || 
-                                 trimmed.includes('DO') || trimmed.includes('Dr')) && !att) {
-                            att = trimmed;
-                        }
-                        // If we have room and MRN but no name yet, this might be name
-                        else if (room && mrn && !name) {
-                            name = trimmed;
-                        }
+            // Add vitals
+            if (labData.vitals) {
+                if (labData.vitals.temp) {
+                    tableHTML += '<tr><td>Temperature</td>';
+                    labData.vitals.temp.forEach(val => {
+                        tableHTML += `<td>${val}°C</td>`;
                     });
-                    
-                    // If we still don't have a name but have other fields, use what we have
-                    if (!name && columns.length > 0) {
-                        name = columns.find(c => c.trim() && !c.match(/^\d+$/) && c !== room) || 'Unknown';
-                    }
-                    
-                    console.log(`Line ${lineIndex}: Final parsed - Room: ${room}, Name: ${name}, MRN: ${mrn}`);
-                    
-                    // Only add if we have at least name
-                    if (name) {
-                        // Create row array matching new CSV structure with Type
-                        const patientRow = new Array(MASTER_HEADERS.length).fill('');
-                        patientRow[0] = 'Patient';  // Type
-                        patientRow[1] = name;        // Name
-                        patientRow[2] = room || 'TBD'; // RM
-                        patientRow[3] = mrn || '';   // MRN
-                        patientRow[4] = att || '';   // Att
-                        
-                        newPatients.push(patientRow);
-                    }
-                }
-            });
-            
-            console.log('Total patients parsed:', newPatients.length);
-            if (newPatients.length > 0) {
-                console.log('First patient:', newPatients[0]);
-                console.log('Last patient:', newPatients[newPatients.length - 1]);
-            }
-            
-            return newPatients;
-        }
-
-
-
-
-// ============ CHROME SYNC STORAGE INTEGRATION ============
-// This syncs across ALL devices where you're logged into Chrome!
-
-const CHROME_SYNC = {
-    // Chrome sync has 100KB limit total, 8KB per item
-    CHUNK_SIZE: 4000, // Safe chunk size for data splitting
-    
-    isAvailable() {
-        // Works in Chrome, Edge, Brave, etc.
-        return typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync;
-    },
-    
-    async save(data) {
-        if (!this.isAvailable()) {
-            console.log('Chrome sync not available');
-            return false;
-        }
-        
-        try {
-            const csvContent = Papa.unparse([MASTER_HEADERS, ...data]);
-            
-            // Check size
-            const sizeInBytes = new Blob([csvContent]).size;
-            console.log(`Data size: ${(sizeInBytes/1024).toFixed(2)}KB`);
-            
-            if (sizeInBytes > 90000) { // Leave some room under 100KB limit
-                alert('Data too large for Chrome Sync. Please export some old entries.');
-                return false;
-            }
-            
-            // Clear old data
-            await chrome.storage.sync.clear();
-            
-            // If data is small enough, save directly
-            if (sizeInBytes < 8000) {
-                await chrome.storage.sync.set({
-                    medlist: csvContent,
-                    timestamp: new Date().toISOString(),
-                    version: '2.0'
-                });
-            } else {
-                // Split into chunks
-                const chunks = this.splitIntoChunks(csvContent);
-                const saveData = {
-                    chunkCount: chunks.length,
-                    timestamp: new Date().toISOString(),
-                    version: '2.0'
-                };
-                
-                // Save each chunk
-                for (let i = 0; i < chunks.length; i++) {
-                    saveData[`chunk_${i}`] = chunks[i];
+                    tableHTML += '</tr>';
                 }
                 
-                await chrome.storage.sync.set(saveData);
-            }
-            
-            this.showStatus('✅ Synced to Chrome');
-            return true;
-            
-        } catch (error) {
-            console.error('Chrome sync error:', error);
-            if (error.message.includes('QUOTA_BYTES')) {
-                alert('Storage limit reached. Please export some old entries.');
-            }
-            return false;
-        }
-    },
-    
-    async load() {
-        if (!this.isAvailable()) return null;
-        
-        try {
-            const data = await chrome.storage.sync.get(null);
-            
-            if (data.medlist) {
-                // Simple single-chunk data
-                return data.medlist;
-            } else if (data.chunkCount) {
-                // Reassemble chunks
-                let csvContent = '';
-                for (let i = 0; i < data.chunkCount; i++) {
-                    csvContent += data[`chunk_${i}`] || '';
+                if (labData.vitals.hr) {
+                    tableHTML += '<tr><td>Heart Rate</td>';
+                    labData.vitals.hr.forEach(val => {
+                        tableHTML += `<td>${val}</td>`;
+                    });
+                    tableHTML += '</tr>';
                 }
-                return csvContent;
+                
+                if (labData.vitals.sbp) {
+                    tableHTML += '<tr><td>Systolic BP</td>';
+                    labData.vitals.sbp.forEach(val => {
+                        tableHTML += `<td>${val}</td>`;
+                    });
+                    tableHTML += '</tr>';
+                }
+                
+                if (labData.vitals.dbp) {
+                    tableHTML += '<tr><td>Diastolic BP</td>';
+                    labData.vitals.dbp.forEach(val => {
+                        tableHTML += `<td>${val}</td>`;
+                    });
+                    tableHTML += '</tr>';
+                }
+                
+                if (labData.vitals.o2) {
+                    tableHTML += '<tr><td>O2 Saturation</td>';
+                    labData.vitals.o2.forEach(val => {
+                        tableHTML += `<td>${val}%</td>`;
+                    });
+                    tableHTML += '</tr>';
+                }
             }
             
-            return null;
-            
-        } catch (error) {
-            console.error('Chrome sync load error:', error);
-            return null;
-        }
-    },
-    
-    splitIntoChunks(str) {
-        const chunks = [];
-        for (let i = 0; i < str.length; i += this.CHUNK_SIZE) {
-            chunks.push(str.slice(i, i + this.CHUNK_SIZE));
-        }
-        return chunks;
-    },
-    
-    showStatus(message) {
-        const status = document.createElement('div');
-        status.style.cssText = `
-            position: fixed;
-            top: 70px;
-            right: 20px;
-            padding: 10px 20px;
-            background: var(--success);
-            color: white;
-            border-radius: 5px;
-            font-size: 14px;
-            z-index: 10000;
-            animation: slideIn 0.3s ease-out;
-        `;
-        status.textContent = message;
-        document.body.appendChild(status);
-        
-        setTimeout(() => {
-            status.style.animation = 'slideOut 0.3s ease-out';
-            setTimeout(() => status.remove(), 300);
-        }, 2000);
-    },
-    
-    async getStorageInfo() {
-        if (!this.isAvailable()) return null;
-        
-        try {
-            const data = await chrome.storage.sync.get(null);
-            const used = new Blob([JSON.stringify(data)]).size;
-            const total = 102400; // 100KB limit
-            
-            return {
-                used: used,
-                total: total,
-                percentage: ((used/total) * 100).toFixed(1)
+            // Add labs
+            const labNames = {
+                'wbc': 'WBC',
+                'hgb': 'Hemoglobin',
+                'hct': 'Hematocrit',
+                'plt': 'Platelets',
+                'na': 'Sodium',
+                'k': 'Potassium',
+                'cl': 'Chloride',
+                'co2': 'CO2',
+                'bun': 'BUN',
+                'cr': 'Creatinine',
+                'glu': 'Glucose',
+                'ca': 'Calcium',
+                'mg': 'Magnesium',
+                'phos': 'Phosphorus',
+                'ph': 'pH',
+                'pco2': 'pCO2',
+                'po2': 'pO2',
+                'bicarb': 'Bicarbonate',
+                'lactate': 'Lactic Acid',
+                'ast': 'AST',
+                'alt': 'ALT',
+                'tbili': 'Total Bilirubin',
+                'dbili': 'Direct Bilirubin',
+                'alkphos': 'Alk Phos',
+                'ggt': 'GGT'
             };
-        } catch (error) {
-            return null;
-        }
-    }
-};
-
-// Add Chrome Sync button to controls
-function addChromeSyncButton() {
-    const controls = document.querySelector('.controls');
-    if (!document.getElementById('chromeSyncBtn') && CHROME_SYNC.isAvailable()) {
-        const syncBtn = document.createElement('button');
-        syncBtn.id = 'chromeSyncBtn';
-        syncBtn.innerHTML = '🔄 Chrome Sync';
-        syncBtn.onclick = toggleChromeSync;
-        controls.appendChild(syncBtn);
-        
-        // Check if already enabled
-        chrome.storage.local.get(['chromeSyncEnabled'], function(result) {
-            if (result.chromeSyncEnabled) {
-                enableChromeSync();
+            
+            if (labData.labs) {
+                for (const [key, name] of Object.entries(labNames)) {
+                    if (labData.labs[key]) {
+                        tableHTML += `<tr><td>${name}</td>`;
+                        labData.labs[key].forEach(val => {
+                            tableHTML += `<td>${val}</td>`;
+                        });
+                        tableHTML += '</tr>';
+                    }
+                }
             }
-        });
-    }
-}
+            
+            tableHTML += '</table>';
+            document.getElementById('tableContainer').innerHTML = tableHTML;
+        }
 
-// Toggle Chrome Sync
-async function toggleChromeSync() {
-    const btn = document.getElementById('chromeSyncBtn');
-    const isEnabled = btn.innerHTML.includes('✅');
-    
-    if (isEnabled) {
-        // Disable
-        chrome.storage.local.set({chromeSyncEnabled: false});
-        btn.innerHTML = '🔄 Chrome Sync';
-        btn.style.background = '';
-        CHROME_SYNC.showStatus('Chrome Sync disabled');
-    } else {
-        // Enable
-        chrome.storage.local.set({chromeSyncEnabled: true});
-        enableChromeSync();
-    }
-}
+        function showGraphView() {
+            document.getElementById('graphModal').style.display = 'block';
+            showVitalGraph('temp');
+        }
 
-// Enable Chrome Sync
-async function enableChromeSync() {
-    const btn = document.getElementById('chromeSyncBtn');
-    btn.innerHTML = '✅ Chrome Sync';
-    btn.style.background = 'var(--success)';
+        function closeGraphModal() {
+            document.getElementById('graphModal').style.display = 'none';
+            if (currentChart) {
+                currentChart.destroy();
+                currentChart = null;
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function showVitalGraph(vitalType) {
+    if (!labData || !labData.vitals) {
+        alert('No vital signs data available. Please import data first.');
+        return;
+    }
     
-    // Load existing data
-    const savedData = await CHROME_SYNC.load();
-    if (savedData) {
-        Papa.parse(savedData, {
-            complete: function(results) {
-                if (results.data[0] && results.data[0][0] === 'Type') {
-                    if (confirm('Found synced data from another device. Load it?')) {
-                        parsedData = results.data.slice(1);
-                        headers = MASTER_HEADERS;
-                        populateColumnSelector();
-                        populateColumnSelect();
-                        displayRows();
-                        updateCensus();
-                        CHROME_SYNC.showStatus('Loaded from Chrome Sync');
+    if (currentChart) {
+        currentChart.destroy();
+    }
+    
+    const ctx = document.getElementById('vitalChart').getContext('2d');
+    let datasets = [];
+    let title = '';
+    let yAxisMin = null;
+    let yAxisMax = null;
+    
+    const now = new Date();
+    const labels = [];
+    
+    for (let i = 0; i < 24; i++) {
+        const time = new Date(now - (i * 60 * 60 * 1000));
+        labels.unshift(time.toLocaleString('en-US', { 
+            month: 'numeric', 
+            day: 'numeric', 
+            hour: 'numeric', 
+            minute: '2-digit' 
+        }));
+    }
+    
+    switch(vitalType) {
+        case 'temp':
+            if (labData.vitals.temp && labData.vitals.temp.length > 0) {
+                title = 'Temperature (°C)';
+                // Just use min and max without padding
+                yAxisMin = Math.min(...labData.vitals.temp);
+                yAxisMax = Math.max(...labData.vitals.temp);
+                
+                const tempData = labData.vitals.temp.map((value, index) => ({
+                    x: labels[labels.length - labData.vitals.temp.length + index],
+                    y: value,
+                    backgroundColor: (value > 38 || value < 35) ? 'red' : 'blue',
+                    borderColor: (value > 38 || value < 35) ? 'red' : 'blue',
+                }));
+                datasets.push({
+                    label: 'Temperature',
+                    data: tempData,
+                    borderColor: 'blue',
+                    backgroundColor: 'blue',
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                });
+            }
+            break;
+            
+        case 'hr':
+            if (labData.vitals.hr && labData.vitals.hr.length > 0) {
+                title = 'Heart Rate (bpm)';
+                // Just use min and max without padding
+                yAxisMin = Math.min(...labData.vitals.hr);
+                yAxisMax = Math.max(...labData.vitals.hr);
+                
+                const age = labData.age || 50;
+                let hrMin = 60, hrMax = 100;
+                
+                if (age <= 1) {
+                    hrMin = 100; hrMax = 180;
+                } else if (age <= 3) {
+                    hrMin = 98; hrMax = 140;
+                } else if (age <= 5) {
+                    hrMin = 80; hrMax = 120;
+                } else if (age <= 12) {
+                    hrMin = 75; hrMax = 118;
+                }
+                
+                const hrData = labData.vitals.hr.map((value, index) => ({
+                    x: labels[labels.length - labData.vitals.hr.length + index],
+                    y: value,
+                    backgroundColor: (value < hrMin || value > hrMax) ? 'red' : 'green',
+                    borderColor: (value < hrMin || value > hrMax) ? 'red' : 'green',
+                }));
+                datasets.push({
+                    label: 'Heart Rate',
+                    data: hrData,
+                    borderColor: 'green',
+                    backgroundColor: 'green',
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                });
+            }
+            break;
+            
+        case 'bp':
+            if (labData.vitals.sbp && labData.vitals.sbp.length > 0) {
+                title = 'Blood Pressure (mmHg)';
+                
+                // Calculate min/max for both SBP and DBP together
+                const allBPValues = [];
+                if (labData.vitals.sbp) allBPValues.push(...labData.vitals.sbp);
+                if (labData.vitals.dbp) allBPValues.push(...labData.vitals.dbp);
+                
+                // Just use min and max without padding
+                yAxisMin = Math.min(...allBPValues);
+                yAxisMax = Math.max(...allBPValues);
+                
+                const age = labData.age || 50;
+                let sbpMin = 90;
+                
+                if (age <= 1) {
+                    sbpMin = 70;
+                } else if (age <= 10) {
+                    sbpMin = 70 + (2 * age);
+                }
+                
+                const sbpData = labData.vitals.sbp.map((value, index) => ({
+                    x: labels[labels.length - labData.vitals.sbp.length + index],
+                    y: value,
+                    backgroundColor: (value < sbpMin || value > 180) ? 'red' : 'purple',
+                    borderColor: (value < sbpMin || value > 180) ? 'red' : 'purple',
+                }));
+                datasets.push({
+                    label: 'Systolic BP',
+                    data: sbpData,
+                    borderColor: 'purple',
+                    backgroundColor: 'purple',
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                });
+                
+                if (labData.vitals.dbp && labData.vitals.dbp.length > 0) {
+                    const dbpData = labData.vitals.dbp.map((value, index) => ({
+                        x: labels[labels.length - labData.vitals.dbp.length + index],
+                        y: value,
+                        backgroundColor: (value < 60 || value > 120) ? 'red' : 'orange',
+                        borderColor: (value < 60 || value > 120) ? 'red' : 'orange',
+                    }));
+                    datasets.push({
+                        label: 'Diastolic BP',
+                        data: dbpData,
+                        borderColor: 'orange',
+                        backgroundColor: 'orange',
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                    });
+                }
+            }
+            break;
+            
+        case 'o2':
+            if (labData.vitals.o2 && labData.vitals.o2.length > 0) {
+                title = 'O2 Saturation (%)';
+                // Just use min and max without any restrictions
+                yAxisMin = Math.min(...labData.vitals.o2);
+                yAxisMax = Math.max(...labData.vitals.o2);
+                
+                const o2Data = labData.vitals.o2.map((value, index) => ({
+                    x: labels[labels.length - labData.vitals.o2.length + index],
+                    y: value,
+                    backgroundColor: value < 92 ? 'red' : 'cyan',
+                    borderColor: value < 92 ? 'red' : 'cyan',
+                }));
+                datasets.push({
+                    label: 'O2 Saturation',
+                    data: o2Data,
+                    borderColor: 'cyan',
+                    backgroundColor: 'cyan',
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                });
+            }
+            break;
+    }
+    
+    if (datasets.length === 0) {
+        alert('No data available for this vital sign.');
+        return;
+    }
+    
+    currentChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: title,
+                    font: {
+                        size: 18
                     }
                 }
             },
-            header: false,
-            skipEmptyLines: true
-        });
-    }
+            scales: {
+                x: {
+                    type: 'category',
+                    labels: labels.slice(-datasets[0].data.length),
+                    title: {
+                        display: true,
+                        text: 'Time'
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Value'
+                    },
+                    // Use the exact min/max without padding
+                    min: yAxisMin,
+                    max: yAxisMax
+                }
+            }
+        }
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        function updateOrders() {
+            if (!lastImportedData) {
+                alert('Please import data first using the Import Data button');
+                return;
+            }
+            
+            const orders = extractOrders(lastImportedData);
+            const ordersField = document.getElementById('field_ORDERS');
+            if (ordersField) {
+                ordersField.value = orders;
+                patientData[currentPatientIndex].ORDERS = orders;
+                autoResizeTextarea(ordersField);
+                saveToLocalStorage();
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function toggleOrdersView() {
+    showFullOrders = !showFullOrders;
+    const fullOrdersDisplay = document.getElementById('fullOrdersDisplay');
     
-    // Show storage info
-    const info = await CHROME_SYNC.getStorageInfo();
-    if (info) {
-        console.log(`Chrome Sync Storage: ${info.percentage}% used (${(info.used/1024).toFixed(1)}KB / ${(info.total/1024).toFixed(1)}KB)`);
+    if (showFullOrders && (fullOrdersText || lastImportedData)) {
+        // Create categorized full orders display
+        const medsText = fullOrdersText || extractFullMeds(lastImportedData);
+        const dietMatch = lastImportedData.match(/DIET ORDER:\s*([^\n]+)/i);
+        
+        // Track current section (Scheduled, PRN, Continuous)
+        let currentSection = 'Scheduled';
+        const medsLines = medsText.split('\n');
+        const categorizedMeds = {
+            'N/F': [],
+            'Pain': [],
+            'Abx': [],
+            'AC': [],
+            'Misc': []
+        };
+        
+        // Process each line and track section
+        medsLines.forEach(line => {
+            const trimmedLine = line.trim();
+            
+            // Check for section headers
+            if (trimmedLine.toLowerCase().includes('scheduled:')) {
+                currentSection = 'Scheduled';
+                return;
+            } else if (trimmedLine.toLowerCase().includes('prn:')) {
+                currentSection = 'PRN';
+                return;
+            } else if (trimmedLine.toLowerCase().includes('continuous:')) {
+                currentSection = 'Continuous';
+                return;
+            }
+            
+            // Skip empty lines
+            if (!trimmedLine) return;
+            
+            // Add PRN prefix if in PRN section
+            const displayLine = currentSection === 'PRN' ? `PRN ${trimmedLine}` : trimmedLine;
+            
+            // Categorize the medication
+            const lineLower = trimmedLine.toLowerCase();
+            
+            if (lineLower.match(/npo|lactated ringers|normal saline|parenteral|sodium chloride|dextrose|infant formula|pediatric|regular diet|clear liquid|renal|cardiac|diabetic|dysphagia|soft|full liquid|bariatric|albumin/i)) {
+                categorizedMeds['N/F'].push(displayLine);
+            } else if (lineLower.match(/oxycodone|hydromorphone|acetaminophen|methocarbamol|baclofen|gabapentin|pregabalin|ibuprofen|ketorolac|tramadol|lidocaine|methadone|fentanyl|morphine|celecoxib|cyclobenzaprine|dexmedetomidine|propofol|midazolam|naproxen/i)) {
+                categorizedMeds['Pain'].push(displayLine);
+            } else if (lineLower.match(/piperacillin|tazobactam|ceftriaxone|vancomycin|amoxicillin|ciprofloxacin|metronidazole|doxycycline|clindamycin|azithromycin|meropenem|levofloxacin|cephalexin|ampicillin|gentamicin|linezolid|ertapenem|trimethoprim|sulfamethoxazole|diflucan|fluconazole|daptomycin|cefepime|norepinephrine|epinephrine|vasopressin|ceftolozane|amphotericin|micafungin|cefazolin|ceftazidime|eravacycline|phenylephrine|dopamine/i)) {
+                categorizedMeds['Abx'].push(displayLine);
+            } else if (lineLower.match(/heparin|enoxaparin|aspirin|clopidogrel|apixaban|warfarin|rivaroxaban|fondaparinux|ticagrelor|dabigatran|prasugrel/i)) {
+                categorizedMeds['AC'].push(displayLine);
+            } else {
+                categorizedMeds['Misc'].push(displayLine);
+            }
+        });
+        
+        // Build HTML display
+        let categorizedHTML = '<strong style="color: var(--primary);">Full Orders List:</strong><br><br>';
+        
+        // N/F Category
+        categorizedHTML += '<strong style="color: var(--primary);">N/F (Nutrition/Fluids):</strong><br>';
+        if (dietMatch) {
+            categorizedHTML += `<span style="color: var(--primary);">Diet: ${dietMatch[1].trim()}</span><br>`;
+        }
+        categorizedMeds['N/F'].forEach(med => {
+            categorizedHTML += `<span style="color: var(--primary);">${med}</span><br>`;
+        });
+        if (categorizedMeds['N/F'].length === 0 && !dietMatch) {
+            categorizedHTML += '<span style="color: var(--text-secondary);">None</span><br>';
+        }
+        categorizedHTML += '<br>';
+        
+        // Pain Category
+        categorizedHTML += '<strong style="color: var(--primary);">Pain:</strong><br>';
+        if (categorizedMeds['Pain'].length > 0) {
+            categorizedMeds['Pain'].forEach(med => {
+                categorizedHTML += `<span style="color: var(--primary);">${med}</span><br>`;
+            });
+        } else {
+            categorizedHTML += '<span style="color: var(--text-secondary);">None</span><br>';
+        }
+        categorizedHTML += '<br>';
+        
+        // Antibiotics/Pressors Category
+        categorizedHTML += '<strong style="color: var(--primary);">Antibiotics/Pressors:</strong><br>';
+        if (categorizedMeds['Abx'].length > 0) {
+            categorizedMeds['Abx'].forEach(med => {
+                categorizedHTML += `<span style="color: var(--primary);">${med}</span><br>`;
+            });
+        } else {
+            categorizedHTML += '<span style="color: var(--text-secondary);">None</span><br>';
+        }
+        categorizedHTML += '<br>';
+        
+        // Anticoagulation Category
+        categorizedHTML += '<strong style="color: var(--primary);">Anticoagulation:</strong><br>';
+        if (categorizedMeds['AC'].length > 0) {
+            categorizedMeds['AC'].forEach(med => {
+                categorizedHTML += `<span style="color: var(--primary);">${med}</span><br>`;
+            });
+        } else {
+            categorizedHTML += '<span style="color: var(--text-secondary);">None</span><br>';
+        }
+        categorizedHTML += '<br>';
+        
+        // Misc Category
+        categorizedHTML += '<strong style="color: var(--primary);">Misc:</strong><br>';
+        if (categorizedMeds['Misc'].length > 0) {
+            categorizedMeds['Misc'].forEach(med => {
+                categorizedHTML += `<span style="color: var(--primary);">${med}</span><br>`;
+            });
+        } else {
+            categorizedHTML += '<span style="color: var(--text-secondary);">None</span><br>';
+        }
+        
+        fullOrdersDisplay.innerHTML = categorizedHTML;
+        fullOrdersDisplay.classList.remove('hidden');
+    } else {
+        fullOrdersDisplay.classList.add('hidden');
     }
 }
 
-// Modify your existing saveCSVToLocalStorage function
-const originalSaveToLocal = saveCSVToLocalStorage;
-saveCSVToLocalStorage = function() {
-    // Call original
-    originalSaveToLocal();
-    
-    // Also save to Chrome Sync if enabled
-    chrome.storage.local.get(['chromeSyncEnabled'], function(result) {
-        if (result.chromeSyncEnabled) {
-            CHROME_SYNC.save(parsedData);
-        }
-    });
-};
 
-// Initialize on page load
-window.addEventListener('load', function() {
-    setTimeout(addChromeSyncButton, 500);
-    
-    // Listen for changes from other devices
-    if (CHROME_SYNC.isAvailable()) {
-        chrome.storage.onChanged.addListener((changes, namespace) => {
-            if (namespace === 'sync' && changes.timestamp) {
-                // Data changed on another device
-                if (confirm('Data updated on another device. Reload?')) {
-                    location.reload();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // ============ LAB DATA EXTRACTION FUNCTIONS ============
+        function extractLabValues(text) {
+            const data = {
+                vitals: {},
+                labs: {},
+                dates: {},
+                times: {},
+                weight: null,
+                intake: null,
+                output: null,
+                o2therapy: null,
+                age: null
+            };
+
+            // Extract weight
+            const weightMatch = text.match(/Weight Measured:\s*([\d.]+)\s*kg/i);
+            if (weightMatch) {
+                data.weight = parseFloat(weightMatch[1]);
+            }
+
+            // Extract intake and output
+            const intakeMatch = text.match(/Intake\s*mL\s+([\d,]+(?:\.\d+)?)/);
+            if (intakeMatch) {
+                data.intake = parseFloat(intakeMatch[1].replace(/,/g, ''));
+            }
+
+            const outputMatch = text.match(/Output\s*mL\s+([\d,]+(?:\.\d+)?)/);
+            if (outputMatch) {
+                data.output = parseFloat(outputMatch[1].replace(/,/g, ''));
+            }
+
+            // Extract oxygen therapy
+            const o2Match = text.match(/Oxygen Therapy:\s*([^\n]+)/i);
+            if (o2Match) {
+                let o2therapy = o2Match[1].trim();
+                if (o2therapy.toLowerCase().includes('room air')) {
+                    o2therapy = 'RA';
+                } else if (o2therapy.toLowerCase().includes('high flow nasal cannula')) {
+                    o2therapy = 'HFNC';
+                } else if (o2therapy.toLowerCase().includes('nasal cannula')) {
+                    o2therapy = 'NC';
+                } else if (o2therapy.toLowerCase().includes('non-rebreather')) {
+                    o2therapy = 'NRB';
+                } else if (o2therapy.toLowerCase().includes('ventilator')) {
+                    o2therapy = 'Vent';
+                }
+                data.o2therapy = o2therapy;
+            }
+
+            // Extract age
+            const ageMatch = text.match(/Age:\s*(\d+)\s*Years/i);
+            if (ageMatch) {
+                data.age = parseInt(ageMatch[1], 10);
+            }
+
+            // Extract vitals
+            const tempMatches = text.match(/Temperature\s*(?:Temporal Artery|Axillary)?:\s*([\d.]+)/gi);
+            if (tempMatches) {
+                data.vitals.temp = tempMatches.map(match => parseFloat(match.match(/[\d.]+/)[0]));
+            }
+
+            const hrMatches = text.match(/(?:Heart Rate|Heart Rate Monitored|Apical Heart Rate).*?:\s*(\d+)/gi);
+            if (hrMatches) {
+                data.vitals.hr = hrMatches.map(match => parseInt(match.match(/\d+$/)[0]));
+            }
+
+            const sbpMatches = text.match(/Systolic Blood Pressure(?:\s+Invasive)?:\s*(\d+)/gi);
+            if (sbpMatches) {
+                data.vitals.sbp = sbpMatches.map(match => parseInt(match.match(/\d+$/)[0]));
+            }
+
+            const dbpMatches = text.match(/Diastolic Blood Pressure(?:\s+Invasive)?:\s*(\d+)/gi);
+            if (dbpMatches) {
+                data.vitals.dbp = dbpMatches.map(match => parseInt(match.match(/\d+$/)[0]));
+            }
+
+            const o2Matches = text.match(/O2 Saturation.*?:\s*(\d+)/gi);
+            if (o2Matches) {
+                data.vitals.o2 = o2Matches.map(match => parseInt(match.match(/\d+$/)[0]));
+            }
+
+            // Extract lab values with dates
+            const extractLabValue = (pattern, name) => {
+                const matches = text.match(new RegExp(pattern + '.*?([\\d.]+).*?\\((\\d{2}/\\d{2}/\\d{2})\\s+(\\d{2}:\\d{2}:\\d{2})\\)', 'gi'));
+                if (matches && matches.length > 0) {
+                    const values = [];
+                    const dates = [];
+                    const times = [];
+                    
+                    matches.forEach(match => {
+                        const valueMatch = match.match(/:\s*([\d.]+)/);
+                        const dateTimeMatch = match.match(/\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/);
+                        if (valueMatch) {
+                            values.push(parseFloat(valueMatch[1]));
+                            if (dateTimeMatch) {
+                                dates.push(dateTimeMatch[1]);
+                                times.push(dateTimeMatch[2]);
+                            }
+                        }
+                    });
+
+                    data.labs[name] = values;
+                    if (dates.length > 0) {
+                        data.dates[name] = dates[0];
+                        data.times[name] = times[0];
+                    }
+                }
+            };
+
+            // Extract all lab values
+            extractLabValue('WBC:', 'wbc');
+            extractLabValue('Hgb:', 'hgb');
+            extractLabValue('Hct:', 'hct');
+            extractLabValue('Platelet Count:', 'plt');
+            extractLabValue('Sodium:', 'na');
+            extractLabValue('Potassium:', 'k');
+            extractLabValue('Chloride:', 'cl');
+            extractLabValue('CO2:', 'co2');
+            extractLabValue('BUN:', 'bun');
+            extractLabValue('Creatinine:', 'cr');
+            extractLabValue('Glucose:', 'glu');
+            extractLabValue('Calcium, Ionized:', 'ca');
+            extractLabValue('Ionized Calcium:', 'ca');
+            
+            // If no ionized calcium, try total calcium
+            if (!data.labs.ca || data.labs.ca.length === 0) {
+                extractLabValue('Calcium:', 'totalCa');
+                extractLabValue('Albumin:', 'albumin');
+                
+                if (data.labs.totalCa && data.labs.totalCa.length > 0 && 
+                    data.labs.albumin && data.labs.albumin.length > 0) {
+                    const totalCa = data.labs.totalCa[0];
+                    const albumin = data.labs.albumin[0];
+                    const correctedCa = totalCa + 0.8 * (4.0 - albumin);
+                    data.labs.ca = [parseFloat(correctedCa.toFixed(2))];
+                    data.labs.caType = 'corrected';
+                    if (data.dates.totalCa) {
+                        data.dates.ca = data.dates.totalCa;
+                        data.times.ca = data.times.totalCa;
+                    }
                 }
             }
-        });
+            
+            extractLabValue('Magnesium Level:', 'mg');
+            extractLabValue('Inorganic Phosphorus:', 'phos');
+            
+            // Extract ABG values
+            extractLabValue('pH:', 'ph');
+            extractLabValue('pC02:', 'pco2');
+            extractLabValue('PO2:', 'po2');
+            extractLabValue('Bicarbonate:', 'bicarb');
+            extractLabValue('Lactic Acid:', 'lactate');
+            
+            // Extract LFT values
+            extractLabValue('AST:', 'ast');
+            extractLabValue('ALT:', 'alt');
+	    extractLabValue('Total Bilirubin:', 'tbil');  // Changed from 'tbili' to 'tbil'
+            extractLabValue('Direct Bilirubin:', 'dbil'); // Changed from 'dbili' to 'dbil'
+
+            extractLabValue('Alkaline Phosphatase:', 'alk'); // Changed from 'alkphos' to 'alk'
+
+            extractLabValue('GGT:', 'ggt');
+
+
+           // Add coagulation lab extractions (these were missing)
+          extractLabValue('Prothrombin Time:', 'pt');
+          extractLabValue('INR:', 'inr');
+         extractLabValue('APTT:', 'ptt');
+         extractLabValue('Fibrinogen:', 'fib');
+
+
+
+
+            return data;
+        }
+
+
+
+
+    
+        function generateFishbone(data) {
+            let fishbone = '';
+            
+            // Vitals with ranges
+            if (data.vitals.temp && data.vitals.temp.length > 0) {
+                const tempMin = Math.min(...data.vitals.temp).toFixed(1);
+                const tempMax = Math.max(...data.vitals.temp).toFixed(1);
+                const tempAvg = (data.vitals.temp.reduce((a, b) => a + b, 0) / data.vitals.temp.length).toFixed(1);
+                fishbone += `T ${tempMin}-${tempMax} (${tempAvg}), `;
+            } else {
+                fishbone += 'no T, ';
+            }
+            
+            if (data.vitals.hr && data.vitals.hr.length > 0) {
+                const hrMin = Math.min(...data.vitals.hr);
+                const hrMax = Math.max(...data.vitals.hr);
+                const hrAvg = Math.round(data.vitals.hr.reduce((a, b) => a + b, 0) / data.vitals.hr.length);
+                fishbone += `HR ${hrMin}-${hrMax}(${hrAvg}), `;
+            } else {
+                fishbone += 'no HR, ';
+            }
+            
+            if (data.vitals.sbp && data.vitals.sbp.length > 0 && data.vitals.dbp && data.vitals.dbp.length > 0) {
+                const sbpMin = Math.min(...data.vitals.sbp);
+                const sbpMax = Math.max(...data.vitals.sbp);
+                const dbpMin = Math.min(...data.vitals.dbp);
+                const dbpMax = Math.max(...data.vitals.dbp);
+                fishbone += `BP ${sbpMin}-${sbpMax}/${dbpMin}-${dbpMax} `;
+            } else {
+                fishbone += 'no BP ';
+            }
+            
+            // O2 saturation with therapy
+            if (data.vitals.o2 && data.vitals.o2.length > 0) {
+                const o2Min = Math.min(...data.vitals.o2);
+                const o2Max = Math.max(...data.vitals.o2);
+                fishbone += `O2 ${o2Min}-${o2Max}`;
+                if (data.o2therapy) {
+                    fishbone += `-${data.o2therapy}`;
+                }
+            } else if (data.o2therapy) {
+                fishbone += `${data.o2therapy}`;
+            } else {
+                fishbone += 'no O2';
+            }
+            
+            fishbone += '\n';
+            
+
+
+
+
+
+
+
+
+// Intake and Output
+if (data.intake !== null) {
+    fishbone += `I: ${data.intake}\n`;
+}
+if (data.output !== null) {
+    fishbone += `O: ${data.output}`;
+    // Calculate expected output
+    if (data.weight) {
+        const expectedOutput = data.weight * 0.5 * 24; // 0.5 cc/kg/hr over 24 hours
+        if (data.output < expectedOutput) {
+            fishbone += '*';
+        }
     }
-});
-
-// ============ END CHROME SYNC INTEGRATION ============
-
+    fishbone += '\n';
+}
 
 
+
+
+
+
+
+
+// ——— CBC Fishbone ———
+// Pull raw CBC values
+const wbc = data.labs.wbc?.[0];
+const hgb = data.labs.hgb?.[0];
+const hct = data.labs.hct?.[0];
+const plt = data.labs.plt?.[0];
+
+// Pull previous values
+const wbcPrev = data.labs.wbc?.[1];
+const hgbPrev = data.labs.hgb?.[1];
+const hctPrev = data.labs.hct?.[1];
+const pltPrev = data.labs.plt?.[1];
+
+// Build strings with previous values for abnormal results
+
+// WBC - abnormal if <4.5 or >11
+let wbcStr = '--';
+if (wbc !== undefined) {
+    wbcStr = wbc.toString();
+    if ((wbc < 4.5 || wbc > 11) && wbcPrev !== undefined) {
+        wbcStr = `*${wbc}*(${wbcPrev})`;
+    } else if (wbc < 4.5 || wbc > 11) {
+        wbcStr = `*${wbc}*`;
+    }
+}
+
+// Hgb - abnormal if <12 (female) or <13.5 (male), or <7 critically, or drop ≥1
+let hgbStr = '--';
+if (hgb !== undefined) {
+    hgbStr = hgb.toString();
+    // Check for critical value or significant drop
+    if (hgb < 7 || (hgbPrev !== undefined && hgbPrev - hgb >= 1)) {
+        hgbStr = `*${hgb}*${hgbPrev !== undefined ? `(${hgbPrev})` : ''}`;
+    }
+    // Check for general low value (using 12 as general threshold)
+    else if (hgb < 12 && hgbPrev !== undefined) {
+        hgbStr = `*${hgb}*(${hgbPrev})`;
+    } else if (hgb < 12) {
+        hgbStr = `*${hgb}*`;
+    }
+}
+
+// Hct - abnormal if <35.5 (female) or <38.3 (male), using 36 as general threshold
+let hctStr = '--';
+if (hct !== undefined) {
+    hctStr = hct.toString();
+    if (hct < 36 && hctPrev !== undefined) {
+        hctStr = `*${hct}*(${hctPrev})`;
+    } else if (hct < 36) {
+        hctStr = `*${hct}*`;
+    }
+}
+
+// Plt - abnormal if <150 or >400
+let pltStr = '--';
+if (plt !== undefined) {
+    pltStr = plt.toString();
+    if ((plt < 150 || plt > 400) && pltPrev !== undefined) {
+        pltStr = `*${plt}*(${pltPrev})`;
+    } else if (plt < 150 || plt > 400) {
+        pltStr = `*${plt}*`;
+    }
+}
+
+// Calculate positions of the top "\" and "/"
+const posBack = wbcStr.length;                      // index of top "\"
+const posSlash = wbcStr.length + 1 + hgbStr.length + 1; // index of top "/"
+
+// Top row:   WBC\Hgb /Plt
+fishbone += `${wbcStr}\\${hgbStr} /${pltStr}\n`;
+
+// Bottom row: build a char‐array so we can place "/" and "\" exactly
+const rowLen = Math.max(posSlash + 1, posBack + 1 + hctStr.length + 1);
+let bottom = Array(rowLen).fill(' ');
+bottom[posBack] = '/';                      // bottom "/" under top "\"
+for (let i = 0; i < hctStr.length; i++) {
+    bottom[posBack + 1 + i] = hctStr[i];      // insert Hct
+}
+bottom[posSlash] = '\\';                    // bottom "\" under top "/"
+fishbone += bottom.join('').replace(/\s+$/, '') + '\n';
+
+
+
+
+// ——— BMP Fishbone ———
+// Pull raw BMP values
+const na  = data.labs.na?.[0],
+      k   = data.labs.k?.[0],
+      cl  = data.labs.cl?.[0],
+      co2 = data.labs.co2?.[0],
+      bun = data.labs.bun?.[0],
+      cr  = data.labs.cr?.[0],
+      glu = data.labs.glu?.[0];
+
+// Build strings (flag K and include prev Cr when indicated)
+let naStr   = na  !== undefined ? na.toString()   : '--';
+let kStr    = k   !== undefined ? k.toString()    : '--';
+if (k !== undefined && (k < 3.5 || k > 5.0)) kStr = `*${kStr}*`;
+
+let clStr   = cl  !== undefined ? cl.toString()   : '--';
+let co2Str  = co2 !== undefined ? co2.toString()  : '--';
+let bunStr  = bun !== undefined ? bun.toString()  : '--';
+
+let crStr;
+if (cr !== undefined) {
+  crStr = cr.toString();
+  const prevCr = data.labs.cr?.[1];
+  if (prevCr !== undefined && (cr > 1 || cr - prevCr > 0.3)) {
+    crStr += ` (${prevCr})`;
+  }
+} else {
+  crStr = '--';
+}
+
+
+
+let gluStr  = glu !== undefined ? glu.toString()  : '--';
+
+// Determine column widths so "|" line up in both rows
+const col1 = Math.max(naStr.length,  kStr.length);
+const col2 = Math.max(clStr.length, co2Str.length);
+const col3 = Math.max(bunStr.length, crStr.length);
+
+// Top row:   NA   | CL   | BUN  /GLU
+fishbone +=
+  `${naStr.padEnd(col1)} |` +
+  `${clStr.padEnd(col2)} |` +
+  `${bunStr.padEnd(col3)}/${gluStr}\n`;
+
+// Bottom row:K    | CO2  | CR   \
+fishbone +=
+  `${kStr.padEnd(col1)} |` +
+  `${co2Str.padEnd(col2)} |` +
+  `${crStr.padEnd(col3)}\\\n`;
+
+
+            
+            // Check if labs are from today or yesterday
+            const currentDate = new Date();
+            const yesterday = new Date(currentDate);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            const isRecentDate = (dateStr) => {
+                if (!dateStr) return false;
+                const [month, day, year] = dateStr.split('/').map(n => parseInt(n));
+                const labDate = new Date(2000 + year, month - 1, day);
+                return labDate >= yesterday;
+            };
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// LFTs - only show if recent
+if ((data.labs.ast || data.labs.alt || data.labs.tbil || data.labs.alk) && 
+    (isRecentDate(data.dates.ast) || isRecentDate(data.dates.alt))) {
+    const ast = data.labs.ast?.[0];
+    const alt = data.labs.alt?.[0];
+    const astPrev = data.labs.ast?.[1];
+    const altPrev = data.labs.alt?.[1];
+    
+    let astAltStr = '';
+    if (ast && alt && (ast > 40 || alt > 40)) {
+        astAltStr = `AST/ALT:*${ast}/${alt}*(${astPrev || '--'}/${altPrev || '--'})`;
+    } else if (ast && alt) {
+        astAltStr = `AST/ALT:${ast}/${alt}`;
+    }
+    
+    // Total Bilirubin with previous value if abnormal
+    const tbil = data.labs.tbil?.[0];
+    const tbilPrev = data.labs.tbil?.[1];
+    let tbilStr = '';
+    if (tbil !== undefined) {
+        if (tbil > 1.2) {
+            tbilStr = `TB:*${tbil}*${tbilPrev !== undefined ? `(${tbilPrev})` : ''}`;
+        } else {
+            tbilStr = `TB:${tbil}`;
+        }
+    } else {
+        tbilStr = 'TB:no tb';
+    }
+    
+    // Direct Bilirubin with previous value if abnormal
+    const dbil = data.labs.dbil?.[0];
+    const dbilPrev = data.labs.dbil?.[1];
+    let dbilStr = '';
+    if (dbil !== undefined) {
+        if (dbil > 0.3) {
+            dbilStr = `DB:*${dbil}*${dbilPrev !== undefined ? `(${dbilPrev})` : ''}`;
+        } else {
+            dbilStr = `DB:${dbil}`;
+        }
+    } else {
+        dbilStr = 'DB:no db';
+    }
+    
+    // Alkaline Phosphatase with previous value if abnormal
+    const alk = data.labs.alk?.[0];
+    const alkPrev = data.labs.alk?.[1];
+    let alkStr = '';
+    if (alk !== undefined) {
+        if (alk > 150 || alk < 40) {
+            alkStr = `ALK:*${alk}*${alkPrev !== undefined ? `(${alkPrev})` : ''}`;
+        } else {
+            alkStr = `ALK:${alk}`;
+        }
+    } else {
+        alkStr = 'ALK:no alk';
+    }
+    
+    // GGT with previous value if abnormal
+    const ggt = data.labs.ggt?.[0];
+    const ggtPrev = data.labs.ggt?.[1];
+    let ggtStr = '';
+    if (ggt !== undefined) {
+        if (ggt > 60) {
+            ggtStr = `, GGT:*${ggt}*${ggtPrev !== undefined ? `(${ggtPrev})` : ''}`;
+        } else {
+            ggtStr = `, GGT:${ggt}`;
+        }
+    }
+    
+    fishbone += `${astAltStr}, ${tbilStr}, ${dbilStr}, ${alkStr}${ggtStr}`;
+    
+    // Add timestamp
+    const lfDate = data.dates.ast || data.dates.alt || data.dates.tbil;
+    if (lfDate) fishbone += ` (${lfDate} ${data.times.ast || data.times.alt || data.times.tbil || '22:09:00'})`;
+    fishbone += '\n';
+}
+
+
+
+
+
+// ——— Coagulation Fishbone ———
+// Only show if coag values exist AND are from today or yesterday
+if ((data.labs.pt || data.labs.ptt || data.labs.inr || data.labs.fib) &&
+    (isRecentDate(data.dates.pt) || isRecentDate(data.dates.ptt) || 
+     isRecentDate(data.dates.inr) || isRecentDate(data.dates.fib))) {
+    
+    const pt = data.labs.pt?.[0];
+    const ptt = data.labs.ptt?.[0];
+    const inr = data.labs.inr?.[0];
+    const fib = data.labs.fib?.[0];
+    
+    const ptPrev = data.labs.pt?.[1];
+    const pttPrev = data.labs.ptt?.[1];
+    const inrPrev = data.labs.inr?.[1];
+    const fibPrev = data.labs.fib?.[1];
+    
+    // Build strings with previous values for abnormal results
+    
+    // PT - abnormal if >13.5 seconds
+    let ptStr = '--';
+    if (pt !== undefined) {
+        ptStr = pt.toString();
+        if (pt > 13.5 && ptPrev !== undefined) {
+            ptStr = `*${pt}*(${ptPrev})`;
+        } else if (pt > 13.5) {
+            ptStr = `*${pt}*`;
+        }
+    }
+    
+    // PTT - abnormal if >35 seconds
+    let pttStr = '--';
+    if (ptt !== undefined) {
+        pttStr = ptt.toString();
+        if (ptt > 35 && pttPrev !== undefined) {
+            pttStr = `*${ptt}*(${pttPrev})`;
+        } else if (ptt > 35) {
+            pttStr = `*${ptt}*`;
+        }
+    }
+    
+    // INR - abnormal if >1.1
+    let inrStr = '--';
+    if (inr !== undefined) {
+        inrStr = inr.toString();
+        if (inr > 1.1 && inrPrev !== undefined) {
+            inrStr = `*${inr}*(${inrPrev})`;
+        } else if (inr > 1.1) {
+            inrStr = `*${inr}*`;
+        }
+    }
+    
+    // Fibrinogen - abnormal if <200 or >400
+    let fibStr = '--';
+    if (fib !== undefined) {
+        fibStr = fib.toString();
+        if ((fib < 200 || fib > 400) && fibPrev !== undefined) {
+            fibStr = `*${fib}*(${fibPrev})`;
+        } else if (fib < 200 || fib > 400) {
+            fibStr = `*${fib}*`;
+        }
+    }
+    
+    // Format as: PT/PTT INR/Fib
+    fishbone += `Coags: PT/PTT: ${ptStr}/${pttStr}, INR: ${inrStr}, Fib: ${fibStr}`;
+    
+    // Add timestamp if available
+    const coagDate = data.dates.pt || data.dates.ptt || data.dates.inr || data.dates.fib;
+    if (coagDate) {
+        const coagTime = data.times.pt || data.times.ptt || data.times.inr || data.times.fib || '';
+        fishbone += ` (${coagDate}${coagTime ? ' ' + coagTime : ''})`;
+    }
+    fishbone += '\n';
+}
+
+
+
+
+
+
+
+            
+            // ABG - only show if recent
+            if ((data.labs.ph || data.labs.po2 || data.labs.pco2) && 
+                (isRecentDate(data.dates.ph) || isRecentDate(data.dates.po2))) {
+                const ph = data.labs.ph?.[0] || 'no ph';
+                const po2 = data.labs.po2?.[0] || 'no po2';
+                const pco2 = data.labs.pco2?.[0] || 'no pco2';
+                const bicarb = data.labs.bicarb?.[0] || 'no bicarb';
+                const lactate = data.labs.lactate?.[0];
+                
+                fishbone += `${ph}/${pco2}/${po2}/${bicarb}/`;
+                if (lactate) fishbone += ` Lactate:${lactate}`;
+                
+                // Add timestamp
+                const abgDate = data.dates.ph || data.dates.po2;
+                if (abgDate) fishbone += ` (${abgDate} ${data.dates.phTime || '16:33:00'})`;
+                fishbone += '\n';
+            }
+            
+            return fishbone;
+        }
+        
+        function padRight(str, length) {
+            while (str.length < length) {
+                str += ' ';
+            }
+            return str;
+        }
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function generateWarnings(data) {
+    const warnings = [];
+    const currentDate = new Date().toLocaleDateString('en-US', { 
+        month: '2-digit', 
+        day: '2-digit', 
+        year: '2-digit' 
+    });
+    
+    // Check for date mismatches by category
+    const dateCategories = {
+        'CBC': ['wbc', 'hgb', 'hct', 'plt'],
+        'CMP': ['na', 'k', 'cl', 'co2', 'bun', 'cr', 'glu', 'ca', 'mg', 'phos'],
+        'LFTs': ['ast', 'alt', 'tbil', 'dbil', 'alk', 'ggt'],
+        'Coags': ['pt', 'ptt', 'inr', 'fib'],
+        'ABG': ['ph', 'po2', 'pco2', 'bicarb', 'lactate']
+    };
+    
+    // Check each category for outdated values
+    for (const [category, labs] of Object.entries(dateCategories)) {
+        let outdated = false;
+        let lastDate = '';
+        
+        for (const lab of labs) {
+            if (data.dates[lab] && data.dates[lab] !== currentDate) {
+                outdated = true;
+                lastDate = data.dates[lab];
+                break;
+            }
+        }
+        
+        if (outdated) {
+            let labTime = '';
+            for (const lab of labs) {
+                if (data.times && data.times[lab]) {
+                    labTime = data.times[lab];
+                    break;
+                }
+            }
+            if (labTime) {
+                warnings.push(`Last ${category} from ${lastDate} ${labTime}!!`);
+            } else {
+                warnings.push(`Last ${category} from ${lastDate}!!`);
+            }
+        }
+    }
+    
+    // Check for low urine output
+    if (data.output !== null && data.weight) {
+        const expectedOutput = data.weight * 0.5 * 24;
+        if (data.output < expectedOutput) {
+            const hourlyOutput = Math.round(data.output / 24);
+            const expectedHourly = Math.round(data.weight * 0.5);
+            warnings.push(`LOW URINE OUTPUT! *${data.output}* mL/24hr (*${hourlyOutput}* mL/hr, expected: *${expectedHourly}* mL/hr)`);
+        }
+    } else if (data.output === null) {
+        warnings.push('Urine output not found');
+    } else if (data.weight === null) {
+        warnings.push('Weight not found - cannot calculate expected urine output');
+    }
+
+
+
+
+
+
+
+
+
+
+ // Temperature - Check if ANY temp was febrile or hypothermic
+    if (data.vitals.temp && data.vitals.temp.length > 0) {
+        const temps = data.vitals.temp;
+        const minTemp = Math.min(...temps).toFixed(1);
+        const maxTemp = Math.max(...temps).toFixed(1);
+        const avgTemp = (temps.reduce((a, b) => a + b, 0) / temps.length).toFixed(1);
+        
+        const hadFever = temps.some(t => t > 38);
+        const hadHypothermia = temps.some(t => t < 35);
+        
+        if (hadFever) {
+            warnings.push(`FEBRILE!!! Max temp *${maxTemp}*°C, avg: ${avgTemp} (${minTemp}-${maxTemp})`);
+        }
+        if (hadHypothermia) {
+            warnings.push(`HYPOTHERMIC!!! Min temp *${minTemp}*°C, avg: ${avgTemp} (${minTemp}-${maxTemp})`);
+        }
+    } else {
+        warnings.push('no T');
+    }
+
+    // Heart Rate - Check if ANY HR was tachycardic or bradycardic
+    if (data.vitals.hr && data.vitals.hr.length > 0) {
+        const hrs = data.vitals.hr;
+        const minHR = Math.min(...hrs);
+        const maxHR = Math.max(...hrs);
+        const avgHR = Math.round(hrs.reduce((a, b) => a + b, 0) / hrs.length);
+        
+        const hadTachycardia = hrs.some(hr => hr > 100);
+        const hadBradycardia = hrs.some(hr => hr < 60);
+        
+        if (hadTachycardia) {
+            warnings.push(`TACHYCARDIC!!! Max HR *${maxHR}*, avg: ${avgHR} (${minHR}-${maxHR})`);
+        }
+        if (hadBradycardia) {
+            warnings.push(`BRADYCARDIC!!! Min HR *${minHR}*, avg: ${avgHR} (${minHR}-${maxHR})`);
+        }
+    } else {
+        warnings.push('no HR');
+    }
+
+    // Blood Pressure - Check if ANY SBP was hypotensive or hypertensive
+    if (data.vitals.sbp && data.vitals.sbp.length > 0) {
+        const sbps = data.vitals.sbp;
+        const minSBP = Math.min(...sbps);
+        const maxSBP = Math.max(...sbps);
+        const avgSBP = Math.round(sbps.reduce((a, b) => a + b, 0) / sbps.length);
+        
+        const hadHypotension = sbps.some(sbp => sbp < 90);
+        const hadHypertension = sbps.some(sbp => sbp > 180);
+        
+        if (hadHypotension) {
+            warnings.push(`HYPOTENSIVE!!! Min SBP *${minSBP}*, avg: ${avgSBP} (${minSBP}-${maxSBP})`);
+        }
+        if (hadHypertension) {
+            warnings.push(`HYPERTENSIVE!!! Max SBP *${maxSBP}*, avg: ${avgSBP} (${minSBP}-${maxSBP})`);
+        }
+    } else {
+        warnings.push('no BP');
+    }
+
+    // O2 Saturation - Check if ANY O2 was hypoxic
+    if (data.vitals.o2 && data.vitals.o2.length > 0) {
+        const o2s = data.vitals.o2;
+        const minO2 = Math.min(...o2s);
+        const maxO2 = Math.max(...o2s);
+        const avgO2 = Math.round(o2s.reduce((a, b) => a + b, 0) / o2s.length);
+        
+        const hadHypoxia = o2s.some(o2 => o2 < 94);
+        
+        if (hadHypoxia) {
+            warnings.push(`HYPOXIC!!! Min O2 *${minO2}*%, avg: ${avgO2} (${minO2}-${maxO2})`);
+        }
+    } else {
+        warnings.push('no O2');
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+// WBC check
+    if (data.labs.wbc && data.labs.wbc[0] !== undefined) {
+        const wbc = data.labs.wbc[0];
+        const wbcPrev = data.labs.wbc[1];
+        if (wbc < 4) {
+            const wbcStr = wbcPrev !== undefined ? `*${wbc}* (*${wbcPrev}*)` : `*${wbc}*`;
+            warnings.push(`WBC low!!! ${wbcStr}`);
+        } else if (wbc > 11) {
+            const wbcStr = wbcPrev !== undefined ? `*${wbc}* (*${wbcPrev}*)` : `*${wbc}*`;
+            warnings.push(`WBC high!!! ${wbcStr}`);
+        }
+    } else {
+        warnings.push('no wbc');
+    }
+    
+    // Hgb check
+    if (data.labs.hgb && data.labs.hgb[0] !== undefined) {
+        const hgb = data.labs.hgb[0];
+        const hgbPrev = data.labs.hgb[1];
+        if (hgb < 7 || (hgbPrev !== undefined && hgbPrev - hgb >= 1)) {
+            const hgbStr = hgbPrev !== undefined ? `*${hgb}* (*${hgbPrev}*)` : `*${hgb}*`;
+            warnings.push(`Hgb low!!! ${hgbStr}`);
+        }
+    } else {
+        warnings.push('no hgb');
+    }
+    
+    // PLT check
+    if (data.labs.plt && data.labs.plt[0] !== undefined) {
+        const plt = data.labs.plt[0];
+        const pltPrev = data.labs.plt[1];
+        if (plt < 150) {
+            const pltStr = pltPrev !== undefined ? `*${plt}* (*${pltPrev}*)` : `*${plt}*`;
+            warnings.push(`PLT low!!! ${pltStr}`);
+        }
+    } else {
+        warnings.push('no PLT');
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    // Sodium check
+    if (data.labs.na && data.labs.na[0] !== undefined) {
+        const na = data.labs.na[0];
+        const naPrev = data.labs.na[1];
+        const naStr = naPrev !== undefined ? `*${na}* (*${naPrev}*)` : `*${na}*`;
+        
+        if (na < 135) {
+            warnings.push(`Hyponatremic! 1L FWR, Salt tabs 2g BID, Na: ${naStr}`);
+        } else if (na > 145) {
+            warnings.push(`Hypernatremic! Na: ${naStr} -> FWB/D5W/0.45 NS`);
+        }
+    } else {
+        warnings.push('no Na');
+    }
+    
+    // Potassium check
+    if (data.labs.k && data.labs.k[0] !== undefined) {
+        const k = data.labs.k[0];
+        const kPrev = data.labs.k[1];
+        const kStr = kPrev !== undefined ? `*${k}* (*${kPrev}*)` : `*${k}*`;
+        
+        if (k >= 3.3 && k <= 3.9) {
+            warnings.push(`Give 40 meq K PO or IV, K=${kStr}`);
+        } else if (k >= 3 && k <= 3.2) {
+            warnings.push(`Give 60 meq K IV, K=${kStr}`);
+        } else if (k >= 2.6 && k <= 2.9) {
+            warnings.push(`Give 80 meq K IV and NHO, K=${kStr}`);
+        } else if (k > 0 && k <= 2.6) {
+            warnings.push(`Give 100 meq K and NHO, K=${kStr}`);
+        } else if (k > 5) {
+            warnings.push(`Hyperkalemic!!, K=${kStr}`);
+        }
+    } else {
+        warnings.push('No K');
+    }
+    
+    // BUN check
+    if (data.labs.bun && data.labs.bun[0] !== undefined) {
+        const bun = data.labs.bun[0];
+        const bunPrev = data.labs.bun[1];
+        if (bun > 24) {
+            const bunStr = bunPrev !== undefined ? `*${bun}* (*${bunPrev}*)` : `*${bun}*`;
+            warnings.push(`BUN elevated!! ${bunStr}`);
+        }
+    } else {
+        warnings.push('no BUN');
+    }
+    
+    // Creatinine check
+    const crValues = data.labs.cr ?? [];
+    if (crValues.length === 0) {
+        warnings.push('no Cr');
+    } else {
+        const currentCr = crValues[0];
+        const prevCr = crValues[1];
+        const delta = prevCr !== undefined ? currentCr - prevCr : 0;
+
+        if (currentCr > 1 || delta > 0.3) {
+            const crStr = prevCr !== undefined ? `*${currentCr}* (*${prevCr}*)` : `*${currentCr}*`;
+            warnings.push(`AKI!!! Cr ${crStr}`);
+        }
+    }
+    
+    // Glucose check
+    if (data.labs.glu && data.labs.glu[0] !== undefined) {
+        const glu = data.labs.glu[0];
+        const gluPrev = data.labs.glu[1];
+        const gluStr = gluPrev !== undefined ? `*${glu}* (*${gluPrev}*)` : `*${glu}*`;
+        
+        if (glu > 200) {
+            warnings.push(`Hyperglycemic!! ${gluStr}`);
+        } else if (glu < 70) {
+            warnings.push(`Hypoglycemic!! ${gluStr}`);
+        }
+    } else {
+        warnings.push('no glucose');
+    }
+    
+    // Calcium check
+    if (data.labs.ca && data.labs.ca[0] !== undefined) {
+        const ca = data.labs.ca[0];
+        const caPrev = data.labs.ca[1];
+        const caType = data.labs.caType;
+        const isIonized = ca < 7;
+        
+        if (isIonized && !caType) {
+            const caStr = caPrev !== undefined ? `*${ca}* (*${caPrev}*)` : `*${ca}*`;
+            if (ca >= 3.5 && ca < 4) {
+                warnings.push(`Give 4g calcium gluconate, 2g/hr, iCa=${caStr}`);
+            } else if (ca >= 3 && ca <= 3.4) {
+                warnings.push(`Give 6g calcium gluconate 2g/hr, iCa=${caStr}`);
+            } else if (ca >= 2.5 && ca <= 2.9) {
+                warnings.push(`Give 8g calcium gluconate 2g/hr, iCa=${caStr}`);
+            } else if (ca > 0 && ca < 2.5) {
+                warnings.push(`Give 10g calcium gluconate 2g/hr, notify senior! iCa=${caStr}`);
+            } else if (ca > 5.3) {
+                warnings.push(`Hypercalcemia! iCa=${caStr}`);
+            }
+        } else {
+            const caLabel = caType === 'corrected' ? 'Corrected Ca' : 'Total Ca';
+            const caStr = caPrev !== undefined ? `*${ca}* (*${caPrev}*)` : `*${ca}*`;
+            
+            if (ca < 8.5) {
+                if (ca >= 8.0 && ca < 8.5) {
+                    warnings.push(`Mild hypocalcemia: ${caLabel}=${caStr}`);
+                } else if (ca >= 7.0 && ca < 8.0) {
+                    warnings.push(`Moderate hypocalcemia: ${caLabel}=${caStr}, give calcium`);
+                } else if (ca < 7.0) {
+                    warnings.push(`Severe hypocalcemia: ${caLabel}=${caStr}, give IV calcium!`);
+                }
+            } else if (ca > 10.2) {
+                if (ca > 10.2 && ca <= 11.5) {
+                    warnings.push(`Mild hypercalcemia: ${caLabel}=${caStr}`);
+                } else if (ca > 11.5 && ca <= 13.0) {
+                    warnings.push(`Moderate hypercalcemia: ${caLabel}=${caStr}`);
+                } else if (ca > 13.0) {
+                    warnings.push(`Severe hypercalcemia: ${caLabel}=${caStr}, urgent treatment!`);
+                }
+            }
+        }
+    } else {
+        warnings.push('Calcium not found');
+    }
+    
+    // Magnesium check
+    if (data.labs.mg && data.labs.mg[0] !== undefined) {
+        const mg = data.labs.mg[0];
+        const mgPrev = data.labs.mg[1];
+        const mgStr = mgPrev !== undefined ? `*${mg}* (*${mgPrev}*)` : `*${mg}*`;
+        
+        if (mg >= 1.6 && mg <= 1.9) {
+            warnings.push(`Give 4g mag sulfate IV/2hr@2g/hr, Mg: ${mgStr}`);
+        } else if (mg >= 1 && mg <= 1.5) {
+            warnings.push(`Give 6g mag sulfate IV/3hr@2g/hr, Mg: ${mgStr}`);
+        } else if (mg > 0 && mg <= 1) {
+            warnings.push(`Give 8g mag sulfate IV/4hr@2g/hr, Mg: ${mgStr}`);
+        }
+    } else {
+        warnings.push('No mag');
+    }
+    
+    // Phosphorus check
+    if (data.labs.phos && data.labs.phos[0] !== undefined) {
+        const p = data.labs.phos[0];
+        const pPrev = data.labs.phos[1];
+        const pStr = pPrev !== undefined ? `*${p}* (*${pPrev}*)` : `*${p}*`;
+        
+        if (p >= 2 && p < 2.5) {
+            warnings.push(`Give 15 mmol phos (22.5 Meq K IV), P=${pStr}`);
+        } else if (p >= 1.6 && p <= 1.9) {
+            warnings.push(`Give 30 mmol phos (45 Meq K IV), P=${pStr}`);
+        } else if (p > 0 && p <= 1.6) {
+            warnings.push(`Give 40 mmol phos (60 Meq K IV), P=${pStr}`);
+        }
+    }
+    
+    // Coagulation checks
+    if (data.labs.pt && data.labs.pt[0] !== undefined && data.labs.pt[0] > 15) {
+        const ptPrev = data.labs.pt[1];
+        const ptStr = ptPrev !== undefined ? `*${data.labs.pt[0]}* (*${ptPrev}*)` : `*${data.labs.pt[0]}*`;
+        warnings.push(`PT elevated: ${ptStr}`);
+    }
+    
+    if (data.labs.ptt && data.labs.ptt[0] !== undefined && data.labs.ptt[0] > 40) {
+        const pttPrev = data.labs.ptt[1];
+        const pttStr = pttPrev !== undefined ? `*${data.labs.ptt[0]}* (*${pttPrev}*)` : `*${data.labs.ptt[0]}*`;
+        warnings.push(`PTT elevated: ${pttStr}`);
+    }
+    
+    if (data.labs.inr && data.labs.inr[0] !== undefined && data.labs.inr[0] > 1.5) {
+        const inrPrev = data.labs.inr[1];
+        const inrStr = inrPrev !== undefined ? `*${data.labs.inr[0]}* (*${inrPrev}*)` : `*${data.labs.inr[0]}*`;
+        warnings.push(`INR elevated: ${inrStr}`);
+    }
+    
+    if (data.labs.fib && data.labs.fib[0] !== undefined && data.labs.fib[0] < 100) {
+        const fibPrev = data.labs.fib[1];
+        const fibStr = fibPrev !== undefined ? `*${data.labs.fib[0]}* (*${fibPrev}*)` : `*${data.labs.fib[0]}*`;
+        warnings.push(`Fibrinogen low: ${fibStr}`);
+    }
+
+    // ABG checks
+    if (data.labs.ph && data.labs.ph[0] !== undefined) {
+        const ph = data.labs.ph[0];
+        const phPrev = data.labs.ph[1];
+        const phStr = phPrev !== undefined ? `*${ph}* (*${phPrev}*)` : `*${ph}*`;
+        
+        if (ph < 7.35) {
+            if (ph < 7.2) {
+                warnings.push(`SEVERE ACIDEMIA!!! pH: ${phStr}`);
+            } else if (ph < 7.3) {
+                warnings.push(`Moderate acidemia! pH: ${phStr}`);
+            } else {
+                warnings.push(`Acidemia! pH: ${phStr}`);
+            }
+        } else if (ph > 7.45) {
+            if (ph > 7.55) {
+                warnings.push(`SEVERE ALKALEMIA!!! pH: ${phStr}`);
+            } else if (ph > 7.5) {
+                warnings.push(`Moderate alkalemia! pH: ${phStr}`);
+            } else {
+                warnings.push(`Alkalemia! pH: ${phStr}`);
+            }
+        }
+    }
+
+    if (data.labs.pco2 && data.labs.pco2[0] !== undefined) {
+        const pco2 = data.labs.pco2[0];
+        const pco2Prev = data.labs.pco2[1];
+        const pco2Str = pco2Prev !== undefined ? `*${pco2}* (*${pco2Prev}*)` : `*${pco2}*`;
+        
+        if (pco2 > 45) {
+            if (pco2 > 60) {
+                warnings.push(`SEVERE HYPERCAPNIA!!! pCO2: ${pco2Str}`);
+            } else if (pco2 > 50) {
+                warnings.push(`Moderate hypercapnia! pCO2: ${pco2Str}`);
+            } else {
+                warnings.push(`Hypercapnia! pCO2: ${pco2Str}`);
+            }
+        } else if (pco2 < 35) {
+            if (pco2 < 25) {
+                warnings.push(`Severe hypocapnia! pCO2: ${pco2Str}`);
+            } else {
+                warnings.push(`Hypocapnia! pCO2: ${pco2Str}`);
+            }
+        }
+    }
+
+    if (data.labs.po2 && data.labs.po2[0] !== undefined) {
+        const po2 = data.labs.po2[0];
+        const po2Prev = data.labs.po2[1];
+        const po2Str = po2Prev !== undefined ? `*${po2}* (*${po2Prev}*)` : `*${po2}*`;
+        
+        if (po2 < 80) {
+            if (po2 < 60) {
+                warnings.push(`SEVERE HYPOXEMIA!!! pO2: ${po2Str}`);
+            } else if (po2 < 70) {
+                warnings.push(`Moderate hypoxemia! pO2: ${po2Str}`);
+            } else {
+                warnings.push(`Mild hypoxemia! pO2: ${po2Str}`);
+            }
+        }
+    }
+
+    if (data.labs.bicarb && data.labs.bicarb[0] !== undefined) {
+        const bicarb = data.labs.bicarb[0];
+        const bicarbPrev = data.labs.bicarb[1];
+        const bicarbStr = bicarbPrev !== undefined ? `*${bicarb}* (*${bicarbPrev}*)` : `*${bicarb}*`;
+        
+        if (bicarb < 22) {
+            if (bicarb < 15) {
+                warnings.push(`SEVERE metabolic acidosis!!! HCO3: ${bicarbStr}`);
+            } else if (bicarb < 18) {
+                warnings.push(`Moderate metabolic acidosis! HCO3: ${bicarbStr}`);
+            } else {
+                warnings.push(`Metabolic acidosis! HCO3: ${bicarbStr}`);
+            }
+        } else if (bicarb > 28) {
+            if (bicarb > 35) {
+                warnings.push(`Severe metabolic alkalosis! HCO3: ${bicarbStr}`);
+            } else {
+                warnings.push(`Metabolic alkalosis! HCO3: ${bicarbStr}`);
+            }
+        }
+    }
+
+    // Lactate check
+    if (data.labs.lactate && data.labs.lactate[0] !== undefined) {
+        const lactate = data.labs.lactate[0];
+        const lactatePrev = data.labs.lactate[1];
+        const lactateStr = lactatePrev !== undefined ? `*${lactate}* (*${lactatePrev}*)` : `*${lactate}*`;
+        
+        if (lactate > 2) {
+            if (lactate > 4) {
+                warnings.push(`LACTIC ACIDOSIS!!! Lactate: ${lactateStr}`);
+            } else {
+                warnings.push(`Elevated lactate! ${lactateStr}`);
+            }
+        }
+    }
+    
+    // LFT checks
+    if ((data.labs.ast && data.labs.ast[0] !== undefined && data.labs.ast[0] > 40) || 
+        (data.labs.alt && data.labs.alt[0] !== undefined && data.labs.alt[0] > 40)) {
+        const ast = data.labs.ast?.[0];
+        const alt = data.labs.alt?.[0];
+        const astPrev = data.labs.ast?.[1];
+        const altPrev = data.labs.alt?.[1];
+        
+        let astStr = ast !== undefined ? `*${ast}*` : '--';
+        let altStr = alt !== undefined ? `*${alt}*` : '--';
+        
+        if (astPrev !== undefined && ast !== undefined) {
+            astStr = `*${ast}* (*${astPrev}*)`;
+        }
+        if (altPrev !== undefined && alt !== undefined) {
+            altStr = `*${alt}* (*${altPrev}*)`;
+        }
+        
+        warnings.push(`AST/ALT elevated: ${astStr}/${altStr}`);
+    }
+    
+    if (data.labs.tbil && data.labs.tbil[0] !== undefined && data.labs.tbil[0] > 1) {
+        const tbilPrev = data.labs.tbil[1];
+        const tbilStr = tbilPrev !== undefined ? `*${data.labs.tbil[0]}* (*${tbilPrev}*)` : `*${data.labs.tbil[0]}*`;
+        warnings.push(`Total Bilirubin elevated: ${tbilStr}`);
+    }
+    
+    if (data.labs.dbil && data.labs.dbil[0] !== undefined && data.labs.dbil[0] > 1) {
+        const dbilPrev = data.labs.dbil[1];
+        const dbilStr = dbilPrev !== undefined ? `*${data.labs.dbil[0]}* (*${dbilPrev}*)` : `*${data.labs.dbil[0]}*`;
+        warnings.push(`Direct Bilirubin elevated: ${dbilStr}`);
+    }
+    
+    if (data.labs.alk && data.labs.alk[0] !== undefined && data.labs.alk[0] > 100) {
+        const alkPrev = data.labs.alk[1];
+        const alkStr = alkPrev !== undefined ? `*${data.labs.alk[0]}* (*${alkPrev}*)` : `*${data.labs.alk[0]}*`;
+        warnings.push(`Alkaline Phosphatase elevated: ${alkStr}`);
+    }
+    
+    if (data.labs.ggt && data.labs.ggt[0] !== undefined && data.labs.ggt[0] > 100) {
+        const ggtPrev = data.labs.ggt[1];
+        const ggtStr = ggtPrev !== undefined ? `*${data.labs.ggt[0]}* (*${ggtPrev}*)` : `*${data.labs.ggt[0]}*`;
+        warnings.push(`GGT elevated: ${ggtStr}`);
+    }
+    
+    return warnings;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function extractOrders(text) {
+    // Extract medications section
+    const medsMatch = text.match(/Medications.*?\(\d+\)\s*Active([\s\S]*?)(?=(?:\n\n)?(?:DIET ORDER:|CONSULTATION:|PROCEDURE:|IMAGING:|LABS:|$))/i);
+    if (!medsMatch) return '';
+    
+    const medsText = medsMatch[1];
+    
+    // Get existing LTD and dispo
+    const currentOrders = document.getElementById('field_ORDERS')?.value || '';
+    let existingLTD = '';
+    let existingDispo = '';
+    
+    if (currentOrders) {
+        const ltdMatch = currentOrders.match(/^LTD:[ \t]*([^\r\n]*)/m);
+        const dispoMatch = currentOrders.match(/dispo:\s*([^\n]+)/);
+        if (ltdMatch) existingLTD = ltdMatch[1].trim();
+        if (dispoMatch) existingDispo = dispoMatch[1].trim();
+    }
+    
+    fullOrdersText = medsText;
+    
+    // Extract diet order
+    const dietMatch = text.match(/DIET ORDER:\s*([^\n]+)/i);
+    
+    // Initialize order categories
+    const orders = {
+        'N/F': [],
+        'Pain': [],
+        'Abx': [],
+        'AC': []
+    };
+
+    // COMPREHENSIVE MEDICATION ABBREVIATION TABLE
+    const drugAbbreviations = {
+        // Pain medications
+        'acetaminophen': { abbr: 'T', category: 'Pain' },
+        'tylenol': { abbr: 'T', category: 'Pain' },
+        'morphine': { abbr: 'm', category: 'Pain' },
+        'oxycodone': { abbr: 'o', category: 'Pain' },
+        'oxyCODONE': { abbr: 'o', category: 'Pain' },
+        'percocet': { abbr: 'perc', category: 'Pain' },
+        'hydromorphone': { abbr: 'D', category: 'Pain' },
+        'dilaudid': { abbr: 'D', category: 'Pain' },
+        'fentanyl': { abbr: 'fent', category: 'Pain' },
+        'tramadol': { abbr: 'tram', category: 'Pain' },
+        'ketorolac': { abbr: 'k', category: 'Pain' },
+        'toradol': { abbr: 'k', category: 'Pain' },
+        'gabapentin': { abbr: 'g', category: 'Pain' },
+        'neurontin': { abbr: 'g', category: 'Pain' },
+        'pregabalin': { abbr: 'lyrica', category: 'Pain' },
+        'lidocaine': { abbr: 'lido', category: 'Pain' },
+        'methocarbamol': { abbr: 'r', category: 'Pain' },
+        'robaxin': { abbr: 'r', category: 'Pain' },
+        'cyclobenzaprine': { abbr: 'flexeril', category: 'Pain' },
+        'baclofen': { abbr: 'bac', category: 'Pain' },
+        'ibuprofen': { abbr: 'ibu', category: 'Pain' },
+        'naproxen': { abbr: 'nap', category: 'Pain' },
+        'celecoxib': { abbr: 'celebrex', category: 'Pain' },
+        'dexmedetomidine': { abbr: 'precedex', category: 'Pain' },
+        
+        // Antibiotics
+        'vancomycin': { abbr: 'vanco', category: 'Abx' },
+        'piperacillin': { abbr: 'zosyn', category: 'Abx' },
+        'tazobactam': { abbr: 'zosyn', category: 'Abx' },
+        'ceftriaxone': { abbr: 'ctx', category: 'Abx' },
+        'cefepime': { abbr: 'cef', category: 'Abx' },
+        'cefazolin': { abbr: 'ancef', category: 'Abx' },
+        'meropenem': { abbr: 'mero', category: 'Abx' },
+        'azithromycin': { abbr: 'azithro', category: 'Abx' },
+        'levofloxacin': { abbr: 'levo', category: 'Abx' },
+        'ciprofloxacin': { abbr: 'cipro', category: 'Abx' },
+        'metronidazole': { abbr: 'flagyl', category: 'Abx' },
+        'clindamycin': { abbr: 'clinda', category: 'Abx' },
+        'doxycycline': { abbr: 'doxy', category: 'Abx' },
+        'fluconazole': { abbr: 'fluc', category: 'Abx' },
+        'micafungin': { abbr: 'mica', category: 'Abx' },
+        'ampicillin': { abbr: 'amp', category: 'Abx' },
+        'amoxicillin': { abbr: 'amox', category: 'Abx' },
+        'trimethoprim': { abbr: 'bactrim', category: 'Abx' },
+        'sulfamethoxazole': { abbr: 'bactrim', category: 'Abx' },
+        'linezolid': { abbr: 'zyvox', category: 'Abx' },
+        
+        // Pressors
+        'norepinephrine': { abbr: 'levo', category: 'Abx' },
+        'epinephrine': { abbr: 'epi', category: 'Abx' },
+        'vasopressin': { abbr: 'vaso', category: 'Abx' },
+        'phenylephrine': { abbr: 'neo', category: 'Abx' },
+        'dopamine': { abbr: 'dopa', category: 'Abx' },
+        
+        // Anticoagulation
+        'heparin': { abbr: 'hep', category: 'AC' },
+        'enoxaparin': { abbr: 'L', category: 'AC' },
+        'lovenox': { abbr: 'L', category: 'AC' },
+        'aspirin': { abbr: 'ASA', category: 'AC' },
+        'clopidogrel': { abbr: 'plavix', category: 'AC' },
+        'warfarin': { abbr: 'coumadin', category: 'AC' },
+        'apixaban': { abbr: 'eliquis', category: 'AC' },
+        'rivaroxaban': { abbr: 'xarelto', category: 'AC' },
+        'fondaparinux': { abbr: 'arixtra', category: 'AC' },
+        
+        // Fluids
+        'lactated ringers': { abbr: 'LR', category: 'N/F' },
+        'normal saline': { abbr: 'NS', category: 'N/F' },
+        'dextrose': { abbr: 'D', category: 'N/F' },
+        'd5w': { abbr: 'D5W', category: 'N/F' },
+        'd5ns': { abbr: 'D5NS', category: 'N/F' },
+        'albumin': { abbr: 'alb', category: 'N/F' }
+    };
+
+    // Helper function to extract dose and frequency
+    function extractDoseInfo(line) {
+        let dose = '';
+        let freq = '';
+        
+        // Extract dose (mg, g, mcg, units, mL, etc.)
+        const doseMatch = line.match(/(\d+(?:\.\d+)?)\s*(mg|g|mcg|unit|units|mL|L)/i);
+        if (doseMatch) {
+            // Only include the number for mg, include unit for others
+            if (doseMatch[2].toLowerCase() === 'mg') {
+                dose = doseMatch[1];
+            } else {
+                dose = doseMatch[1] + doseMatch[2].toLowerCase();
+            }
+        }
+        
+        // Extract frequency patterns
+        const freqPatterns = {
+            'every 4 hours': 'q4',
+            'every 6 hours': 'q6', 
+            'every 8 hours': 'q8',
+            'every 12 hours': 'q12',
+            'daily': 'qd',
+            'twice a day': 'bid',
+            '2 times a day': 'bid',
+            'three times a day': 'tid',
+            '3 times a day': 'tid',
+            'four times a day': 'qid',
+            '4 times a day': 'qid',
+            'as needed': 'prn',
+            'bedtime': 'qhs',
+            'once': 'x1'
+        };
+        
+        for (const [pattern, abbr] of Object.entries(freqPatterns)) {
+            if (line.toLowerCase().includes(pattern)) {
+                freq = abbr;
+                break;
+            }
+        }
+        
+        // Extract rate for continuous infusions
+        const rateMatch = line.match(/(\d+)\s*mL\/hr/i);
+        if (rateMatch) freq = '@' + rateMatch[1];
+        
+        return { dose, freq };
+    }
+
+    // Process diet order
+    if (dietMatch) {
+        const diet = dietMatch[1].trim().toLowerCase();
+        const dietMap = {
+            'npo': 'NPO',
+            'nothing by mouth': 'NPO',
+            'regular': 'RD',
+            'general': 'RD',
+            'clear liquid': 'CLD',
+            'full liquid': 'FLD',
+            'renal': 'renal',
+            'cardiac': 'cardiac',
+            'diabetic': 'DM diet',
+            'diabetes': 'DM diet',
+            'soft': 'soft',
+            'mechanical soft': 'mech soft',
+            'pureed': 'puree',
+            'dysphagia': 'dysphagia'
+        };
+        
+        for (const [key, value] of Object.entries(dietMap)) {
+            if (diet.includes(key)) {
+                orders['N/F'].push(value);
+                break;
+            }
+        }
+    }
+    
+    // Process medications
+    const medLines = medsText.split('\n').filter(line => line.trim());
+    const processedMeds = new Set();
+    
+    medLines.forEach(line => {
+        const lineLower = line.toLowerCase();
+        
+        // Skip non-medication lines
+        if (lineLower.includes('scheduled:') || 
+            lineLower.includes('prn:') || 
+            lineLower.includes('continuous:') ||
+            line.trim().length < 3) {
+            return;
+        }
+        
+        // Find matching drug
+        let matched = false;
+        for (const [drug, info] of Object.entries(drugAbbreviations)) {
+            if (lineLower.includes(drug)) {
+                const { dose, freq } = extractDoseInfo(line);
+                
+                // Build abbreviation
+                let abbr = info.abbr;
+                if (dose) {
+                    // Special formatting for common doses
+                    if (drug === 'acetaminophen' && dose === '975') abbr = 't975';
+                    else if (drug === 'acetaminophen' && dose === '1000') abbr = 'T1g';
+                    else if (dose && freq) abbr = `${info.abbr}${dose}${freq}`;
+                    else if (dose) abbr = `${info.abbr}${dose}`;
+                }
+                if (freq && !dose) abbr = `${info.abbr}${freq}`;
+                
+                // Special cases for IV medications
+                if (lineLower.includes('iv ') || lineLower.includes('intravenous')) {
+                    abbr += 'IV';
+                }
+                
+                if (!processedMeds.has(abbr)) {
+                    orders[info.category].push(abbr);
+                    processedMeds.add(abbr);
+                }
+                matched = true;
+                break;
+            }
+        }
+        
+        // Special handling for fluids with rates
+        if (!matched && (lineLower.includes('ml/hr') || lineLower.includes('ml per hour'))) {
+            const rateMatch = line.match(/(\d+)\s*mL\/hr/i);
+            if (rateMatch) {
+                const rate = rateMatch[1];
+                if (lineLower.includes('lactated ringer')) {
+                    orders['N/F'].push(`LR@${rate}`);
+                } else if (lineLower.includes('normal saline') || lineLower.includes('0.9%')) {
+                    orders['N/F'].push(`NS@${rate}`);
+                } else if (lineLower.includes('d5w')) {
+                    orders['N/F'].push(`D5W@${rate}`);
+                }
+            }
+        }
+    });
+    
+    // Format final orders
+    const formattedOrders = [];
+    formattedOrders.push(`N/F: ${orders['N/F'].length > 0 ? orders['N/F'].join(', ') : ''}`);
+    formattedOrders.push(`Pain: ${orders['Pain'].length > 0 ? orders['Pain'].join(', ') : ''}`);
+    formattedOrders.push(existingLTD ? `LTD: ${existingLTD}` : `LTD:`);
+    formattedOrders.push(`Abx: ${orders['Abx'].length > 0 ? orders['Abx'].join(', ') : ''}`);
+    formattedOrders.push(`AC: ${orders['AC'].length > 0 ? orders['AC'].join(', ') : ''}`);
+    formattedOrders.push(`dispo: ${existingDispo}`);
+    
+    return formattedOrders.join('\n');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        function extractFullMeds(text) {
+            const medsMatch = text.match(/Medications.*?\(\d+\)\s*Active([\s\S]*?)(?=(?:\n\n)?(?:DIET ORDER:|CONSULTATION:|PROCEDURE:|IMAGING:|LABS:|$))/i);
+            return medsMatch ? medsMatch[1] : '';
+        }
 
     </script>
-
-
-
-
 </body>
 </html>
