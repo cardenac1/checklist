@@ -1626,6 +1626,22 @@
             });
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         function addEntry(event) {
             event.preventDefault();
             
@@ -1647,6 +1663,11 @@
                 newPatient[header] = field.value.trim();
             });
 
+ if (newPatient['A/G']) {
+        newPatient['Problems'] = newPatient['A/G'];
+    }
+
+
             if (!newPatient.Name) {
                 alert('Please enter at least a name.');
                 return;
@@ -1658,6 +1679,13 @@
             closeAddEntryModal();
             updateCensus();
         }
+
+
+
+
+
+
+
 
         function processPastedEntry() {
             const pastedText = document.getElementById('pasteTextArea').value.trim();
@@ -1684,68 +1712,117 @@
             }
         }
 
-        function parseCernerData(text) {
-            const lines = text.split('\n').filter(line => line.trim());
-            const newPatients = [];
-            
-            lines.forEach(line => {
-                if (!line.trim() || line.toLowerCase().includes('patient list') || 
-                    (line.toLowerCase().includes('room') && line.toLowerCase().includes('name'))) {
-                    return;
-                }
-                
-                let columns = line.split('\t').filter(col => col.trim() !== '');
-                
-                if (columns.length < 3) {
-                    columns = line.split(/\s{2,}/).filter(col => col.trim() !== '');
-                }
-                
-                if (columns.length >= 2) {
-                    let room = '';
-                    let name = '';
-                    let mrn = '';
-                    let att = '';
-                    
-                    columns.forEach(col => {
-                        const trimmed = col.trim();
-                        
-                        if (/^\d{5,10}$/.test(trimmed) && !mrn) {
-                            mrn = trimmed;
-                        } else if (/^(WMC|ICU|CCU|[A-Z]{2,4})\s+/.test(trimmed) && !room) {
-                            room = trimmed;
-                        } else if (trimmed.includes(',') && !name) {
-                            name = trimmed;
-                        } else if ((trimmed.includes('MD') || trimmed.includes('MBBS') || 
-                                 trimmed.includes('DO') || trimmed.includes('Dr')) && !att) {
-                            att = trimmed;
-                        } else if (room && mrn && !name) {
-                            name = trimmed;
-                        }
-                    });
-                    
-                    if (!name && columns.length > 0) {
-                        name = columns.find(c => c.trim() && !c.match(/^\d+$/) && c !== room) || 'Unknown';
-                    }
-                    
-                    if (name) {
-                        const newPatient = {};
-                        MASTER_HEADERS.forEach(header => {
-                            newPatient[header] = '';
-                        });
-                        
-                        newPatient.Type = 'Patient';
-                        newPatient.Name = name;
-                        newPatient.RM = room || 'TBD';
-                        newPatient.MRN = mrn || '';
-                        newPatient.Att = att || '';
-                        
-                        newPatients.push(newPatient);
-                    }
-                }
-            });
-            
-            return newPatients;
-        }
+
+
+
+
+
+
+
+
+
+
+
+function parseCernerData(text) {
+  const lines = text.split('\n').filter(l => l.trim());
+  const newPatients = [];
+
+  lines.forEach(line => {
+    const lc = line.toLowerCase();
+    if (
+      !line.trim() ||
+      lc.includes('patient list') ||
+      (lc.includes('room') && lc.includes('name'))
+    ) return;
+
+    // split on tabs or big spaces
+    let cols = line.split('\t').filter(c => c.trim());
+    if (cols.length < 3) {
+      cols = line.split(/\s{2,}/).filter(c => c.trim());
+    }
+    if (cols.length < 2) return;
+
+    // grab the basics
+    let room = '', name = '', mrn = '', att = '';
+    cols.forEach(c => {
+      const t = c.trim();
+      if (/^\d{5,10}$/.test(t) && !mrn)           mrn = t;
+      else if (/^(WMC|ICU|CCU|[A-Z]{2,4})\s+/.test(t) && !room) room = t;
+      else if (t.includes(',') && !name)           name = t;
+      else if (/(MD|MBBS|DO|Dr\b)/i.test(t) && !att) att = t;
+      else if (room && mrn && !name)               name = t;
+    });
+    if (!name) {
+      const guess = cols.find(c => c.trim() && !/^\d+$/.test(c) && c.trim() !== room);
+      name = guess ? guess.trim() : 'Unknown';
+    }
+
+    // build the blank patient object
+    const p = {};
+    MASTER_HEADERS.forEach(h => p[h] = '');
+    p.Type = 'Patient';
+    p.Name = name;
+    p.RM   = room || 'TBD';
+    p.MRN  = mrn  || '';
+    p.Att  = att  || '';
+
+    // —— extract Age/Gender ——
+    let ag = '';
+    const col7 = cols[6]?.trim() || '';
+    // 1) single “30F” in col7
+    const m1 = /^(\d+)([MF])$/i.exec(col7);
+    if (m1) {
+      ag = m1[1] + m1[2].toUpperCase();
+    }
+    // 2) separate age in col7 + gender in col8
+    else if (cols.length >= 8) {
+      const age = cols[6].trim();
+      const g   = cols[7].trim().toUpperCase();
+      if (/^\d+$/.test(age) && /^[MF]$/.test(g)) {
+        ag = age + g;
+      }
+    }
+
+    // if we got it, seed both A/G _and_ Problems
+    if (ag) {
+      p['A/G']      = ag;
+      p['Problems'] = ag;
+    }
+
+    newPatients.push(p);
+  });
+
+  return newPatients;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         // ============ UPDATE LIST FUNCTIONS ============
         function showUpdateListModal() {
@@ -1757,60 +1834,95 @@
             document.getElementById('updateListData').value = '';
         }
 
-        function processUpdateList() {
-            const updateText = document.getElementById('updateListData').value;
-            if (!updateText) {
-                alert('Please paste the patient list');
-                return;
-            }
-            
-            const newPatients = parseCernerData(updateText);
-            
-            if (newPatients.length === 0) {
-                alert('No valid patient entries found. Please check the format.');
-                return;
-            }
-            
-            const existingPatientsByMRN = new Map();
-            const existingPatientsByName = new Map();
-            
-            patientData.forEach(patient => {
-                if (patient.MRN) {
-                    existingPatientsByMRN.set(patient.MRN, patient);
-                }
-                if (patient.Name) {
-                    existingPatientsByName.set(patient.Name.toUpperCase(), patient);
-                }
-            });
-            
-            let matchedCount = 0;
-            let newCount = 0;
-            
-            newPatients.forEach(newPatient => {
-                let existingPatient = existingPatientsByMRN.get(newPatient.MRN);
-                
-                if (!existingPatient) {
-                    const nameKey = newPatient.Name.toUpperCase();
-                    existingPatient = existingPatientsByName.get(nameKey);
-                }
-                
-                if (existingPatient) {
-                    existingPatient.RM = newPatient.RM;
-                    existingPatient.MRN = newPatient.MRN;
-                    existingPatient.Att = newPatient.Att;
-                    matchedCount++;
-                } else {
-                    patientData.push(newPatient);
-                    newCount++;
-                }
-            });
-            
-            saveToLocalStorage();
-            closeUpdateListModal();
-            displayRows();
-            
-            alert(`List updated successfully!\n\nTotal patients: ${patientData.length}\nMatched existing: ${matchedCount}\nNew patients: ${newCount}`);
+
+
+
+
+
+
+
+
+
+
+
+function processUpdateList() {
+    const text = document.getElementById('updateListData').value.trim();
+    if (!text) {
+        alert('Please paste the patient list');
+        return;
+    }
+
+    const minimal = parseCernerData(text);
+    if (minimal.length === 0) {
+        alert('No valid patient entries found. Please check the format.');
+        return;
+    }
+
+    // build lookup maps for your existing patients
+    const byMRN  = new Map();
+    const byName = new Map();
+    patientData.forEach(p => {
+        if (p.MRN)           byMRN.set(p.MRN, p);
+        if (p.Name?.trim())  byName.set(p.Name.trim().toUpperCase(), p);
+    });
+
+    // now create a brand-new array in EXACTLY the pasted order
+    const updated = minimal.map(mini => {
+        // try MRN match, then Name match
+        const key = mini.Name.trim().toUpperCase();
+        const existing = byMRN.get(mini.MRN) || byName.get(key);
+
+        if (existing) {
+            // keep all existing fields, but update RM/MRN/Att (and A/G if you like)
+            existing.RM   = mini.RM;
+            existing.MRN  = mini.MRN;
+            existing.Att  = mini.Att;
+            if (mini['A/G']) existing['A/G'] = mini['A/G'];
+            return existing;
+        } else {
+            // brand new patient: has RM, MRN, Att, Type, plus A/G
+            return mini;
         }
+    });
+
+    // replace your master list
+    patientData = updated;
+
+    saveToLocalStorage();
+    displayRows();
+    closeUpdateListModal();
+
+    alert(
+        `List updated!\n\n` +
+        `Total now: ${patientData.length}\n` +
+        `Matched existing: ${minimal.filter(m => byMRN.has(m.MRN) || byName.has(m.Name.toUpperCase())).length}\n` +
+        `New patients: ${minimal.filter(m => !(byMRN.has(m.MRN)||byName.has(m.Name.toUpperCase()))).length}`
+    );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         // ============ CONSULT MODE FUNCTIONS ============
         function updateConvertButton() {
