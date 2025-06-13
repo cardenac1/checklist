@@ -4318,7 +4318,6 @@ function extractOrders(text) {
 
 
 
-	
 function extractDoseInfo(line) {
     let dose = '';
     let freq = '';
@@ -4343,13 +4342,32 @@ function extractDoseInfo(line) {
         }
         
         // Clean the dose value (remove commas for final output)
-        const cleanDose = bestDose[1].replace(/,/g, '');
+        const cleanDose = parseFloat(bestDose[1].replace(/,/g, ''));
+        const unit = bestDose[2].toLowerCase();
         
-        // Only include the number for mg, include unit for others
-        if (bestDose[2].toLowerCase() === 'mg') {
-            dose = cleanDose;
+        // Convert units when appropriate
+        let finalDose = cleanDose;
+        let finalUnit = unit;
+        
+        // Unit conversion logic
+        if (unit === 'mg' && cleanDose >= 1000 && cleanDose % 1000 === 0) {
+            finalDose = cleanDose / 1000;
+            finalUnit = 'g';
+        } else if (unit === 'ml' && cleanDose >= 1000 && cleanDose % 1000 === 0) {
+            finalDose = cleanDose / 1000;
+            finalUnit = 'L';
+        } else if (unit === 'mcg' && cleanDose >= 1000 && cleanDose % 1000 === 0) {
+            finalDose = cleanDose / 1000;
+            finalUnit = 'mg';
+        }
+        
+        // Format the final dose
+        if (finalUnit === 'mg') {
+            // For mg, only include the number (legacy behavior)
+            dose = finalDose.toString();
         } else {
-            dose = cleanDose + bestDose[2].toLowerCase();
+            // For other units, include the unit
+            dose = finalDose + finalUnit;
         }
     }
     
@@ -4440,8 +4458,15 @@ function extractDoseInfo(line) {
     // Extract rate for continuous infusions (handles commas in rates too)
     const rateMatch = line.match(/(\d{1,3}(?:,\d{3})*(?:\.\d+)?)\s*mL\/hr/i);
     if (rateMatch) {
-        const cleanRate = rateMatch[1].replace(/,/g, '');
-        freq = '@' + cleanRate;
+        const cleanRate = parseFloat(rateMatch[1].replace(/,/g, ''));
+        
+        // Convert mL/hr to L/hr when appropriate
+        if (cleanRate >= 1000 && cleanRate % 1000 === 0) {
+            const convertedRate = cleanRate / 1000;
+            freq = '@' + convertedRate + 'L/hr';
+        } else {
+            freq = '@' + cleanRate;
+        }
     }
     
     return { dose, freq };
