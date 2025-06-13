@@ -3113,11 +3113,9 @@ extractLabValue('Lipase:', 'lipase');
                 if (data.o2therapy) {
                     fishbone += `-${data.o2therapy}`;
                 }
-            } else if (data.o2therapyCode && data.o2therapyCode !== 'RA') {
-    fishbone += `-${data.o2therapyCode}`;
-    if (data.o2flowRaw && data.o2therapyCode !== 'Vent') {
-        fishbone += `@${data.o2flowRaw}`;
-    }
+            } else if (data.o2therapy) {
+    fishbone += `-${data.o2therapy}`;
+	}
 } 
             } else {
                 fishbone += 'no O2';
