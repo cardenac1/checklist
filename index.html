@@ -3105,7 +3105,15 @@ extractLabValue('Lipase:', 'lipase');
                 fishbone += 'no BP ';
             }
             
-// O2 saturation with therapy
+
+
+
+
+
+
+
+
+		// O2 saturation with therapy
 if (data.vitals.o2 && data.vitals.o2.length > 0) {
     const o2Min = Math.min(...data.vitals.o2);
     const o2Max = Math.max(...data.vitals.o2);
@@ -3124,8 +3132,6 @@ if (data.vitals.o2 && data.vitals.o2.length > 0) {
 } else {
     fishbone += 'no O2';
 }
-
-
 
 
 
