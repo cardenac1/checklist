@@ -4311,22 +4311,30 @@ function extractOrders(text) {
 	'ppn': { abbr: 'PPN', category: 'N/F' },
     };
 
-    // Helper function to extract dose and frequency
-    function extractDoseInfo(line) {
+
+
+
+
+
+
+
+	
+function extractDoseInfo(line) {
     let dose = '';
     let freq = '';
     
-    // Extract all dose matches to find the highest/total dose
-    const doseMatches = [...line.matchAll(/(\d+(?:\.\d+)?)\s*(mg|g|mcg|unit|units|mL|L)/gi)];
+    // Extract all dose matches - now handles commas in numbers (e.g., "1,000 mg")
+    const doseMatches = [...line.matchAll(/(\d{1,3}(?:,\d{3})*(?:\.\d+)?)\s*(mg|g|mcg|unit|units|mL|L)/gi)];
     
     if (doseMatches.length > 0) {
-        // For medications with multiple doses (like "325 mg 1 tab 975 mg 3 tab"),
+        // For medications with multiple doses (like "500 mg 1 tab 1,000 mg 2 tab"),
         // take the highest dose which is usually the total therapeutic dose
         let bestDose = doseMatches[0];
         
         for (let match of doseMatches) {
-            const currentValue = parseFloat(match[1]);
-            const bestValue = parseFloat(bestDose[1]);
+            // Remove commas for numeric comparison
+            const currentValue = parseFloat(match[1].replace(/,/g, ''));
+            const bestValue = parseFloat(bestDose[1].replace(/,/g, ''));
             
             // Take the higher dose value, or if same unit type, the larger number
             if (match[2].toLowerCase() === bestDose[2].toLowerCase() && currentValue > bestValue) {
@@ -4334,46 +4342,116 @@ function extractOrders(text) {
             }
         }
         
+        // Clean the dose value (remove commas for final output)
+        const cleanDose = bestDose[1].replace(/,/g, '');
+        
         // Only include the number for mg, include unit for others
         if (bestDose[2].toLowerCase() === 'mg') {
-            dose = bestDose[1];
+            dose = cleanDose;
         } else {
-            dose = bestDose[1] + bestDose[2].toLowerCase();
+            dose = cleanDose + bestDose[2].toLowerCase();
         }
     }
     
+    // Enhanced frequency patterns - handles extra words like "scheduled", "as ordered", etc.
+    const freqPatterns = [
+        // Every X hours patterns
+        { pattern: /every\s+(\d+)\s+hours?(?:\s+(?:scheduled|as\s+ordered|prn|as\s+needed))?/i, 
+          convert: (match) => `q${match[1]}` },
+        { pattern: /q\s*(\d+)\s*h(?:rs?)?(?:\s+(?:scheduled|as\s+ordered|prn|as\s+needed))?/i, 
+          convert: (match) => `q${match[1]}` },
         
-        // Extract frequency patterns
-        const freqPatterns = {
-            'every 4 hours': 'q4',
-            'every 6 hours': 'q6', 
-            'every 8 hours': 'q8',
-            'every 12 hours': 'q12',
-            'daily': 'qd',
-            'twice a day': 'bid',
-            '2 times a day': 'bid',
-            'three times a day': 'tid',
-            '3 times a day': 'tid',
-            'four times a day': 'qid',
-            '4 times a day': 'qid',
-            'as needed': 'prn',
-            'bedtime': 'qhs',
-            'once': 'x1'
-        };
+        // Daily patterns
+        { pattern: /(?:once\s+)?daily(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'qd' },
+        { pattern: /once\s+(?:a\s+)?day(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'qd' },
+        { pattern: /qd(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'qd' },
         
-        for (const [pattern, abbr] of Object.entries(freqPatterns)) {
-            if (line.toLowerCase().includes(pattern)) {
-                freq = abbr;
-                break;
-            }
+        // BID patterns
+        { pattern: /(?:twice\s+(?:a\s+)?day|2\s+times?\s+(?:a\s+)?day)(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'bid' },
+        { pattern: /bid(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'bid' },
+        
+        // TID patterns
+        { pattern: /(?:three\s+times?\s+(?:a\s+)?day|3\s+times?\s+(?:a\s+)?day)(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'tid' },
+        { pattern: /tid(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'tid' },
+        
+        // QID patterns
+        { pattern: /(?:four\s+times?\s+(?:a\s+)?day|4\s+times?\s+(?:a\s+)?day)(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'qid' },
+        { pattern: /qid(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'qid' },
+        
+        // PRN patterns
+        { pattern: /as\s+needed(?:\s+for.*?)?/i, 
+          convert: () => 'prn' },
+        { pattern: /prn(?:\s+for.*?)?/i, 
+          convert: () => 'prn' },
+        
+        // Bedtime patterns
+        { pattern: /(?:at\s+)?bedtime(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'qhs' },
+        { pattern: /qhs(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'qhs' },
+        
+        // Single dose patterns
+        { pattern: /once(?:\s+only)?(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'x1' },
+        { pattern: /single\s+dose(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'x1' },
+        
+        // Weekly patterns
+        { pattern: /weekly(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'weekly' },
+        { pattern: /once\s+(?:a\s+)?week(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'weekly' },
+        
+        // Before meals patterns
+        { pattern: /before\s+meals?(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'ac' },
+        { pattern: /ac(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'ac' },
+        
+        // After meals patterns
+        { pattern: /after\s+meals?(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'pc' },
+        { pattern: /pc(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'pc' },
+        
+        // With meals patterns
+        { pattern: /with\s+meals?(?:\s+(?:scheduled|as\s+ordered))?/i, 
+          convert: () => 'w/meals' }
+    ];
+    
+    // Try to match frequency patterns
+    for (const freqPattern of freqPatterns) {
+        const match = line.match(freqPattern.pattern);
+        if (match) {
+            freq = freqPattern.convert(match);
+            break;
         }
-        
-        // Extract rate for continuous infusions
-        const rateMatch = line.match(/(\d+)\s*mL\/hr/i);
-        if (rateMatch) freq = '@' + rateMatch[1];
-        
-        return { dose, freq };
     }
+    
+    // Extract rate for continuous infusions (handles commas in rates too)
+    const rateMatch = line.match(/(\d{1,3}(?:,\d{3})*(?:\.\d+)?)\s*mL\/hr/i);
+    if (rateMatch) {
+        const cleanRate = rateMatch[1].replace(/,/g, '');
+        freq = '@' + cleanRate;
+    }
+    
+    return { dose, freq };
+}
+
+
+
+
+
+	
 
     // Process diet order
     if (dietMatch) {
