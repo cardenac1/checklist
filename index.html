@@ -2834,17 +2834,26 @@ function toggleOrdersView() {
 
 
 
-
-
-
-
-
-
 // Helper: parse "MM/DD/YY HH:MM:SS" into a Date
 function parseTS(dateStr, timeStr) {
   const [mo, day, yr] = dateStr.split('/').map(n => parseInt(n, 10));
   const [h, m, s]    = timeStr.split(':').map(n => parseInt(n, 10));
   return new Date(2000 + yr, mo - 1, day, h, m, s);
+}
+
+// Helper function to pick latest entry
+function pickLatest(regex, text) {
+  const arr = [];
+  let mm;
+  while ((mm = regex.exec(text)) !== null) {
+    arr.push({
+      val: mm[1].trim(),
+      ts:  parseTS(mm[2], mm[3])
+    });
+  }
+  if (!arr.length) return null;
+  arr.sort((a,b) => a.ts - b.ts);
+  return arr.pop().val;
 }
 
 // ——— Oxygen Therapy ———
@@ -2857,6 +2866,7 @@ while ((m = o2Regex.exec(text)) !== null) {
     ts:   parseTS(m[2], m[3])
   });
 }
+
 if (o2Entries.length) {
   // pick the latest
   o2Entries.sort((a, b) => a.ts - b.ts);
@@ -2865,7 +2875,7 @@ if (o2Entries.length) {
   const rawLower = latest.desc.toLowerCase();
 
   // map to short codes
-if (/room air/i.test(rawLower)) {
+  if (/room air/i.test(rawLower)) {
     data.o2therapyCode = 'RA';
   } else if (/invasive mechanical ventilator/i.test(rawLower)) {
     data.o2therapyCode = 'Vent';
@@ -2880,6 +2890,7 @@ if (/room air/i.test(rawLower)) {
   } else {
     data.o2therapyCode = 'O2';
   }
+} // Close the if (o2Entries.length) block
 
 // ——— Oxygen Flow Rate ———
 const flowEntries = [];
@@ -2896,27 +2907,28 @@ if (flowEntries.length) {
 }
 
 // ——— Ventilator Settings ———
-function pickLatest(regex) {
-  const arr = [];
-  let mm;
-  while ((mm = regex.exec(text)) !== null) {
-    arr.push({
-      val: mm[1].trim(),
-      ts:  parseTS(mm[2], mm[3])
-    });
-  }
-  if (!arr.length) return null;
-  arr.sort((a,b) => a.ts - b.ts);
-  return arr.pop().val;
-}
-
-data.ventModeRaw      = pickLatest(/Ventilator Mode:\s*([^(]+)\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi);
-data.ventFrequencyRaw = pickLatest(/Ventilator Frequency, Mandatory:\s*(\d+)\s*br\/min\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi);
-data.ventTidalRaw     = pickLatest(/Tidal Volume, Delivered:\s*(\d+)\s*mL\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi);
-data.ventPeepRaw      = pickLatest(/Positive End Expiratory Pressure:\s*(\d+)\s*cmH2O\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi);
-data.ventFiO2Raw      = pickLatest(/FIO2:\s*(\d+)\s*%\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi);
+data.ventModeRaw      = pickLatest(/Ventilator Mode:\s*([^(]+)\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi, text);
+data.ventFrequencyR
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
 
 
 		
