@@ -1108,6 +1108,12 @@
                 patients: patientData
             };
 
+	  // Add timestamp to filename
+    const now = new Date();
+    const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}`;
+    const filename = `patient_list_${timestamp}.json`;
+
+
             downloadFile(JSON.stringify(dataToExport, null, 2), 'patient_list.json', 'application/json');
         }
 
@@ -4298,23 +4304,47 @@ function extractOrders(text) {
         'd5w': { abbr: 'D5W', category: 'N/F' },
         'd5ns': { abbr: 'D5NS', category: 'N/F' },
         'albumin': { abbr: 'alb', category: 'N/F' }
+	'parenteral nutrition': { abbr: 'TPN', category: 'N/F' },
+	'total parenteral nutrition': { abbr: 'TPN', category: 'N/F' },
+	'tpn': { abbr: 'TPN', category: 'N/F' },
+	'peripheral parenteral nutrition': { abbr: 'PPN', category: 'N/F' },
+	'ppn': { abbr: 'PPN', category: 'N/F' },
+	'intralipid': { abbr: 'lipids', category: 'N/F' },
+	'lipid emulsion': { abbr: 'lipids', category: 'N/F' },
+	'amino acids': { abbr: 'AA', category: 'N/F' },
     };
 
     // Helper function to extract dose and frequency
     function extractDoseInfo(line) {
-        let dose = '';
-        let freq = '';
+    let dose = '';
+    let freq = '';
+    
+    // Extract all dose matches to find the highest/total dose
+    const doseMatches = [...line.matchAll(/(\d+(?:\.\d+)?)\s*(mg|g|mcg|unit|units|mL|L)/gi)];
+    
+    if (doseMatches.length > 0) {
+        // For medications with multiple doses (like "325 mg 1 tab 975 mg 3 tab"),
+        // take the highest dose which is usually the total therapeutic dose
+        let bestDose = doseMatches[0];
         
-        // Extract dose (mg, g, mcg, units, mL, etc.)
-        const doseMatch = line.match(/(\d+(?:\.\d+)?)\s*(mg|g|mcg|unit|units|mL|L)/i);
-        if (doseMatch) {
-            // Only include the number for mg, include unit for others
-            if (doseMatch[2].toLowerCase() === 'mg') {
-                dose = doseMatch[1];
-            } else {
-                dose = doseMatch[1] + doseMatch[2].toLowerCase();
+        for (let match of doseMatches) {
+            const currentValue = parseFloat(match[1]);
+            const bestValue = parseFloat(bestDose[1]);
+            
+            // Take the higher dose value, or if same unit type, the larger number
+            if (match[2].toLowerCase() === bestDose[2].toLowerCase() && currentValue > bestValue) {
+                bestDose = match;
             }
         }
+        
+        // Only include the number for mg, include unit for others
+        if (bestDose[2].toLowerCase() === 'mg') {
+            dose = bestDose[1];
+        } else {
+            dose = bestDose[1] + bestDose[2].toLowerCase();
+        }
+    }
+    
         
         // Extract frequency patterns
         const freqPatterns = {
