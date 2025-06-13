@@ -2849,7 +2849,7 @@ function parseTS(dateStr, timeStr) {
 
 // ——— Oxygen Therapy ———
 const o2Entries = [];
-const o2Regex = /Oxygen Therapy:\s*([^(]+)\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi;
+const o2Regex = /Oxygen Therapy:\s*(.+?)\s*\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/gi;
 let m;
 while ((m = o2Regex.exec(text)) !== null) {
   o2Entries.push({
@@ -2865,13 +2865,21 @@ if (o2Entries.length) {
   const rawLower = latest.desc.toLowerCase();
 
   // map to short codes
-  if (/room air/.test(rawLower))                data.o2therapyCode = 'RA';
-  else if (/high[- ]flow nasal cannula/.test(rawLower)) data.o2therapyCode = 'HFNC';
-  else if (/nasal cannula/.test(rawLower))       data.o2therapyCode = 'NC';
-  else if (/ventilator/.test(rawLower))          data.o2therapyCode = 'Vent';
-  else if (/non-?rebreather/.test(rawLower))     data.o2therapyCode = 'NRB';
-  else                                           data.o2therapyCode = 'O2';
-}
+if (/room air/i.test(rawLower)) {
+    data.o2therapyCode = 'RA';
+  } else if (/invasive mechanical ventilator/i.test(rawLower)) {
+    data.o2therapyCode = 'Vent';
+  } else if (/non-invasive mechanical ventilator/i.test(rawLower) || /bipap|cpap/i.test(rawLower)) {
+    data.o2therapyCode = 'BiPAP/CPAP';
+  } else if (/high[- ]?flow nasal cannula/i.test(rawLower)) {
+    data.o2therapyCode = 'HFNC';
+  } else if (/nasal cannula/i.test(rawLower) && !/high[- ]?flow/i.test(rawLower)) {
+    data.o2therapyCode = 'NC';
+  } else if (/non-?rebreather/i.test(rawLower)) {
+    data.o2therapyCode = 'NRB';
+  } else {
+    data.o2therapyCode = 'O2';
+  }
 
 // ——— Oxygen Flow Rate ———
 const flowEntries = [];
@@ -3105,8 +3113,12 @@ extractLabValue('Lipase:', 'lipase');
                 if (data.o2therapy) {
                     fishbone += `-${data.o2therapy}`;
                 }
-            } else if (data.o2therapy) {
-                fishbone += `${data.o2therapy}`;
+            } else if (data.o2therapyCode && data.o2therapyCode !== 'RA') {
+    fishbone += `-${data.o2therapyCode}`;
+    if (data.o2flowRaw && data.o2therapyCode !== 'Vent') {
+        fishbone += `@${data.o2flowRaw}`;
+    }
+} 
             } else {
                 fishbone += 'no O2';
             }
@@ -3662,25 +3674,35 @@ function generateWarnings(data) {
     }
 
 
-// Now in generateWarnings(data):
+// oxygen therapy warnings
 
 if (data.o2therapyCode && data.o2therapyCode !== 'RA') {
   if (data.o2therapyCode === 'Vent') {
-    // Build settings string: 14/380/8/30%
-    const mode     = data.ventModeRaw     ? data.ventModeRaw.replace(/[\s\/\+]+/g,'') : '';
-    const freq     = data.ventFrequencyRaw || '';
-    const tv       = data.ventTidalRaw     || '';
-    const peep     = data.ventPeepRaw      || '';
-    const fio2     = data.ventFiO2Raw      || '';
-    const settings = [freq, tv, peep, fio2].join('/');
-    warnings.push(`On vent: ${mode} ${settings}!!!`);
+    // Build settings string: ACVC 14/380/8/30%
+    const mode = data.ventModeRaw ? data.ventModeRaw.replace(/[\s\/\+]+/g,'') : '';
+    const freq = data.ventFrequencyRaw || '';
+    const tv = data.ventTidalRaw || '';
+    const peep = data.ventPeepRaw || '';
+    const fio2 = data.ventFiO2Raw || '';
+    const settings = [freq, tv, peep, fio2 ? fio2 + '%' : ''].filter(x => x).join('/');
+    warnings.push(`*On ventilator: ${mode} ${settings}*!!!`);
   } else {
-    const flow = data.o2flowRaw ? data.o2flowRaw + ' ' : '';
-    warnings.push(`On ${flow}${data.o2therapyCode}!!!`);
+    const flow = data.o2flowRaw || '';
+    const therapyName = {
+      'NC': 'nasal cannula',
+      'HFNC': 'high flow nasal cannula',
+      'NRB': 'non-rebreather',
+      'BiPAP/CPAP': 'BiPAP/CPAP',
+      'O2': 'oxygen therapy'
+    }[data.o2therapyCode] || data.o2therapyCode;
+    
+    if (flow) {
+      warnings.push(`*On ${therapyName} ${flow}*!!!`);
+    } else {
+      warnings.push(`*On ${therapyName}*!!!`);
+    }
   }
 }
-
-
 
 
 
