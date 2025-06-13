@@ -1096,26 +1096,29 @@
             exportJSON();
         }
 
-        function exportJSON() {
-            if (patientData.length === 0) {
-                alert('No data to export');
-                return;
-            }
-
-            const dataToExport = {
-                version: '2.0',
-                exportDate: new Date().toISOString(),
-                patients: patientData
-            };
-
-	  // Add timestamp to filename
+function exportJSON() {
+    if (patientData.length === 0) {
+        alert('No data to export');
+        return;
+    }
+    
+    const dataToExport = {
+        version: '2.0',
+        exportDate: new Date().toISOString(),
+        patients: patientData
+    };
+    
+    // Add timestamp to filename
     const now = new Date();
     const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}`;
     const filename = `patient_list_${timestamp}.json`;
+    
+    downloadFile(JSON.stringify(dataToExport, null, 2), filename, 'application/json');
+}
 
 
-            downloadFile(JSON.stringify(dataToExport, null, 2), 'patient_list.json', 'application/json');
-        }
+
+	    
 
         function downloadFile(content, filename, mimeType) {
             const blob = new Blob([content], { type: mimeType });
