@@ -4555,15 +4555,26 @@ function extractDoseInfo(line) {
                 }
                 if (freq && !dose) abbr = `${info.abbr}${freq}`;
                 
-                // Special cases for IV medications
-                if (lineLower.includes('iv ') || lineLower.includes('intravenous')) {
-                    abbr += 'IV';
-                }
-                
-                if (!processedMeds.has(abbr)) {
-                    orders[info.category].push(abbr);
-                    processedMeds.add(abbr);
-                }
+              // Special cases for IV medications
+		if (lineLower.includes('iv ') || lineLower.includes('intravenous')) {
+		    abbr += 'IV';
+		}
+		
+		// Add asterisks around IV pain medications
+		if (info.category === 'Pain' && abbr.includes('IV')) {
+		    abbr = `*${abbr}*`;
+		}
+		
+		if (!processedMeds.has(abbr)) {
+		    orders[info.category].push(abbr);
+		    processedMeds.add(abbr);
+		}
+
+
+
+
+
+		    
                 matched = true;
                 break;
             }
@@ -4591,24 +4602,11 @@ function extractDoseInfo(line) {
     formattedOrders.push(`Pain: ${orders['Pain'].length > 0 ? orders['Pain'].join(', ') : ''}`);
     formattedOrders.push(existingLTD ? `LTD: ${existingLTD}` : `LTD:`);
     formattedOrders.push(`Abx: ${orders['Abx'].length > 0 ? orders['Abx'].join(', ') : ''}`);
-    formattedOrders.push(`AC: ${orders['AC'].length > 0 ? orders['AC'].join(', ') : ''}`);
+    formattedOrders.push(`AC: ${orders['AC'].length > 0 ? orders['AC'].join(', ') : '*NO DVT PPX*'}`);
     formattedOrders.push(`dispo: ${existingDispo}`);
     
     return formattedOrders.join('\n');
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
