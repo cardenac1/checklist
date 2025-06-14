@@ -3199,7 +3199,7 @@ let hgbStr = '--';
 if (hgb !== undefined) {
     hgbStr = hgb.toString();
     // Check for critical value or significant drop
-    if (hgb < 7 || (hgbPrev !== undefined && hgbPrev - hgb >= 1)) {
+    if (hgb <= 7 || (hgbPrev !== undefined && hgbPrev - hgb >= 1)) {
         hgbStr = `*${hgb}*${hgbPrev !== undefined ? `(${hgbPrev})` : ''}`;
     }
     // Check for general low value (using 12 as general threshold)
