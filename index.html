@@ -2915,11 +2915,27 @@ if (flowEntries.length) {
   data.o2flowRaw = flowEntries.pop().rate;
 }
 
-// ——— Ventilator Settings ———
+
+
+
+
+
+
+
+
+
+		// ——— Ventilator Settings ———
 data.ventModeRaw      = pickLatest(/Ventilator Mode:\s*([^(]+)\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi, text);
-data.ventFrequencyR
+data.ventFrequencyRaw = pickLatest(/Ventilator Frequency(?:,\s*Mandatory)?:\s*(\d+)\s*br\/min\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi, text);
+data.ventTidalRaw     = pickLatest(/Tidal Volume(?:,\s*Delivered)?:\s*(\d+)\s*mL\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi, text);
+data.ventPeepRaw      = pickLatest(/Positive End Expiratory Pressure:\s*(\d+)\s*cmH2O\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi, text);
+data.ventFiO2Raw      = pickLatest(/FIO2:\s*(\d+)\s*%\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi, text);
 
-
+// If we detected ventilator settings but o2therapyCode isn't set to 'Vent', set it
+if (data.ventModeRaw && !data.o2therapyCode) {
+    data.o2therapyCode = 'Vent';
+    data.o2therapyRaw = 'Mechanical Ventilation';
+}
 
 
 
