@@ -3194,21 +3194,19 @@ if (wbc !== undefined) {
     }
 }
 
-// Hgb - abnormal if <12 (female) or <13.5 (male), or <7 critically, or drop ≥1
+// Hgb - trigger warning only if ≤7 or drop ≥1
 let hgbStr = '--';
 if (hgb !== undefined) {
     hgbStr = hgb.toString();
-    // Check for critical value or significant drop
+    
+    // Trigger warning if Hgb is critically low or significant drop from previous
     if (hgb <= 7 || (hgbPrev !== undefined && hgbPrev - hgb >= 1)) {
         hgbStr = `*${hgb}*${hgbPrev !== undefined ? `(${hgbPrev})` : ''}`;
-    }
-    // Check for general low value (using 12 as general threshold)
-    else if (hgb < 12 && hgbPrev !== undefined) {
-        hgbStr = `*${hgb}*(${hgbPrev})`;
-    } else if (hgb < 12) {
-        hgbStr = `*${hgb}*`;
+    } else if (hgbPrev !== undefined) {
+        hgbStr = `${hgb}(${hgbPrev})`;
     }
 }
+
 
 // Hct - abnormal if <35.5 (female) or <38.3 (male), using 36 as general threshold
 let hctStr = '--';
@@ -3739,7 +3737,7 @@ if (data.o2therapyCode && data.o2therapyCode !== 'RA') {
     if (data.labs.hgb && data.labs.hgb[0] !== undefined) {
         const hgb = data.labs.hgb[0];
         const hgbPrev = data.labs.hgb[1];
-        if (hgb < 7 || (hgbPrev !== undefined && hgbPrev - hgb >= 1)) {
+        if (hgb <= 7 || (hgbPrev !== undefined && hgbPrev - hgb >= 1)) {
             const hgbStr = hgbPrev !== undefined ? `*${hgb}* (*${hgbPrev}*)` : `*${hgb}*`;
             warnings.push(`Hgb low!!! ${hgbStr}`);
         }
