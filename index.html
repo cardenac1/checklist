@@ -1507,10 +1507,6 @@ function exportJSON() {
                     setTimeout(() => autoResizeTextarea(input), 0);
                 }
             });
-
-
-
-
           
         }
 
@@ -2204,42 +2200,75 @@ function showImportModal() {
             document.getElementById('importModal').style.display = 'none';
         }
 
-        function processImportedData() {
-            const importText = document.getElementById('importData').value;
-            if (!importText) return;
-            
-            const patient = patientData[currentPatientIndex];
-            patient.ImportedData = importText;
-            lastImportedData = importText;
-            
-            labData = extractLabValues(importText);
-            patient.LabData = JSON.stringify(labData);
-            
-            const fishbone = generateFishbone(labData);
-            const warnings = generateWarnings(labData);
-            
-            // Update VIOLIN field
-            const violinField = document.getElementById('field_VIOLIN');
-            if (violinField) {
-                violinField.value = fishbone;
-                patient.VIOLIN = fishbone;
-                autoResizeTextarea(violinField);
-            }
-            
-            // Update warnings
-            const warningDiv = document.getElementById('warningMessages');
-            if (warnings.length > 0) {
-                warningDiv.innerHTML = warnings.map(w => `<div class="warning-message">${w}</div>`).join('');
-                warningDiv.classList.remove('hidden');
-            } else {
-                warningDiv.innerHTML = '<div class="warning-message" style="color: var(--accent-3);">All values within normal limits</div>';
-                warningDiv.classList.remove('hidden');
-            }
-            
-            saveToLocalStorage();
-            closeImportModal();
-            document.getElementById('importData').value = '';
-        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ // Replace the existing processImportedData function (around line 3450) with this:
+
+function processImportedData() {
+    const importText = document.getElementById('importData').value;
+    if (!importText) return;
+    
+    const patient = patientData[currentPatientIndex];
+    patient.ImportedData = importText;
+    lastImportedData = importText;
+    
+    labData = extractLabValues(importText);
+    patient.LabData = JSON.stringify(labData);
+    
+    const fishbone = generateFishbone(labData);
+    const warnings = generateWarnings(labData);
+    
+    // Update VIOLIN field
+    const violinField = document.getElementById('field_VIOLIN');
+    if (violinField) {
+        violinField.value = fishbone;
+        patient.VIOLIN = fishbone;
+        autoResizeTextarea(violinField);
+    }
+    
+    // Update warnings
+    const warningDiv = document.getElementById('warningMessages');
+    if (warnings.length > 0) {
+        warningDiv.innerHTML = warnings.map(w => `<div class="warning-message">${w}</div>`).join('');
+        warningDiv.classList.remove('hidden');
+    } else {
+        warningDiv.innerHTML = '<div class="warning-message" style="color: var(--accent-3);">All values within normal limits</div>';
+        warningDiv.classList.remove('hidden');
+    }
+    
+    saveToLocalStorage();
+    closeImportModal();
+    document.getElementById('importData').value = '';
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         function showTableView() {
             document.getElementById('tableModal').style.display = 'block';
@@ -3088,9 +3117,400 @@ extractLabValue('Lipase:', 'lipase');
 
 
 
-
             return data;
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function extractIntakeOutputData(text) {
+    console.log('extractIntakeOutputData called with text length:', text ? text.length : 0);
+    
+    const ioData = {
+        intakes: {
+            enteral: [],
+            bloodProducts: [],
+            other: []
+        },
+        outputs: {
+            urine: [],
+            urinaryCatheter: false,
+            lastUrineTime: null,
+            drains: {},
+            other: {}
+        }
+    };
+
+    // Extract intake/output section
+    const ioMatch = text.match(/<Intake and Output Start>([\s\S]*?)<Intake and Output End>/i);
+    if (!ioMatch) {
+        console.log('No I/O section found in text');
+        return ioData;
+    }
+    
+    console.log('Found I/O section');
+    const ioText = ioMatch[1];
+    
+    // Split into intake and output sections
+    const intakeMatch = ioText.match(/Intake\s*\n([\s\S]*?)(?=Output|$)/i);
+    const outputMatch = ioText.match(/Output\s*\n([\s\S]*?)$/i);
+    
+    const intakeSection = intakeMatch ? intakeMatch[1] : '';
+    const outputSection = outputMatch ? outputMatch[1] : '';
+
+    // Get current time and calculate 7 AM cutoff
+    const now = new Date();
+    const currentHour = now.getHours();
+    const cutoffDate = new Date(now);
+    
+    if (currentHour < 7) {
+        // If before 7 AM, go back to 7 AM yesterday
+        cutoffDate.setDate(cutoffDate.getDate() - 1);
+    }
+    cutoffDate.setHours(7, 0, 0, 0);
+    
+    console.log('Current time:', now);
+    console.log('Cutoff date:', cutoffDate);
+
+    // Helper function to parse date/time
+    function parseDateTime(dateTimeStr) {
+        // Format: (06/14/25 07:00:00)
+        const match = dateTimeStr.match(/\((\d{2})\/(\d{2})\/(\d{2})\s+(\d{2}):(\d{2}):(\d{2})\)/);
+        if (!match) return null;
+        
+        const [_, month, day, year, hour, minute, second] = match;
+        const fullYear = 2000 + parseInt(year);
+        return new Date(fullYear, parseInt(month) - 1, parseInt(day), 
+                       parseInt(hour), parseInt(minute), parseInt(second));
+    }
+
+    // Helper function to check if entry is within time window
+    function isWithinTimeWindow(dateTime) {
+        if (!dateTime) return false;
+        return dateTime >= cutoffDate && dateTime <= now;
+    }
+
+    // Process intake entries
+    if (intakeSection && !intakeSection.includes('No qualifying data available')) {
+        const intakeLines = intakeSection.split('\n').filter(line => line.trim());
+        
+        intakeLines.forEach(line => {
+            if (line.trim() === '') return;
+            
+            const dateTime = parseDateTime(line);
+            if (!isWithinTimeWindow(dateTime)) return;
+            
+            const volumeMatch = line.match(/:\s*(\d+)\s*mL/);
+            if (!volumeMatch) return;
+            
+            const volume = parseInt(volumeMatch[1]);
+            const entry = {
+                description: line.split(':')[0].trim(),
+                volume: volume,
+                dateTime: dateTime,
+                dateTimeStr: line.match(/\(([^)]+)\)/)[1]
+            };
+            
+            // Categorize intake
+            if (line.toLowerCase().includes('enteral') || 
+                line.toLowerCase().includes('tube feed')) {
+                ioData.intakes.enteral.push(entry);
+            } else if (line.toLowerCase().includes('blood cells') || 
+                       line.toLowerCase().includes('plasma') || 
+                       line.toLowerCase().includes('platelets')) {
+                ioData.intakes.bloodProducts.push(entry);
+            } else {
+                ioData.intakes.other.push(entry);
+            }
+        });
+    }
+
+    // Process output entries
+    if (outputSection) {
+        const outputLines = outputSection.split('\n').filter(l => l.trim());
+        outputLines.forEach(rawLine => {
+            let line = rawLine.trim();
+            // strip any leading "#<n> "
+            line = line.replace(/^#\d+\s*/, '');
+            // skip bare headers
+            if (/^output$/i.test(line) && !line.includes(':')) return;
+            const dateTime = parseDateTime(line);
+            if (!isWithinTimeWindow(dateTime)) return;
+            const volumeMatch = line.match(/:\s*(\d+)\s*mL/i);
+            if (!volumeMatch) return;
+            const volume = +volumeMatch[1];
+            const dateTimeStr = (line.match(/\(([^)]+)\)/) || [,''])[1];
+            // Extract a clean description:
+            let description = '';
+            if (/Other:/i.test(line)) {
+                // grab text after "Other:" up to the next " - " or ":" 
+                const m = line.match(/Other:\s*([^:-]+?)(?:\s*-\s*|:)/i);
+                description = m ? m[1].trim() : '';
+            } else {
+                description = line.split(':')[0].trim();
+            }
+            const entry = { description, volume, dateTime, dateTimeStr };
+            // now categorize
+            if (/urinary catheter/i.test(line) || /straight cath/i.test(line) ||
+                /urine output/i.test(line) || /void/i.test(line)) {
+                ioData.outputs.urine.push(entry);
+                if (/catheter/i.test(line)) ioData.outputs.urinaryCatheter = true;
+                if (!ioData.outputs.lastUrineTime || dateTime > ioData.outputs.lastUrineTime) {
+                    ioData.outputs.lastUrineTime = dateTime;
+                    ioData.outputs.lastUrineTimeStr = dateTimeStr;
+                }
+            } else if (/estimated blood loss/i.test(line)) {
+                ioData.outputs.other['Estimated Blood Loss'] = 
+                    ioData.outputs.other['Estimated Blood Loss'] || [];
+                ioData.outputs.other['Estimated Blood Loss'].push(entry);
+            } else if (/drain/i.test(description) || /jp/i.test(description)) {
+                // surgical drains now grouped correctly by the cleaned description
+                ioData.outputs.drains[description] = 
+                    ioData.outputs.drains[description] || [];
+                ioData.outputs.drains[description].push(entry);
+            } else {
+                // anything else
+                const key = description || 'Other Output';
+                ioData.outputs.other[key] = ioData.outputs.other[key] || [];
+                ioData.outputs.other[key].push(entry);
+            }
+        });
+    }
+    
+    // Calculate elapsed time
+    const elapsedMs = now - cutoffDate;
+    const elapsedHours = elapsedMs / (1000 * 60 * 60);
+    ioData.elapsedHours = elapsedHours;
+    ioData.cutoffTime = cutoffDate;
+    
+    console.log('I/O data processed:', {
+        enteralCount: ioData.intakes.enteral.length,
+        bloodProductCount: ioData.intakes.bloodProducts.length,
+        urineCount: ioData.outputs.urine.length,
+        hasCatheter: ioData.outputs.urinaryCatheter,
+        drainTypes: Object.keys(ioData.outputs.drains),
+        elapsedHours: elapsedHours
+    });
+
+    return ioData;
+}
+
+function generateIntakeOutputWarnings(ioData, weight) {
+    const warnings = [];
+    
+    // Get elapsed hours and cutoff time
+    const elapsedHours = ioData.elapsedHours || 24;
+    const elapsedHoursDisplay = Math.round(elapsedHours);
+    const cutoffTime = ioData.cutoffTime || new Date();
+    
+    // Format cutoff time for display
+    const cutoffStr = cutoffTime.toLocaleString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    // 1. Check urine output
+    if (ioData.outputs.urine.length > 0) {
+        const totalUrine = ioData.outputs.urine.reduce((sum, entry) => sum + entry.volume, 0);
+        const hourlyOutput = Math.round(totalUrine / elapsedHours);
+        
+        if (weight) {
+            const urinePerKgHr = (hourlyOutput / weight).toFixed(2);
+            
+            if (urinePerKgHr < 0.1) {
+                warnings.push(`*ANURIA!* *${hourlyOutput} mL/hr* (${urinePerKgHr} mL/kg/hr) - total ${totalUrine} mL in ${elapsedHoursDisplay}hr - last: ${ioData.outputs.lastUrineTimeStr}`);
+            } else if (urinePerKgHr < 0.5) {
+                warnings.push(`LOW URINE OUTPUT! *${hourlyOutput} mL/hr* (${urinePerKgHr} mL/kg/hr, expected: ≥0.5 mL/kg/hr) - total ${totalUrine} mL in ${elapsedHoursDisplay}hr - last: ${ioData.outputs.lastUrineTimeStr}`);
+            } else {
+                warnings.push(`Urine output: ${hourlyOutput} mL/hr (${urinePerKgHr} mL/kg/hr) - total ${totalUrine} mL in ${elapsedHoursDisplay}hr - last: ${ioData.outputs.lastUrineTimeStr}`);
+            }
+        } else {
+            warnings.push(`Urine output: ${hourlyOutput} mL/hr - total ${totalUrine} mL in ${elapsedHoursDisplay}hr - last: ${ioData.outputs.lastUrineTimeStr} (no weight available)`);
+        }
+        
+        if (ioData.outputs.urinaryCatheter) {
+            warnings.push(`*Has urinary catheter*`);
+        }
+    } else {
+        warnings.push(`*No urine output recorded since ${cutoffStr}!*`);
+    }
+    
+    // 2. Check drains
+    Object.entries(ioData.outputs.drains).forEach(([drainType, entries]) => {
+        if (entries.length > 0) {
+            const total = entries.reduce((sum, entry) => sum + entry.volume, 0);
+            const hourlyDrain = Math.round(total / elapsedHours);
+            const latest = entries.sort((a, b) => b.dateTime - a.dateTime)[0];
+            
+            if (hourlyDrain > 30) {
+                warnings.push(`${drainType}: *${hourlyDrain} mL/hr* (HIGH OUTPUT) - total ${total} mL in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
+            } else {
+                warnings.push(`${drainType}: ${hourlyDrain} mL/hr - total ${total} mL in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
+            }
+        }
+    });
+    
+    // 3. Check blood loss
+    if (ioData.outputs.other['Estimated Blood Loss']) {
+        const bloodLoss = ioData.outputs.other['Estimated Blood Loss'];
+        const total = bloodLoss.reduce((sum, entry) => sum + entry.volume, 0);
+        const hourlyRate = Math.round(total / elapsedHours);
+        
+        if (hourlyRate > 10) {
+            warnings.push(`*Estimated Blood Loss: ${total} mL* (${hourlyRate} mL/hr) in ${elapsedHoursDisplay}hr`);
+        } else {
+            warnings.push(`*Estimated Blood Loss: ${total} mL* in ${elapsedHoursDisplay}hr`);
+        }
+    }
+    
+    // 4. Check intakes
+    if (ioData.intakes.enteral.length > 0) {
+        const totalEnteral = ioData.intakes.enteral.reduce((sum, entry) => sum + entry.volume, 0);
+        const hourlyEnteral = Math.round(totalEnteral / elapsedHours);
+        const latestEnteral = ioData.intakes.enteral.sort((a, b) => b.dateTime - a.dateTime)[0];
+        
+        if (weight) {
+            const enteralPerKgHr = (hourlyEnteral / weight).toFixed(2);
+            warnings.push(`*Enteral feeding: ${hourlyEnteral} mL/hr* (${enteralPerKgHr} mL/kg/hr) - total ${totalEnteral} mL in ${elapsedHoursDisplay}hr - last: ${latestEnteral.dateTimeStr}`);
+        } else {
+            warnings.push(`*Enteral feeding: ${hourlyEnteral} mL/hr* - total ${totalEnteral} mL in ${elapsedHoursDisplay}hr - last: ${latestEnteral.dateTimeStr}`);
+        }
+    }
+    
+    // 5. Check blood products
+    if (ioData.intakes.bloodProducts.length > 0) {
+        const totalBlood = ioData.intakes.bloodProducts.reduce((sum, entry) => sum + entry.volume, 0);
+        const latestBlood = ioData.intakes.bloodProducts.sort((a, b) => b.dateTime - a.dateTime)[0];
+        warnings.push(`*Blood products: ${totalBlood} mL* in ${elapsedHoursDisplay}hr - last: ${latestBlood.dateTimeStr}`);
+    }
+    
+    // 6. Check if no intake at all
+    if (ioData.intakes.enteral.length === 0 && 
+        ioData.intakes.bloodProducts.length === 0 && 
+        ioData.intakes.other.length === 0) {
+        warnings.push(`*No intake recorded since ${cutoffStr}* (${elapsedHoursDisplay}hr)`);
+    }
+    
+    // 7. Check other outputs
+    Object.entries(ioData.outputs.other).forEach(([outputType, entries]) => {
+        if (outputType !== 'Estimated Blood Loss' && entries.length > 0) {
+            const total = entries.reduce((sum, entry) => sum + entry.volume, 0);
+            const hourlyRate = Math.round(total / elapsedHours);
+            const latest = entries.sort((a, b) => b.dateTime - a.dateTime)[0];
+            
+            if (hourlyRate > 10) {
+                warnings.push(`${outputType}: ${hourlyRate} mL/hr - total ${total} mL in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
+            } else {
+                warnings.push(`${outputType}: ${total} mL in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
+            }
+        }
+    });
+    
+    return warnings;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3599,8 +4019,23 @@ function generateWarnings(data) {
             }
         }
     }
+
+
+
+
+
+
+
+
+   // Extract and process intake/output data
+if (lastImportedData) {
+    const ioData = extractIntakeOutputData(lastImportedData);
+    const ioWarnings = generateIntakeOutputWarnings(ioData, data.weight);
     
-    // Check for low urine output
+    // Add all I/O warnings
+    warnings.push(...ioWarnings);
+} else {
+    // Fallback to old method if no imported data
     if (data.output !== null && data.weight) {
         const expectedOutput = data.weight * 0.5 * 24;
         if (data.output < expectedOutput) {
@@ -3613,6 +4048,14 @@ function generateWarnings(data) {
     } else if (data.weight === null) {
         warnings.push('Weight not found - cannot calculate expected urine output');
     }
+}
+
+
+
+
+
+
+
 
 
 
