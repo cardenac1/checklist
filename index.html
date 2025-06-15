@@ -1137,10 +1137,12 @@ function exportJSON() {
         patients: patientData
     };
     
-    // Add timestamp to filename
+    // Create filename with format: list_M.D.YY
     const now = new Date();
-    const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}`;
-    const filename = `patient_list_${timestamp}.json`;
+    const month = now.getMonth() + 1; // No padding, just the number
+    const day = now.getDate();
+    const year = String(now.getFullYear()).slice(-2); // Last 2 digits of year
+    const filename = `list_${month}.${day}.${year}.json`;
     
     downloadFile(JSON.stringify(dataToExport, null, 2), filename, 'application/json');
 }
