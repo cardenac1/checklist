@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Ultimate Patient List</title>
     
     <!-- Check if running as extension -->
@@ -630,6 +630,17 @@
     border: 1px solid var(--border);
     border-radius: 0.5rem;
   }
+input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="password"],
+    input[type="search"],
+    input,
+    textarea,
+    select {
+        font-size: 16px !important;
+    }
 
   /* Universal mobile button styling */
   button,
