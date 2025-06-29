@@ -5115,7 +5115,7 @@ function extractDoseInfo(line) {
 
 
 
-	    function showStaffPresentation() {
+	   function showStaffPresentation() {
     if (currentPatientIndex === -1) return;
     
     const patient = patientData[currentPatientIndex];
@@ -5140,15 +5140,10 @@ function extractDoseInfo(line) {
     const pmhPhrase = pmh ? `with PMH: ${pmh}` : 'with no PMH';
     
     // Build the presentation
-    let presentation = `STAFF PRESENTATION\n`;
-    presentation += `==================\n\n`;
-    presentation += `CC: ${cc}\n\n`;
-    presentation += `${ageGender} ${pmhPhrase}\n\n`;
-    presentation += `HPI: ${hpi}\n\n`;
-    presentation += `ROS: ${ros}\n\n`;
-    presentation += `VIOLIN: ${violin}\n\n`;
-    presentation += `PE: ${pe}\n\n`;
-    presentation += `PLAN: ${todo}`;
+    let presentation = `${cc}\n\n`;
+    presentation += `${ageGender} ${pmhPhrase}, ${hpi} ${ros}\n\n`;
+    presentation += `Physical Exam: ${violin} ${pe}\n\n`;
+    presentation += `Plan: ${todo}`;
     
     // Create modal for presentation
     const modal = document.createElement('div');
