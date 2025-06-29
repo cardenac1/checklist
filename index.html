@@ -937,8 +937,10 @@ input[type="text"],
             <div id="consultControls" class="hidden">
                 <div class="nav-buttons">
                     <button id="convertTypeBtn" onclick="convertEntryType()">Convert to Patient</button>
-                    <button onclick="exportToRTF('consult')">Generate Consult Note</button>
-                    <button onclick="exportToRTF('trauma')">Generate Trauma Note</button>
+                    <button onclick="exportToRTF('consult')"> Consult Note</button>
+                    <button onclick="exportToRTF('trauma')"> Trauma Note</button>
+		    <button onclick="showStaffPresentation()">Staff</button>
+
                 </div>
             </div>
         </div>
@@ -5109,6 +5111,93 @@ function extractDoseInfo(line) {
             const medsMatch = text.match(/Medications.*?\(\d+\)\s*Active([\s\S]*?)(?=(?:\n\n)?(?:DIET ORDER:|CONSULTATION:|PROCEDURE:|IMAGING:|LABS:|$))/i);
             return medsMatch ? medsMatch[1] : '';
         }
+
+
+
+
+	    function showStaffPresentation() {
+    if (currentPatientIndex === -1) return;
+    
+    const patient = patientData[currentPatientIndex];
+    
+    // Check if it's a consult
+    if (patient.Type !== 'Consult') {
+        alert("This is a regular patient entry. Convert to consult first to generate staff presentation.");
+        return;
+    }
+    
+    // Extract data
+    const cc = patient.CC || 'No chief complaint';
+    const ageGender = patient['A/G'] || 'Unknown age/gender';
+    const pmh = patient.PMH || '';
+    const hpi = patient.HPI || 'No HPI documented';
+    const ros = patient.ROS || 'No ROS documented';
+    const violin = patient.VIOLIN || 'No labs/vitals documented';
+    const pe = patient.PE || 'No physical exam documented';
+    const todo = patient['To do'] || 'No plan documented';
+    
+    // Format PMH phrase
+    const pmhPhrase = pmh ? `with PMH: ${pmh}` : 'with no PMH';
+    
+    // Build the presentation
+    let presentation = `STAFF PRESENTATION\n`;
+    presentation += `==================\n\n`;
+    presentation += `CC: ${cc}\n\n`;
+    presentation += `${ageGender} ${pmhPhrase}\n\n`;
+    presentation += `HPI: ${hpi}\n\n`;
+    presentation += `ROS: ${ros}\n\n`;
+    presentation += `VIOLIN: ${violin}\n\n`;
+    presentation += `PE: ${pe}\n\n`;
+    presentation += `PLAN: ${todo}`;
+    
+    // Create modal for presentation
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.display = 'block';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close" onclick="this.closest('.modal').remove()" style="float: right; font-size: 30px; cursor: pointer; color: var(--danger);">&times;</span>
+            <h2 style="color: var(--primary); margin-bottom: 1rem;">Staff Presentation</h2>
+            <pre style="background: var(--card-bg); padding: 1.5rem; border-radius: 0.5rem; white-space: pre-wrap; font-family: monospace; font-size: 0.9rem; line-height: 1.6; color: var(--text-primary);">${presentation}</pre>
+            <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                <button onclick="copyStaffPresentation()">📋 Copy to Clipboard</button>
+                <button onclick="this.closest('.modal').remove()">Close</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    
+    // Store presentation for copy function
+    window.currentStaffPresentation = presentation;
+}
+
+function copyStaffPresentation() {
+    if (window.currentStaffPresentation) {
+        navigator.clipboard.writeText(window.currentStaffPresentation).then(() => {
+            alert('Presentation copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy:', err);
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = window.currentStaffPresentation;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('Presentation copied to clipboard!');
+            } catch (err) {
+                alert('Failed to copy. Please select and copy manually.');
+            }
+            document.body.removeChild(textArea);
+        });
+    }
+}
+
+
+
+	    
 
     </script>
 </body>
