@@ -3566,409 +3566,419 @@ function generateIntakeOutputWarnings(ioData, weight) {
 
 
 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+function generateFishbone(data) {
+    let fishbone = '';
     
-        function generateFishbone(data) {
-            let fishbone = '';
-            
-            // Vitals with ranges
-            if (data.vitals.temp && data.vitals.temp.length > 0) {
-                const tempMin = Math.min(...data.vitals.temp).toFixed(1);
-                const tempMax = Math.max(...data.vitals.temp).toFixed(1);
-                const tempAvg = (data.vitals.temp.reduce((a, b) => a + b, 0) / data.vitals.temp.length).toFixed(1);
-                fishbone += `T ${tempMin}-${tempMax} (${tempAvg}), `;
-            } else {
-                fishbone += 'no T, ';
+    // Vitals with ranges
+    if (data.vitals.temp && data.vitals.temp.length > 0) {
+        const tempMin = Math.min(...data.vitals.temp).toFixed(1);
+        const tempMax = Math.max(...data.vitals.temp).toFixed(1);
+        const tempAvg = (data.vitals.temp.reduce((a, b) => a + b, 0) / data.vitals.temp.length).toFixed(1);
+        fishbone += `T ${tempMin}-${tempMax} (${tempAvg}), `;
+    } else {
+        fishbone += 'no T, ';
+    }
+    
+    if (data.vitals.hr && data.vitals.hr.length > 0) {
+        const hrMin = Math.min(...data.vitals.hr);
+        const hrMax = Math.max(...data.vitals.hr);
+        const hrAvg = Math.round(data.vitals.hr.reduce((a, b) => a + b, 0) / data.vitals.hr.length);
+        fishbone += `HR ${hrMin}-${hrMax}(${hrAvg}), `;
+    } else {
+        fishbone += 'no HR, ';
+    }
+    
+    if (data.vitals.sbp && data.vitals.sbp.length > 0 && data.vitals.dbp && data.vitals.dbp.length > 0) {
+        const sbpMin = Math.min(...data.vitals.sbp);
+        const sbpMax = Math.max(...data.vitals.sbp);
+        const dbpMin = Math.min(...data.vitals.dbp);
+        const dbpMax = Math.max(...data.vitals.dbp);
+        fishbone += `BP ${sbpMin}-${sbpMax}/${dbpMin}-${dbpMax} `;
+    } else {
+        fishbone += 'no BP ';
+    }
+
+    // O2 saturation with therapy
+    if (data.vitals.o2 && data.vitals.o2.length > 0) {
+        const o2Min = Math.min(...data.vitals.o2);
+        const o2Max = Math.max(...data.vitals.o2);
+        fishbone += `O2 ${o2Min}-${o2Max}`;
+        if (data.o2therapyCode && data.o2therapyCode !== 'RA') {
+            fishbone += `-${data.o2therapyCode}`;
+            if (data.o2flowRaw && data.o2therapyCode !== 'Vent') {
+                fishbone += `@${data.o2flowRaw}`;
             }
-            
-            if (data.vitals.hr && data.vitals.hr.length > 0) {
-                const hrMin = Math.min(...data.vitals.hr);
-                const hrMax = Math.max(...data.vitals.hr);
-                const hrAvg = Math.round(data.vitals.hr.reduce((a, b) => a + b, 0) / data.vitals.hr.length);
-                fishbone += `HR ${hrMin}-${hrMax}(${hrAvg}), `;
-            } else {
-                fishbone += 'no HR, ';
-            }
-            
-            if (data.vitals.sbp && data.vitals.sbp.length > 0 && data.vitals.dbp && data.vitals.dbp.length > 0) {
-                const sbpMin = Math.min(...data.vitals.sbp);
-                const sbpMax = Math.max(...data.vitals.sbp);
-                const dbpMin = Math.min(...data.vitals.dbp);
-                const dbpMax = Math.max(...data.vitals.dbp);
-                fishbone += `BP ${sbpMin}-${sbpMax}/${dbpMin}-${dbpMax} `;
-            } else {
-                fishbone += 'no BP ';
-            }
-            
-
-
-
-
-
-
-
-
-		// O2 saturation with therapy
-if (data.vitals.o2 && data.vitals.o2.length > 0) {
-    const o2Min = Math.min(...data.vitals.o2);
-    const o2Max = Math.max(...data.vitals.o2);
-    fishbone += `O2 ${o2Min}-${o2Max}`;
-    if (data.o2therapyCode && data.o2therapyCode !== 'RA') {
-        fishbone += `-${data.o2therapyCode}`;
+        }
+    } else if (data.o2therapyCode) {
+        fishbone += `O2: ${data.o2therapyCode}`;
         if (data.o2flowRaw && data.o2therapyCode !== 'Vent') {
             fishbone += `@${data.o2flowRaw}`;
         }
+    } else {
+        fishbone += 'no O2';
     }
-} else if (data.o2therapyCode) {
-    fishbone += `O2: ${data.o2therapyCode}`;
-    if (data.o2flowRaw && data.o2therapyCode !== 'Vent') {
-        fishbone += `@${data.o2flowRaw}`;
-    }
-} else {
-    fishbone += 'no O2';
-}
-
-
-
-
-
-
-// Intake and Output
-if (data.intake !== null) {
-    fishbone += `I: ${data.intake}\n`;
-}
-if (data.output !== null) {
-    fishbone += `O: ${data.output}`;
-    // Calculate expected output
-    if (data.weight) {
-        const expectedOutput = data.weight * 0.5 * 24; // 0.5 cc/kg/hr over 24 hours
-        if (data.output < expectedOutput) {
-            fishbone += '*';
-        }
-    }
+    
+    // FIX 1: Add newline after vitals section
     fishbone += '\n';
-}
 
-
-
-
-
-
-
-
-// ——— CBC Fishbone ———
-// Pull raw CBC values
-const wbc = data.labs.wbc?.[0];
-const hgb = data.labs.hgb?.[0];
-const hct = data.labs.hct?.[0];
-const plt = data.labs.plt?.[0];
-
-// Pull previous values
-const wbcPrev = data.labs.wbc?.[1];
-const hgbPrev = data.labs.hgb?.[1];
-const hctPrev = data.labs.hct?.[1];
-const pltPrev = data.labs.plt?.[1];
-
-// Build strings with previous values for abnormal results
-
-// WBC - abnormal if <4.5 or >11
-let wbcStr = '--';
-if (wbc !== undefined) {
-    wbcStr = wbc.toString();
-    if ((wbc < 4.5 || wbc > 11) && wbcPrev !== undefined) {
-        wbcStr = `*${wbc}*(${wbcPrev})`;
-    } else if (wbc < 4.5 || wbc > 11) {
-        wbcStr = `*${wbc}*`;
+    // Intake and Output
+    if (data.intake !== null) {
+        fishbone += `I: ${data.intake}\n`;
     }
-}
-
-// Hgb - trigger warning only if ≤7 or drop ≥1
-let hgbStr = '--';
-if (hgb !== undefined) {
-    hgbStr = hgb.toString();
-    
-    // Trigger warning if Hgb is critically low or significant drop from previous
-    if (hgb <= 7 || (hgbPrev !== undefined && hgbPrev - hgb >= 1)) {
-        hgbStr = `*${hgb}*${hgbPrev !== undefined ? `(${hgbPrev})` : ''}`;
-    } else if (hgbPrev !== undefined) {
-        hgbStr = `${hgb}(${hgbPrev})`;
-    }
-}
-
-
-// Hct - abnormal if <35.5 (female) or <38.3 (male), using 36 as general threshold
-let hctStr = '--';
-if (hct !== undefined) {
-    hctStr = hct.toString();
-    if (hct < 36 && hctPrev !== undefined) {
-        hctStr = `*${hct}*(${hctPrev})`;
-    } else if (hct < 36) {
-        hctStr = `*${hct}*`;
-    }
-}
-
-// Plt - abnormal if <150 or >400
-let pltStr = '--';
-if (plt !== undefined) {
-    pltStr = plt.toString();
-    if ((plt < 150 || plt > 400) && pltPrev !== undefined) {
-        pltStr = `*${plt}*(${pltPrev})`;
-    } else if (plt < 150 || plt > 400) {
-        pltStr = `*${plt}*`;
-    }
-}
-
-// Calculate positions of the top "\" and "/"
-const posBack = wbcStr.length;                      // index of top "\"
-const posSlash = wbcStr.length + 1 + hgbStr.length + 1; // index of top "/"
-
-// Top row:   WBC\Hgb /Plt
-fishbone += `${wbcStr}\\${hgbStr} /${pltStr}\n`;
-
-// Bottom row: build a char‐array so we can place "/" and "\" exactly
-const rowLen = Math.max(posSlash + 1, posBack + 1 + hctStr.length + 1);
-let bottom = Array(rowLen).fill(' ');
-bottom[posBack] = '/';                      // bottom "/" under top "\"
-for (let i = 0; i < hctStr.length; i++) {
-    bottom[posBack + 1 + i] = hctStr[i];      // insert Hct
-}
-bottom[posSlash] = '\\';                    // bottom "\" under top "/"
-fishbone += bottom.join('').replace(/\s+$/, '') + '\n';
-
-
-
-
-// ——— BMP Fishbone ———
-// Pull raw BMP values
-const na  = data.labs.na?.[0],
-      k   = data.labs.k?.[0],
-      cl  = data.labs.cl?.[0],
-      co2 = data.labs.co2?.[0],
-      bun = data.labs.bun?.[0],
-      cr  = data.labs.cr?.[0],
-      glu = data.labs.glu?.[0];
-
-// Build strings (flag K and include prev Cr when indicated)
-let naStr   = na  !== undefined ? na.toString()   : '--';
-let kStr    = k   !== undefined ? k.toString()    : '--';
-if (k !== undefined && (k < 3.5 || k > 5.0)) kStr = `*${kStr}*`;
-
-let clStr   = cl  !== undefined ? cl.toString()   : '--';
-let co2Str  = co2 !== undefined ? co2.toString()  : '--';
-let bunStr  = bun !== undefined ? bun.toString()  : '--';
-
-let crStr;
-if (cr !== undefined) {
-  crStr = cr.toString();
-  const prevCr = data.labs.cr?.[1];
-  if (prevCr !== undefined && (cr > 1 || cr - prevCr > 0.3)) {
-    crStr += ` (${prevCr})`;
-  }
-} else {
-  crStr = '--';
-}
-
-
-
-let gluStr  = glu !== undefined ? glu.toString()  : '--';
-
-// Determine column widths so "|" line up in both rows
-const col1 = Math.max(naStr.length,  kStr.length);
-const col2 = Math.max(clStr.length, co2Str.length);
-const col3 = Math.max(bunStr.length, crStr.length);
-
-// Top row:   NA   | CL   | BUN  /GLU
-fishbone +=
-  `${naStr.padEnd(col1)} |` +
-  `${clStr.padEnd(col2)} |` +
-  `${bunStr.padEnd(col3)}/${gluStr}\n`;
-
-// Bottom row:K    | CO2  | CR   \
-fishbone +=
-  `${kStr.padEnd(col1)} |` +
-  `${co2Str.padEnd(col2)} |` +
-  `${crStr.padEnd(col3)}\\\n`;
-
-
-            
-            // Check if labs are from today or yesterday
-            const currentDate = new Date();
-            const yesterday = new Date(currentDate);
-            yesterday.setDate(yesterday.getDate() - 1);
-            
-            const isRecentDate = (dateStr) => {
-                if (!dateStr) return false;
-                const [month, day, year] = dateStr.split('/').map(n => parseInt(n));
-                const labDate = new Date(2000 + year, month - 1, day);
-                return labDate >= yesterday;
-            };
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// LFTs - only show if recent
-if ((data.labs.ast || data.labs.alt || data.labs.tbil || data.labs.alk) && 
-    (isRecentDate(data.dates.ast) || isRecentDate(data.dates.alt))) {
-    const ast = data.labs.ast?.[0];
-    const alt = data.labs.alt?.[0];
-    const astPrev = data.labs.ast?.[1];
-    const altPrev = data.labs.alt?.[1];
-    
-    let astAltStr = '';
-    if (ast && alt && (ast > 40 || alt > 40)) {
-        astAltStr = `AST/ALT:*${ast}/${alt}*(${astPrev || '--'}/${altPrev || '--'})`;
-    } else if (ast && alt) {
-        astAltStr = `AST/ALT:${ast}/${alt}`;
-    }
-    
-    // Total Bilirubin with previous value if abnormal
-    const tbil = data.labs.tbil?.[0];
-    const tbilPrev = data.labs.tbil?.[1];
-    let tbilStr = '';
-    if (tbil !== undefined) {
-        if (tbil > 1.2) {
-            tbilStr = `TB:*${tbil}*${tbilPrev !== undefined ? `(${tbilPrev})` : ''}`;
-        } else {
-            tbilStr = `TB:${tbil}`;
+    if (data.output !== null) {
+        fishbone += `O: ${data.output}`;
+        // Calculate expected output
+        if (data.weight) {
+            const expectedOutput = data.weight * 0.5 * 24; // 0.5 cc/kg/hr over 24 hours
+            if (data.output < expectedOutput) {
+                fishbone += '*';
+            }
         }
-    } else {
-        tbilStr = 'TB:no tb';
+        fishbone += '\n';
     }
-    
-    // Direct Bilirubin with previous value if abnormal
-    const dbil = data.labs.dbil?.[0];
-    const dbilPrev = data.labs.dbil?.[1];
-    let dbilStr = '';
-    if (dbil !== undefined) {
-        if (dbil > 0.3) {
-            dbilStr = `DB:*${dbil}*${dbilPrev !== undefined ? `(${dbilPrev})` : ''}`;
-        } else {
-            dbilStr = `DB:${dbil}`;
-        }
-    } else {
-        dbilStr = 'DB:no db';
-    }
-    
-    // Alkaline Phosphatase with previous value if abnormal
-    const alk = data.labs.alk?.[0];
-    const alkPrev = data.labs.alk?.[1];
-    let alkStr = '';
-    if (alk !== undefined) {
-        if (alk > 150 || alk < 40) {
-            alkStr = `ALK:*${alk}*${alkPrev !== undefined ? `(${alkPrev})` : ''}`;
-        } else {
-            alkStr = `ALK:${alk}`;
-        }
-    } else {
-        alkStr = 'ALK:no alk';
-    }
-    
-    // GGT with previous value if abnormal
-    const ggt = data.labs.ggt?.[0];
-    const ggtPrev = data.labs.ggt?.[1];
-    let ggtStr = '';
-    if (ggt !== undefined) {
-        if (ggt > 60) {
-            ggtStr = `, GGT:*${ggt}*${ggtPrev !== undefined ? `(${ggtPrev})` : ''}`;
-        } else {
-            ggtStr = `, GGT:${ggt}`;
-        }
-    }
-    
-    fishbone += `${astAltStr}, ${tbilStr}, ${dbilStr}, ${alkStr}${ggtStr}`;
-    
-    // Add timestamp
-    const lfDate = data.dates.ast || data.dates.alt || data.dates.tbil;
-    if (lfDate) fishbone += ` (${lfDate} ${data.times.ast || data.times.alt || data.times.tbil || '22:09:00'})`;
-    fishbone += '\n';
-}
 
+    // ——— CBC Fishbone ———
+    // Pull raw CBC values
+    const wbc = data.labs.wbc?.[0];
+    const hgb = data.labs.hgb?.[0];
+    const hct = data.labs.hct?.[0];
+    const plt = data.labs.plt?.[0];
 
+    // Pull previous values
+    const wbcPrev = data.labs.wbc?.[1];
+    const hgbPrev = data.labs.hgb?.[1];
+    const hctPrev = data.labs.hct?.[1];
+    const pltPrev = data.labs.plt?.[1];
 
-
-
-// ——— Coagulation Fishbone ———
-// Only show if coag values exist AND are from today or yesterday
-if ((data.labs.pt || data.labs.ptt || data.labs.inr || data.labs.fib) &&
-    (isRecentDate(data.dates.pt) || isRecentDate(data.dates.ptt) || 
-     isRecentDate(data.dates.inr) || isRecentDate(data.dates.fib))) {
-    
-    const pt = data.labs.pt?.[0];
-    const ptt = data.labs.ptt?.[0];
-    const inr = data.labs.inr?.[0];
-    const fib = data.labs.fib?.[0];
-    
-    const ptPrev = data.labs.pt?.[1];
-    const pttPrev = data.labs.ptt?.[1];
-    const inrPrev = data.labs.inr?.[1];
-    const fibPrev = data.labs.fib?.[1];
-    
     // Build strings with previous values for abnormal results
-    
-    // PT - abnormal if >13.5 seconds
-    let ptStr = '--';
-    if (pt !== undefined) {
-        ptStr = pt.toString();
-        if (pt > 13.5 && ptPrev !== undefined) {
-            ptStr = `*${pt}*(${ptPrev})`;
-        } else if (pt > 13.5) {
-            ptStr = `*${pt}*`;
+
+    // WBC - abnormal if <4.5 or >11
+    let wbcStr = '--';
+    if (wbc !== undefined) {
+        wbcStr = wbc.toString();
+        if ((wbc < 4.5 || wbc > 11) && wbcPrev !== undefined) {
+            wbcStr = `*${wbc}*(${wbcPrev})`;
+        } else if (wbc < 4.5 || wbc > 11) {
+            wbcStr = `*${wbc}*`;
         }
     }
-    
-    // PTT - abnormal if >35 seconds
-    let pttStr = '--';
-    if (ptt !== undefined) {
-        pttStr = ptt.toString();
-        if (ptt > 35 && pttPrev !== undefined) {
-            pttStr = `*${ptt}*(${pttPrev})`;
-        } else if (ptt > 35) {
-            pttStr = `*${ptt}*`;
+
+    // Hgb - trigger warning only if ≤7 or drop ≥1
+    let hgbStr = '--';
+    if (hgb !== undefined) {
+        hgbStr = hgb.toString();
+        
+        // Trigger warning if Hgb is critically low or significant drop from previous
+        if (hgb <= 7 || (hgbPrev !== undefined && hgbPrev - hgb >= 1)) {
+            hgbStr = `*${hgb}*${hgbPrev !== undefined ? `(${hgbPrev})` : ''}`;
+        } else if (hgbPrev !== undefined) {
+            hgbStr = `${hgb}(${hgbPrev})`;
         }
     }
-    
-    // INR - abnormal if >1.1
-    let inrStr = '--';
-    if (inr !== undefined) {
-        inrStr = inr.toString();
-        if (inr > 1.1 && inrPrev !== undefined) {
-            inrStr = `*${inr}*(${inrPrev})`;
-        } else if (inr > 1.1) {
-            inrStr = `*${inr}*`;
+
+    // Hct - abnormal if <35.5 (female) or <38.3 (male), using 36 as general threshold
+    let hctStr = '--';
+    if (hct !== undefined) {
+        hctStr = hct.toString();
+        if (hct < 36 && hctPrev !== undefined) {
+            hctStr = `*${hct}*(${hctPrev})`;
+        } else if (hct < 36) {
+            hctStr = `*${hct}*`;
         }
     }
-    
-    // Fibrinogen - abnormal if <200 or >400
-    let fibStr = '--';
-    if (fib !== undefined) {
-        fibStr = fib.toString();
-        if ((fib < 200 || fib > 400) && fibPrev !== undefined) {
-            fibStr = `*${fib}*(${fibPrev})`;
-        } else if (fib < 200 || fib > 400) {
-            fibStr = `*${fib}*`;
+
+    // Plt - abnormal if <150 or >400
+    let pltStr = '--';
+    if (plt !== undefined) {
+        pltStr = plt.toString();
+        if ((plt < 150 || plt > 400) && pltPrev !== undefined) {
+            pltStr = `*${plt}*(${pltPrev})`;
+        } else if (plt < 150 || plt > 400) {
+            pltStr = `*${plt}*`;
         }
     }
+
+    // Calculate positions
+    const posBack = wbcStr.length;                      // index of top "\"
+    const hctEndPos = posBack + 1 + hctStr.length;      // where Hct string ends
     
-    // Format as: PT/PTT INR/Fib
-    fishbone += `Coags: PT/PTT: ${ptStr}/${pttStr}, INR: ${inrStr}, Fib: ${fibStr}`;
+    // The bottom "\" must come after hematocrit, and align with top "/"
+    const slashPos = hctEndPos;  // This is where BOTH slashes will be
     
-    // Add timestamp if available
-    const coagDate = data.dates.pt || data.dates.ptt || data.dates.inr || data.dates.fib;
-    if (coagDate) {
+    // Calculate spacing for top row
+    const spacesAfterHgb = Math.max(0, slashPos - (wbcStr.length + 1 + hgbStr.length + 1));
+    
+    // Top row: WBC\Hgb [spaces]/*Plt
+    fishbone += `${wbcStr}\\${hgbStr} ${' '.repeat(spacesAfterHgb)}/${pltStr}\n`;
+    
+    // Bottom row: build with aligned slashes
+    let bottom = Array(slashPos + 1).fill(' ');
+    bottom[posBack] = '/';                      // bottom "/" under top "\"
+    for (let i = 0; i < hctStr.length; i++) {
+        bottom[posBack + 1 + i] = hctStr[i];   // insert Hct
+    }
+    bottom[slashPos] = '\\';                    // bottom "\" aligned with top "/"
+    fishbone += bottom.join('').trimEnd() + '\n';
+
+    // ——— BMP Fishbone ———
+    // Pull raw BMP values
+    const na  = data.labs.na?.[0],
+          k   = data.labs.k?.[0],
+          cl  = data.labs.cl?.[0],
+          co2 = data.labs.co2?.[0],
+          bun = data.labs.bun?.[0],
+          cr  = data.labs.cr?.[0],
+          glu = data.labs.glu?.[0];
+
+    // Build strings (flag K and include prev Cr when indicated)
+    let naStr   = na  !== undefined ? na.toString()   : '--';
+    let kStr    = k   !== undefined ? k.toString()    : '--';
+    if (k !== undefined && (k < 3.5 || k > 5.0)) kStr = `*${kStr}*`;
+
+    let clStr   = cl  !== undefined ? cl.toString()   : '--';
+    let co2Str  = co2 !== undefined ? co2.toString()  : '--';
+    let bunStr  = bun !== undefined ? bun.toString()  : '--';
+
+    let crStr;
+    if (cr !== undefined) {
+      crStr = cr.toString();
+      const prevCr = data.labs.cr?.[1];
+      if (prevCr !== undefined && (cr > 1 || cr - prevCr > 0.3)) {
+        crStr += ` (${prevCr})`;
+      }
+    } else {
+      crStr = '--';
+    }
+
+    let gluStr  = glu !== undefined ? glu.toString()  : '--';
+
+    // Determine column widths so "|" line up in both rows
+    const col1 = Math.max(naStr.length,  kStr.length);
+    const col2 = Math.max(clStr.length, co2Str.length);
+    const col3 = Math.max(bunStr.length, crStr.length);
+
+    // Top row:   NA   | CL   | BUN  /GLU
+    fishbone +=
+      `${naStr.padEnd(col1)} |` +
+      `${clStr.padEnd(col2)} |` +
+      `${bunStr.padEnd(col3)}/${gluStr}\n`;
+
+    // Bottom row:K    | CO2  | CR   \
+    fishbone +=
+      `${kStr.padEnd(col1)} |` +
+      `${co2Str.padEnd(col2)} |` +
+      `${crStr.padEnd(col3)}\\\n`;
+
+    
+    // Check if labs are from today or yesterday
+    const currentDate = new Date();
+    const yesterday = new Date(currentDate);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const isRecentDate = (dateStr) => {
+        if (!dateStr) return false;
+        const [month, day, year] = dateStr.split('/').map(n => parseInt(n));
+        const labDate = new Date(2000 + year, month - 1, day);
+        return labDate >= yesterday;
+    };
+
+    // LFTs - only show if recent
+    if ((data.labs.ast || data.labs.alt || data.labs.tbil || data.labs.alk) && 
+        (isRecentDate(data.dates.ast) || isRecentDate(data.dates.alt))) {
+        const ast = data.labs.ast?.[0];
+        const alt = data.labs.alt?.[0];
+        const astPrev = data.labs.ast?.[1];
+        const altPrev = data.labs.alt?.[1];
+        
+        let astAltStr = '';
+        if (ast && alt && (ast > 40 || alt > 40)) {
+            astAltStr = `AST/ALT:*${ast}/${alt}*(${astPrev || '--'}/${altPrev || '--'})`;
+        } else if (ast && alt) {
+            astAltStr = `AST/ALT:${ast}/${alt}`;
+        }
+        
+        // Total Bilirubin with previous value if abnormal
+        const tbil = data.labs.tbil?.[0];
+        const tbilPrev = data.labs.tbil?.[1];
+        let tbilStr = '';
+        if (tbil !== undefined) {
+            if (tbil > 1.2) {
+                tbilStr = `TB:*${tbil}*${tbilPrev !== undefined ? `(${tbilPrev})` : ''}`;
+            } else {
+                tbilStr = `TB:${tbil}`;
+            }
+        } else {
+            tbilStr = 'TB:no tb';
+        }
+        
+        // Direct Bilirubin with previous value if abnormal
+        const dbil = data.labs.dbil?.[0];
+        const dbilPrev = data.labs.dbil?.[1];
+        let dbilStr = '';
+        if (dbil !== undefined) {
+            if (dbil > 0.3) {
+                dbilStr = `DB:*${dbil}*${dbilPrev !== undefined ? `(${dbilPrev})` : ''}`;
+            } else {
+                dbilStr = `DB:${dbil}`;
+            }
+        } else {
+            dbilStr = 'DB:no db';
+        }
+        
+        // Alkaline Phosphatase with previous value if abnormal
+        const alk = data.labs.alk?.[0];
+        const alkPrev = data.labs.alk?.[1];
+        let alkStr = '';
+        if (alk !== undefined) {
+            if (alk > 150 || alk < 40) {
+                alkStr = `ALK:*${alk}*${alkPrev !== undefined ? `(${alkPrev})` : ''}`;
+            } else {
+                alkStr = `ALK:${alk}`;
+            }
+        } else {
+            alkStr = 'ALK:no alk';
+        }
+        
+        // GGT with previous value if abnormal
+        const ggt = data.labs.ggt?.[0];
+        const ggtPrev = data.labs.ggt?.[1];
+        let ggtStr = '';
+        if (ggt !== undefined) {
+            if (ggt > 60) {
+                ggtStr = `, GGT:*${ggt}*${ggtPrev !== undefined ? `(${ggtPrev})` : ''}`;
+            } else {
+                ggtStr = `, GGT:${ggt}`;
+            }
+        }
+        
+        fishbone += `${astAltStr}, ${tbilStr}, ${dbilStr}, ${alkStr}${ggtStr}`;
+        
+        // Add timestamp
+        const lfDate = data.dates.ast || data.dates.alt || data.dates.tbil;
+        const lfTime = data.times.ast || data.times.alt || data.times.tbil || '';
+        if (lfDate) {
+            fishbone += ` (${lfDate}${lfTime ? ' ' + lfTime : ''})`;
+        }
+        fishbone += '\n';
+    }
+
+    // ——— Coagulation Fishbone ———
+    // Only show if coag values exist AND are from today or yesterday
+    if ((data.labs.pt || data.labs.ptt || data.labs.inr || data.labs.fib) &&
+        (isRecentDate(data.dates.pt) || isRecentDate(data.dates.ptt) || 
+         isRecentDate(data.dates.inr) || isRecentDate(data.dates.fib))) {
+        
+        const pt = data.labs.pt?.[0];
+        const ptt = data.labs.ptt?.[0];
+        const inr = data.labs.inr?.[0];
+        const fib = data.labs.fib?.[0];
+        
+        const ptPrev = data.labs.pt?.[1];
+        const pttPrev = data.labs.ptt?.[1];
+        const inrPrev = data.labs.inr?.[1];
+        const fibPrev = data.labs.fib?.[1];
+        
+        // Build strings with previous values for abnormal results
+        
+        // PT - abnormal if >13.5 seconds
+        let ptStr = '--';
+        if (pt !== undefined) {
+            ptStr = pt.toString();
+            if (pt > 13.5 && ptPrev !== undefined) {
+                ptStr = `*${pt}*(${ptPrev})`;
+            } else if (pt > 13.5) {
+                ptStr = `*${pt}*`;
+            }
+        }
+        
+        // PTT - abnormal if >35 seconds
+        let pttStr = '--';
+        if (ptt !== undefined) {
+            pttStr = ptt.toString();
+            if (ptt > 35 && pttPrev !== undefined) {
+                pttStr = `*${ptt}*(${pttPrev})`;
+            } else if (ptt > 35) {
+                pttStr = `*${ptt}*`;
+            }
+        }
+        
+        // INR - abnormal if >1.1
+        let inrStr = '--';
+        if (inr !== undefined) {
+            inrStr = inr.toString();
+            if (inr > 1.1 && inrPrev !== undefined) {
+                inrStr = `*${inr}*(${inrPrev})`;
+            } else if (inr > 1.1) {
+                inrStr = `*${inr}*`;
+            }
+        }
+        
+        // Fibrinogen - abnormal if <200 or >400
+        let fibStr = '--';
+        if (fib !== undefined) {
+            fibStr = fib.toString();
+            if ((fib < 200 || fib > 400) && fibPrev !== undefined) {
+                fibStr = `*${fib}*(${fibPrev})`;
+            } else if (fib < 200 || fib > 400) {
+                fibStr = `*${fib}*`;
+            }
+        }
+        
+        // Format as: PT/PTT INR/Fib
+        fishbone += `Coags: PT/PTT: ${ptStr}/${pttStr}, INR: ${inrStr}, Fib: ${fibStr}`;
+        
+        // Add timestamp if available
+        const coagDate = data.dates.pt || data.dates.ptt || data.dates.inr || data.dates.fib;
         const coagTime = data.times.pt || data.times.ptt || data.times.inr || data.times.fib || '';
-        fishbone += ` (${coagDate}${coagTime ? ' ' + coagTime : ''})`;
+        if (coagDate) {
+            fishbone += ` (${coagDate}${coagTime ? ' ' + coagTime : ''})`;
+        }
+        fishbone += '\n';
     }
-    fishbone += '\n';
+    
+    // ABG - only show if recent
+    if ((data.labs.ph || data.labs.po2 || data.labs.pco2) && 
+        (isRecentDate(data.dates.ph) || isRecentDate(data.dates.po2))) {
+        const ph = data.labs.ph?.[0] || 'no ph';
+        const po2 = data.labs.po2?.[0] || 'no po2';
+        const pco2 = data.labs.pco2?.[0] || 'no pco2';
+        const bicarb = data.labs.bicarb?.[0] || 'no bicarb';
+        const lactate = data.labs.lactate?.[0];
+        
+        fishbone += `${ph}/${pco2}/${po2}/${bicarb}/`;
+        if (lactate) fishbone += ` Lactate:${lactate}`;
+        
+        // Add timestamp - use proper time fields
+        const abgDate = data.dates.ph || data.dates.po2 || data.dates.pco2;
+        const abgTime = data.times.ph || data.times.po2 || data.times.pco2 || '';
+        if (abgDate) {
+            fishbone += ` (${abgDate}${abgTime ? ' ' + abgTime : ''})`;
+        }
+        fishbone += '\n';
+    }
+    
+    return fishbone;
+}
+
+function padRight(str, length) {
+    while (str.length < length) {
+        str += ' ';
+    }
+    return str;
 }
 
 
@@ -3977,35 +3987,10 @@ if ((data.labs.pt || data.labs.ptt || data.labs.inr || data.labs.fib) &&
 
 
 
-            
-            // ABG - only show if recent
-            if ((data.labs.ph || data.labs.po2 || data.labs.pco2) && 
-                (isRecentDate(data.dates.ph) || isRecentDate(data.dates.po2))) {
-                const ph = data.labs.ph?.[0] || 'no ph';
-                const po2 = data.labs.po2?.[0] || 'no po2';
-                const pco2 = data.labs.pco2?.[0] || 'no pco2';
-                const bicarb = data.labs.bicarb?.[0] || 'no bicarb';
-                const lactate = data.labs.lactate?.[0];
-                
-                fishbone += `${ph}/${pco2}/${po2}/${bicarb}/`;
-                if (lactate) fishbone += ` Lactate:${lactate}`;
-                
-                // Add timestamp
-                const abgDate = data.dates.ph || data.dates.po2;
-                if (abgDate) fishbone += ` (${abgDate} ${data.dates.phTime || '16:33:00'})`;
-                fishbone += '\n';
-            }
-            
-            return fishbone;
-        }
-        
-        function padRight(str, length) {
-            while (str.length < length) {
-                str += ' ';
-            }
-            return str;
-        }
-        
+
+
+
+    
 
 
 
