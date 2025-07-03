@@ -278,6 +278,15 @@
             animation: slideIn 0.3s ease;
         }
 
+
+.modal-content.large-modal {
+    max-width: 95%;
+    width: 95%;
+    max-height: 90vh;
+}
+
+
+
         @keyframes slideIn {
             from {
                 transform: translateY(-50px);
@@ -965,24 +974,42 @@ input[type="text"],
         </div>
     </div>
 
-    <!-- Graph View Modal -->
-    <div id="graphModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeGraphModal()" style="float: right; font-size: 30px; cursor: pointer; color: var(--danger);">&times;</span>
-            <h2>Vital Signs Graphs</h2>
-            <div style="margin-bottom: 20px;">
-                <button class="button" onclick="showVitalGraph('temp')">Temperature</button>
-                <button class="button" onclick="showVitalGraph('hr')">Heart Rate</button>
-                <button class="button" onclick="showVitalGraph('bp')">Blood Pressure</button>
-                <button class="button" onclick="showVitalGraph('o2')">O2 Saturation</button>
-            </div>
-            <canvas id="vitalChart" width="400" height="300"></canvas>
-        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Graph View Modal -->
+<div id="graphModal" class="modal">
+        <div class="modal-content large-modal">
+        <span class="close" onclick="closeGraphModal()" style="float: right; font-size: 30px; cursor: pointer; color: var(--danger);">&times;</span>
+        <h2>Vital Signs Table</h2> <!-- Changed from "Vital Signs Graphs" -->
+        <!-- Remove the button div -->
+        <div id="vitalChart" style="width: 100%; overflow-x: auto;"></div> <!-- Changed to div for table -->
     </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
 
     <!-- Include Papa Parse and Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
     <script>
         // ============ GLOBAL VARIABLES ============
@@ -1478,15 +1505,17 @@ function exportJSON() {
                             showTableView();
                         };
                         
-                        const graphBtn = document.createElement('button');
-                        graphBtn.textContent = 'Show Graphs';
+                           const graphBtn = document.createElement('button');
+                        graphBtn.textContent = 'Show Vitals Table';
                         graphBtn.style.margin = '0 2px';
                         graphBtn.style.padding = '0.3rem 0.6rem';
                         graphBtn.style.fontSize = '0.8rem';
                         graphBtn.onclick = function(e) {
                             e.preventDefault();
-                            showGraphView();
+                            showVitalsTable();
                         };
+
+
                         
                         btnContainer.appendChild(importBtn);
                         btnContainer.appendChild(tableBtn);
@@ -2330,6 +2359,53 @@ function processImportedData() {
             document.getElementById('tableModal').style.display = 'none';
         }
 
+
+// ADD THIS FUNCTION HERE
+function closeGraphModal() {
+    document.getElementById('graphModal').style.display = 'none';
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         function generateTableView() {
             if (!labData || Object.keys(labData).length === 0) {
                 document.getElementById('tableContainer').innerHTML = '<p>No lab data available. Please import data first.</p>';
@@ -2437,18 +2513,6 @@ function processImportedData() {
             document.getElementById('tableContainer').innerHTML = tableHTML;
         }
 
-        function showGraphView() {
-            document.getElementById('graphModal').style.display = 'block';
-            showVitalGraph('temp');
-        }
-
-        function closeGraphModal() {
-            document.getElementById('graphModal').style.display = 'none';
-            if (currentChart) {
-                currentChart.destroy();
-                currentChart = null;
-            }
-        }
 
 
 
@@ -2464,223 +2528,575 @@ function processImportedData() {
 
 
 
-function showVitalGraph(vitalType) {
-    if (!labData || !labData.vitals) {
-        alert('No vital signs data available. Please import data first.');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function showVitalsTable() {
+    document.getElementById('graphModal').style.display = 'block';
+    generateVitalsTable();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function generateVitalsTable() {
+    const container = document.getElementById('vitalChart');
+    
+    if (!lastImportedData) {
+        container.innerHTML = '<p>No vital signs data available. Please import data first.</p>';
         return;
     }
     
-    if (currentChart) {
-        currentChart.destroy();
+    // Extract vital signs with timestamps
+    const vitalReadings = [];
+    const timeSet = new Set();
+    
+    // Extract temperature readings
+    const tempRegex = /Temperature\s*(?:Temporal Artery|Axillary)?:\s*([\d.]+).*?\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/gi;
+    let match;
+    while ((match = tempRegex.exec(lastImportedData)) !== null) {
+        const timeKey = `${match[2]} ${match[3]}`;
+        timeSet.add(timeKey);
+        vitalReadings.push({
+            type: 'Temperature',
+            value: parseFloat(match[1]),
+            unit: '°C',
+            time: timeKey,
+            datetime: new Date(`20${match[2].split('/')[2]}-${match[2].split('/')[0]}-${match[2].split('/')[1]} ${match[3]}`),
+            abnormal: parseFloat(match[1]) > 38 || parseFloat(match[1]) < 35
+        });
     }
     
-    const ctx = document.getElementById('vitalChart').getContext('2d');
-    let datasets = [];
-    let title = '';
-    let yAxisMin = null;
-    let yAxisMax = null;
+    // Extract heart rate readings
+    const hrRegex = /(?:Heart Rate|Heart Rate Monitored|Apical Heart Rate).*?:\s*(\d+).*?\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/gi;
+    while ((match = hrRegex.exec(lastImportedData)) !== null) {
+        const timeKey = `${match[2]} ${match[3]}`;
+        timeSet.add(timeKey);
+        const hr = parseInt(match[1]);
+        vitalReadings.push({
+            type: 'Heart Rate',
+            value: hr,
+            unit: 'bpm',
+            time: timeKey,
+            datetime: new Date(`20${match[2].split('/')[2]}-${match[2].split('/')[0]}-${match[2].split('/')[1]} ${match[3]}`),
+            abnormal: hr > 100 || hr < 60
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+// Extract blood pressure readings - SEPARATE PATTERNS
+// First, collect all systolic readings
+const systolicReadings = {};
+const systolicRegex = /Systolic Blood Pressure(?:\s+Invasive)?:\s*(\d+)\s*mmHg(?:\s+(?:Low|High))?\s*\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/gi;
+while ((match = systolicRegex.exec(lastImportedData)) !== null) {
+    const timeKey = `${match[2]} ${match[3]}`;
+    systolicReadings[timeKey] = parseInt(match[1]);
+}
+
+// Then collect all diastolic readings
+const diastolicReadings = {};
+const diastolicRegex = /Diastolic Blood Pressure(?:\s+Invasive)?:\s*(\d+)\s*mmHg(?:\s+(?:Low|High))?\s*\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/gi;
+while ((match = diastolicRegex.exec(lastImportedData)) !== null) {
+    const timeKey = `${match[2]} ${match[3]}`;
+    diastolicReadings[timeKey] = parseInt(match[1]);
+}
+
+// Now match systolic and diastolic by timestamp
+Object.keys(systolicReadings).forEach(timeKey => {
+    timeSet.add(timeKey);
+    const sbp = systolicReadings[timeKey];
+    const dbp = diastolicReadings[timeKey];
     
-    const now = new Date();
-    const labels = [];
+    // Parse the date
+    const [dateStr, timeStr] = timeKey.split(' ');
+    const [month, day, year] = dateStr.split('/');
+    const datetime = new Date(`20${year}-${month}-${day} ${timeStr}`);
     
-    for (let i = 0; i < 24; i++) {
-        const time = new Date(now - (i * 60 * 60 * 1000));
-        labels.unshift(time.toLocaleString('en-US', { 
-            month: 'numeric', 
-            day: 'numeric', 
-            hour: 'numeric', 
-            minute: '2-digit' 
-        }));
+    // Add systolic reading
+    vitalReadings.push({
+        type: 'Systolic BP',
+        value: sbp,
+        unit: 'mmHg',
+        time: timeKey,
+        datetime: datetime,
+        abnormal: sbp < 90 || sbp > 180
+    });
+    
+    // Add diastolic reading if it exists for this timestamp
+    if (dbp !== undefined) {
+        vitalReadings.push({
+            type: 'Diastolic BP',
+            value: dbp,
+            unit: 'mmHg',
+            time: timeKey,
+            datetime: datetime,
+            abnormal: dbp < 60 || dbp > 120
+        });
+    }
+});
+
+// Also check for any diastolic readings without matching systolic
+Object.keys(diastolicReadings).forEach(timeKey => {
+    if (!systolicReadings[timeKey]) {
+        timeSet.add(timeKey);
+        const dbp = diastolicReadings[timeKey];
+        const [dateStr, timeStr] = timeKey.split(' ');
+        const [month, day, year] = dateStr.split('/');
+        const datetime = new Date(`20${year}-${month}-${day} ${timeStr}`);
+        
+        vitalReadings.push({
+            type: 'Diastolic BP',
+            value: dbp,
+            unit: 'mmHg',
+            time: timeKey,
+            datetime: datetime,
+            abnormal: dbp < 60 || dbp > 120
+        });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    // Extract O2 saturation readings
+    const o2Regex = /O2 Saturation.*?:\s*(\d+).*?\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/gi;
+    while ((match = o2Regex.exec(lastImportedData)) !== null) {
+        const timeKey = `${match[2]} ${match[3]}`;
+        timeSet.add(timeKey);
+        const o2 = parseInt(match[1]);
+        vitalReadings.push({
+            type: 'O2 Saturation',
+            value: o2,
+            unit: '%',
+            time: timeKey,
+            datetime: new Date(`20${match[2].split('/')[2]}-${match[2].split('/')[0]}-${match[2].split('/')[1]} ${match[3]}`),
+            abnormal: o2 < 92
+        });
     }
     
-    switch(vitalType) {
-        case 'temp':
-            if (labData.vitals.temp && labData.vitals.temp.length > 0) {
-                title = 'Temperature (°C)';
-                // Just use min and max without padding
-                yAxisMin = Math.min(...labData.vitals.temp);
-                yAxisMax = Math.max(...labData.vitals.temp);
-                
-                const tempData = labData.vitals.temp.map((value, index) => ({
-                    x: labels[labels.length - labData.vitals.temp.length + index],
-                    y: value,
-                    backgroundColor: (value > 38 || value < 35) ? 'red' : 'blue',
-                    borderColor: (value > 38 || value < 35) ? 'red' : 'blue',
-                }));
-                datasets.push({
-                    label: 'Temperature',
-                    data: tempData,
-                    borderColor: 'blue',
-                    backgroundColor: 'blue',
-                    pointRadius: 6,
-                    pointHoverRadius: 8,
-                });
-            }
-            break;
-            
-        case 'hr':
-            if (labData.vitals.hr && labData.vitals.hr.length > 0) {
-                title = 'Heart Rate (bpm)';
-                // Just use min and max without padding
-                yAxisMin = Math.min(...labData.vitals.hr);
-                yAxisMax = Math.max(...labData.vitals.hr);
-                
-                const age = labData.age || 50;
-                let hrMin = 60, hrMax = 100;
-                
-                if (age <= 1) {
-                    hrMin = 100; hrMax = 180;
-                } else if (age <= 3) {
-                    hrMin = 98; hrMax = 140;
-                } else if (age <= 5) {
-                    hrMin = 80; hrMax = 120;
-                } else if (age <= 12) {
-                    hrMin = 75; hrMax = 118;
-                }
-                
-                const hrData = labData.vitals.hr.map((value, index) => ({
-                    x: labels[labels.length - labData.vitals.hr.length + index],
-                    y: value,
-                    backgroundColor: (value < hrMin || value > hrMax) ? 'red' : 'green',
-                    borderColor: (value < hrMin || value > hrMax) ? 'red' : 'green',
-                }));
-                datasets.push({
-                    label: 'Heart Rate',
-                    data: hrData,
-                    borderColor: 'green',
-                    backgroundColor: 'green',
-                    pointRadius: 6,
-                    pointHoverRadius: 8,
-                });
-            }
-            break;
-            
-        case 'bp':
-            if (labData.vitals.sbp && labData.vitals.sbp.length > 0) {
-                title = 'Blood Pressure (mmHg)';
-                
-                // Calculate min/max for both SBP and DBP together
-                const allBPValues = [];
-                if (labData.vitals.sbp) allBPValues.push(...labData.vitals.sbp);
-                if (labData.vitals.dbp) allBPValues.push(...labData.vitals.dbp);
-                
-                // Just use min and max without padding
-                yAxisMin = Math.min(...allBPValues);
-                yAxisMax = Math.max(...allBPValues);
-                
-                const age = labData.age || 50;
-                let sbpMin = 90;
-                
-                if (age <= 1) {
-                    sbpMin = 70;
-                } else if (age <= 10) {
-                    sbpMin = 70 + (2 * age);
-                }
-                
-                const sbpData = labData.vitals.sbp.map((value, index) => ({
-                    x: labels[labels.length - labData.vitals.sbp.length + index],
-                    y: value,
-                    backgroundColor: (value < sbpMin || value > 180) ? 'red' : 'purple',
-                    borderColor: (value < sbpMin || value > 180) ? 'red' : 'purple',
-                }));
-                datasets.push({
-                    label: 'Systolic BP',
-                    data: sbpData,
-                    borderColor: 'purple',
-                    backgroundColor: 'purple',
-                    pointRadius: 6,
-                    pointHoverRadius: 8,
-                });
-                
-                if (labData.vitals.dbp && labData.vitals.dbp.length > 0) {
-                    const dbpData = labData.vitals.dbp.map((value, index) => ({
-                        x: labels[labels.length - labData.vitals.dbp.length + index],
-                        y: value,
-                        backgroundColor: (value < 60 || value > 120) ? 'red' : 'orange',
-                        borderColor: (value < 60 || value > 120) ? 'red' : 'orange',
-                    }));
-                    datasets.push({
-                        label: 'Diastolic BP',
-                        data: dbpData,
-                        borderColor: 'orange',
-                        backgroundColor: 'orange',
-                        pointRadius: 6,
-                        pointHoverRadius: 8,
-                    });
-                }
-            }
-            break;
-            
-        case 'o2':
-            if (labData.vitals.o2 && labData.vitals.o2.length > 0) {
-                title = 'O2 Saturation (%)';
-                // Just use min and max without any restrictions
-                yAxisMin = Math.min(...labData.vitals.o2);
-                yAxisMax = Math.max(...labData.vitals.o2);
-                
-                const o2Data = labData.vitals.o2.map((value, index) => ({
-                    x: labels[labels.length - labData.vitals.o2.length + index],
-                    y: value,
-                    backgroundColor: value < 92 ? 'red' : 'cyan',
-                    borderColor: value < 92 ? 'red' : 'cyan',
-                }));
-                datasets.push({
-                    label: 'O2 Saturation',
-                    data: o2Data,
-                    borderColor: 'cyan',
-                    backgroundColor: 'cyan',
-                    pointRadius: 6,
-                    pointHoverRadius: 8,
-                });
-            }
-            break;
+    // Extract I/O data
+    const ioData = extractIntakeOutputData(lastImportedData);
+    
+    // Add intake readings
+    if (ioData.intakes.enteral && ioData.intakes.enteral.length > 0) {
+        ioData.intakes.enteral.forEach(entry => {
+            const timeKey = entry.dateTimeStr;
+            timeSet.add(timeKey);
+            vitalReadings.push({
+                type: 'Enteral Feeding',
+                value: entry.volume,
+                unit: 'mL',
+                time: timeKey,
+                datetime: entry.dateTime,
+                abnormal: false
+            });
+        });
     }
     
-    if (datasets.length === 0) {
-        alert('No data available for this vital sign.');
-        return;
+    if (ioData.intakes.bloodProducts && ioData.intakes.bloodProducts.length > 0) {
+        ioData.intakes.bloodProducts.forEach(entry => {
+            const timeKey = entry.dateTimeStr;
+            timeSet.add(timeKey);
+            vitalReadings.push({
+                type: 'Blood Products',
+                value: entry.volume,
+                unit: 'mL',
+                time: timeKey,
+                datetime: entry.dateTime,
+                abnormal: false
+            });
+        });
     }
     
-    currentChart = new Chart(ctx, {
-        type: 'scatter',
-        data: {
-            datasets: datasets
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: title,
-                    font: {
-                        size: 18
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    type: 'category',
-                    labels: labels.slice(-datasets[0].data.length),
-                    title: {
-                        display: true,
-                        text: 'Time'
-                    }
-                },
-                y: {
-                    display: true,
-                    title: {
-                        display: true,
-                        text: 'Value'
-                    },
-                    // Use the exact min/max without padding
-                    min: yAxisMin,
-                    max: yAxisMax
-                }
-            }
+    if (ioData.intakes.other && ioData.intakes.other.length > 0) {
+        ioData.intakes.other.forEach(entry => {
+            const timeKey = entry.dateTimeStr;
+            timeSet.add(timeKey);
+            vitalReadings.push({
+                type: entry.description || 'Other Intake',
+                value: entry.volume,
+                unit: 'mL',
+                time: timeKey,
+                datetime: entry.dateTime,
+                abnormal: false
+            });
+        });
+    }
+    
+    // Add output readings
+    if (ioData.outputs.urine && ioData.outputs.urine.length > 0) {
+        ioData.outputs.urine.forEach(entry => {
+            const timeKey = entry.dateTimeStr;
+            timeSet.add(timeKey);
+            vitalReadings.push({
+                type: 'Urine Output',
+                value: entry.volume,
+                unit: 'mL',
+                time: timeKey,
+                datetime: entry.dateTime,
+                abnormal: false
+            });
+        });
+    }
+    
+    // Add drain outputs
+    Object.entries(ioData.outputs.drains).forEach(([drainType, entries]) => {
+        if (entries && entries.length > 0) {
+            const cleanDrainType = drainType.replace(/^Other:\s*/i, '');
+            entries.forEach(entry => {
+                const timeKey = entry.dateTimeStr;
+                timeSet.add(timeKey);
+                vitalReadings.push({
+                    type: cleanDrainType,
+                    value: entry.volume,
+                    unit: 'mL',
+                    time: timeKey,
+                    datetime: entry.dateTime,
+                    abnormal: entry.volume > 100
+                });
+            });
         }
     });
+    
+    // Add other outputs
+    Object.entries(ioData.outputs.other).forEach(([outputType, entries]) => {
+        if (entries && entries.length > 0) {
+            entries.forEach(entry => {
+                const timeKey = entry.dateTimeStr;
+                timeSet.add(timeKey);
+                vitalReadings.push({
+                    type: outputType,
+                    value: entry.volume,
+                    unit: 'mL',
+                    time: timeKey,
+                    datetime: entry.dateTime,
+                    abnormal: outputType.toLowerCase().includes('blood') && entry.volume > 50
+                });
+            });
+        }
+    });
+    
+    // Convert time set to sorted array
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now - 24 * 60 * 60 * 1000);
+    
+    const times = Array.from(timeSet)
+        .filter(timeStr => {
+            const parts = timeStr.match(/(\d{2})\/(\d{2})\/(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/);
+            if (!parts) return false;
+            const dt = new Date(`20${parts[3]}-${parts[1]}-${parts[2]} ${parts[4]}:${parts[5]}:${parts[6]}`);
+            return dt >= twentyFourHoursAgo && dt <= now;
+        })
+        .sort((a, b) => {
+            const dateA = new Date(a.replace(/(\d{2})\/(\d{2})\/(\d{2})/, '20$3-$1-$2'));
+            const dateB = new Date(b.replace(/(\d{2})\/(\d{2})\/(\d{2})/, '20$3-$1-$2'));
+            return dateB - dateA; // Most recent first
+        });
+    
+    if (times.length === 0) {
+        container.innerHTML = '<p>No vital signs or I/O data with timestamps found in the last 24 hours.</p>';
+        return;
+    }
+    
+    // Get all unique vital types and organize them by category
+    const allTypes = [...new Set(vitalReadings.map(r => r.type))];
+    
+    // Categorize the types - UPDATE THIS LINE
+    const vitalTypes = ['Temperature', 'Heart Rate', 'Systolic BP', 'Diastolic BP', 'O2 Saturation'];
+    const intakeTypes = allTypes.filter(t => 
+        t.includes('Enteral') || t.includes('Blood Product') || 
+        (vitalReadings.find(r => r.type === t && ioData.intakes.other && 
+         ioData.intakes.other.some(i => i.description === t)))
+    );
+    const outputTypes = allTypes.filter(t => 
+        !vitalTypes.includes(t) && !intakeTypes.includes(t)
+    );
+    
+    // Build the VERTICAL table HTML
+    let tableHTML = `
+        <h2 style="margin-bottom: 1rem; text-align: center;">Vital Signs & I/O Table (Last 24 Hours)</h2>
+        <div style="overflow: auto; max-height: 80vh; width: 100%;">
+            <table style="border-collapse: collapse; width: 100%; background: var(--card-bg); min-width: 800px;">
+                <thead style="position: sticky; top: 0; background: var(--primary); z-index: 10;">
+                    <tr>
+                        <th rowspan="2" style="border: 1px solid var(--border); padding: 8px; background: var(--primary); color: white; min-width: 120px; position: sticky; left: 0; z-index: 11;">Date/Time</th>`;
+    
+    // Add section headers
+    if (vitalTypes.length > 0) {
+        tableHTML += `<th colspan="${vitalTypes.length}" style="border: 1px solid var(--border); padding: 8px; background: var(--primary); color: white; text-align: center;">VITAL SIGNS</th>`;
+    }
+    if (intakeTypes.length > 0) {
+        tableHTML += `<th colspan="${intakeTypes.length}" style="border: 1px solid var(--border); padding: 8px; background: var(--secondary); color: white; text-align: center;">INTAKES</th>`;
+    }
+    if (outputTypes.length > 0) {
+        tableHTML += `<th colspan="${outputTypes.length}" style="border: 1px solid var(--border); padding: 8px; background: var(--danger); color: white; text-align: center;">OUTPUTS</th>`;
+    }
+    
+    tableHTML += `</tr><tr>`;
+    
+    // Add individual column headers
+    vitalTypes.forEach(vitalType => {
+        tableHTML += `<th style="border: 1px solid var(--border); padding: 8px; background: var(--primary); color: white; min-width: 100px; text-align: center; font-size: 0.85em;">${vitalType}</th>`;
+    });
+    
+    intakeTypes.forEach(intakeType => {
+        tableHTML += `<th style="border: 1px solid var(--border); padding: 8px; background: var(--secondary); color: white; min-width: 100px; text-align: center; font-size: 0.85em;">${intakeType}</th>`;
+    });
+    
+    outputTypes.forEach(outputType => {
+        tableHTML += `<th style="border: 1px solid var(--border); padding: 8px; background: var(--danger); color: white; min-width: 100px; text-align: center; font-size: 0.85em;">${outputType}</th>`;
+    });
+    
+    tableHTML += `</tr></thead><tbody>`;
+    
+    // Add rows for each time point
+    times.forEach((time, index) => {
+        const shortTime = time.replace(/(\d{2})\/(\d{2})\/(\d{2})/, '$1/$2').replace(/:00$/, '');
+        const rowStyle = index % 2 === 0 ? 'background: var(--card-bg);' : 'background: rgba(255,255,255,0.05);';
+        
+        tableHTML += `<tr style="${rowStyle}">`;
+        tableHTML += `<td style="border: 1px solid var(--border); padding: 8px; font-weight: bold; position: sticky; left: 0; background: var(--card-bg); z-index: 1;">${shortTime}</td>`;
+        
+        // Add vital signs data
+        vitalTypes.forEach(vitalType => {
+            const reading = vitalReadings.find(r => r.type === vitalType && r.time === time);
+            if (reading) {
+                const style = reading.abnormal ? 'color: #ff4444; font-weight: bold;' : '';
+                let displayValue = reading.value;
+                
+                if (vitalType === 'Temperature' && !displayValue.toString().includes('°')) {
+                    displayValue = `${reading.value}°C`;
+                } else if (vitalType === 'O2 Saturation' && !displayValue.toString().includes('%')) {
+                    displayValue = `${reading.value}%`;
+                }
+                
+                tableHTML += `<td style="border: 1px solid var(--border); padding: 8px; text-align: center; ${style}">${displayValue}</td>`;
+            } else {
+                tableHTML += `<td style="border: 1px solid var(--border); padding: 8px; text-align: center; color: var(--text-secondary);">-</td>`;
+            }
+        });
+        
+        // Add intake data
+        intakeTypes.forEach(intakeType => {
+            const reading = vitalReadings.find(r => r.type === intakeType && r.time === time);
+            if (reading) {
+                tableHTML += `<td style="border: 1px solid var(--border); padding: 8px; text-align: center; background: rgba(6, 182, 212, 0.1);">${reading.value} mL</td>`;
+            } else {
+                tableHTML += `<td style="border: 1px solid var(--border); padding: 8px; text-align: center; color: var(--text-secondary);">-</td>`;
+            }
+        });
+        
+        // Add output data
+        outputTypes.forEach(outputType => {
+            const reading = vitalReadings.find(r => r.type === outputType && r.time === time);
+            if (reading) {
+                const style = reading.abnormal ? 'color: #ff4444; font-weight: bold;' : '';
+                tableHTML += `<td style="border: 1px solid var(--border); padding: 8px; text-align: center; background: rgba(239, 68, 68, 0.1); ${style}">${reading.value} mL</td>`;
+            } else {
+                tableHTML += `<td style="border: 1px solid var(--border); padding: 8px; text-align: center; color: var(--text-secondary);">-</td>`;
+            }
+        });
+        
+        tableHTML += `</tr>`;
+    });
+    
+    tableHTML += `</tbody></table></div>`;
+    
+    // Add close button
+    tableHTML += `<div style="margin-top: 1.5rem; text-align: center;"><button onclick="closeGraphModal()" style="padding: 0.75rem 2rem;">Close</button></div>`;
+    
+    container.innerHTML = tableHTML;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3784,17 +4200,45 @@ function generateFishbone(data) {
       `${crStr.padEnd(col3)}\\\n`;
 
     
-    // Check if labs are from today or yesterday
-    const currentDate = new Date();
-    const yesterday = new Date(currentDate);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    const isRecentDate = (dateStr) => {
-        if (!dateStr) return false;
-        const [month, day, year] = dateStr.split('/').map(n => parseInt(n));
-        const labDate = new Date(2000 + year, month - 1, day);
-        return labDate >= yesterday;
-    };
+
+
+
+
+
+
+
+
+
+
+
+
+// Check if labs are from today or yesterday
+const currentDate = new Date();
+currentDate.setHours(0, 0, 0, 0); // Reset to start of day
+const yesterday = new Date(currentDate);
+yesterday.setDate(yesterday.getDate() - 1);
+
+const isRecentDate = (dateStr) => {
+    if (!dateStr) return false;
+    const [month, day, year] = dateStr.split('/').map(n => parseInt(n));
+    const labDate = new Date(2000 + year, month - 1, day);
+    labDate.setHours(0, 0, 0, 0); // Reset to start of day
+    return labDate >= yesterday && labDate <= currentDate;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // LFTs - only show if recent
     if ((data.labs.ast || data.labs.alt || data.labs.tbil || data.labs.alk) && 
@@ -4357,51 +4801,96 @@ if (data.o2therapyCode && data.o2therapyCode !== 'RA') {
         warnings.push('no glucose');
     }
     
-    // Calcium check
-    if (data.labs.ca && data.labs.ca[0] !== undefined) {
-        const ca = data.labs.ca[0];
-        const caPrev = data.labs.ca[1];
-        const caType = data.labs.caType;
-        const isIonized = ca < 7;
-        
-        if (isIonized && !caType) {
-            const caStr = caPrev !== undefined ? `*${ca}* (*${caPrev}*)` : `*${ca}*`;
-            if (ca >= 3.5 && ca < 4) {
-                warnings.push(`Give 4g calcium gluconate, 2g/hr, iCa=${caStr}`);
-            } else if (ca >= 3 && ca <= 3.4) {
-                warnings.push(`Give 6g calcium gluconate 2g/hr, iCa=${caStr}`);
-            } else if (ca >= 2.5 && ca <= 2.9) {
-                warnings.push(`Give 8g calcium gluconate 2g/hr, iCa=${caStr}`);
-            } else if (ca > 0 && ca < 2.5) {
-                warnings.push(`Give 10g calcium gluconate 2g/hr, notify senior! iCa=${caStr}`);
-            } else if (ca > 5.3) {
-                warnings.push(`Hypercalcemia! iCa=${caStr}`);
-            }
-        } else {
-            const caLabel = caType === 'corrected' ? 'Corrected Ca' : 'Total Ca';
-            const caStr = caPrev !== undefined ? `*${ca}* (*${caPrev}*)` : `*${ca}*`;
-            
-            if (ca < 8.5) {
-                if (ca >= 8.0 && ca < 8.5) {
-                    warnings.push(`Mild hypocalcemia: ${caLabel}=${caStr}`);
-                } else if (ca >= 7.0 && ca < 8.0) {
-                    warnings.push(`Moderate hypocalcemia: ${caLabel}=${caStr}, give calcium`);
-                } else if (ca < 7.0) {
-                    warnings.push(`Severe hypocalcemia: ${caLabel}=${caStr}, give IV calcium!`);
-                }
-            } else if (ca > 10.2) {
-                if (ca > 10.2 && ca <= 11.5) {
-                    warnings.push(`Mild hypercalcemia: ${caLabel}=${caStr}`);
-                } else if (ca > 11.5 && ca <= 13.0) {
-                    warnings.push(`Moderate hypercalcemia: ${caLabel}=${caStr}`);
-                } else if (ca > 13.0) {
-                    warnings.push(`Severe hypercalcemia: ${caLabel}=${caStr}, urgent treatment!`);
-                }
-            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Calcium check
+if (data.labs.ca && data.labs.ca[0] !== undefined) {
+    const ca = data.labs.ca[0];
+    const caPrev = data.labs.ca[1];
+    const caType = data.labs.caType;
+    const isIonized = ca < 7 && !caType;
+    
+    if (isIonized) {
+        const caStr = caPrev !== undefined ? `*${ca}* (*${caPrev}*)` : `*${ca}*`;
+        if (ca >= 3.5 && ca < 4) {
+            warnings.push(`Give 4g calcium gluconate, 2g/hr, iCa=${caStr}`);
+        } else if (ca >= 3 && ca <= 3.4) {
+            warnings.push(`Give 6g calcium gluconate 2g/hr, iCa=${caStr}`);
+        } else if (ca >= 2.5 && ca <= 2.9) {
+            warnings.push(`Give 8g calcium gluconate 2g/hr, iCa=${caStr}`);
+        } else if (ca > 0 && ca < 2.5) {
+            warnings.push(`Give 10g calcium gluconate 2g/hr, notify senior! iCa=${caStr}`);
+        } else if (ca > 5.3) {
+            warnings.push(`Hypercalcemia! iCa=${caStr}`);
         }
     } else {
-        warnings.push('Calcium not found');
+        // This is either total calcium or corrected calcium
+        const caLabel = caType === 'corrected' ? 'Corrected Ca' : 'Total Ca';
+        const caStr = caPrev !== undefined ? `*${ca}* (*${caPrev}*)` : `*${ca}*`;
+        
+        if (ca < 8.5) {
+            if (ca >= 8.0 && ca < 8.5) {
+                warnings.push(`Mild hypocalcemia: ${caLabel}=${caStr}`);
+            } else if (ca >= 7.0 && ca < 8.0) {
+                warnings.push(`Moderate hypocalcemia: ${caLabel}=${caStr}, give calcium`);
+            } else if (ca < 7.0) {
+                warnings.push(`Severe hypocalcemia: ${caLabel}=${caStr}, give IV calcium!`);
+            }
+        } else if (ca > 10.2) {
+            if (ca > 10.2 && ca <= 11.5) {
+                warnings.push(`Mild hypercalcemia: ${caLabel}=${caStr}`);
+            } else if (ca > 11.5 && ca <= 13.0) {
+                warnings.push(`Moderate hypercalcemia: ${caLabel}=${caStr}`);
+            } else if (ca > 13.0) {
+                warnings.push(`Severe hypercalcemia: ${caLabel}=${caStr}, urgent treatment!`);
+            }
+        }
     }
+} else {
+    warnings.push('Calcium not found');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     // Magnesium check
     if (data.labs.mg && data.labs.mg[0] !== undefined) {
