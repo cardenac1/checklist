@@ -1320,17 +1320,40 @@ function exportJSON() {
             });
         }
 
-        function sortRows() {
-            const column = document.getElementById('columnSelect').value;
-            if (column) {
-                patientData.sort((a, b) => {
-                    const valueA = (a[column] || '').toString().toLowerCase();
-                    const valueB = (b[column] || '').toString().toLowerCase();
-                    return valueA.localeCompare(valueB);
-                });
-                displayRows();
+
+
+
+
+
+
+
+
+	    function sortRows() {
+    const column = document.getElementById('columnSelect').value;
+    if (column) {
+        patientData.sort((a, b) => {
+            const valueA = a[column] || '';
+            const valueB = b[column] || '';
+            
+            // Special handling for Priority column - numerical sort
+            if (column === 'Priority') {
+                // Convert to numbers, treating empty/non-numeric as Infinity (sort to end)
+                const numA = valueA === '' || isNaN(valueA) ? Infinity : parseInt(valueA, 10);
+                const numB = valueB === '' || isNaN(valueB) ? Infinity : parseInt(valueB, 10);
+                return numA - numB;
             }
-        }
+            
+            // Regular string comparison for other columns
+            return valueA.toString().toLowerCase().localeCompare(valueB.toString().toLowerCase());
+        });
+        displayRows();
+    }
+}
+
+
+
+
+	    
 
         function resortRows() {
             sortRows();
