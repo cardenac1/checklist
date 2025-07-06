@@ -5720,7 +5720,7 @@ function extractDoseInfo(line) {
     const todo = patient['To do'] || 'No plan documented';
     
     // Format PMH phrase
-    const pmhPhrase = pmh ? `with PMH: ${pmh}` : 'with no PMH';
+    const pmhPhrase = pmh ? `with PMH ${pmh}` : 'with no PMH';
     
     // Build the presentation
     let presentation = `${cc}\n\n`;
