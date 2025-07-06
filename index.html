@@ -856,9 +856,8 @@ input[type="text"],
             <select id="columnSelect" onchange="sortRows()">
                 <option value="">Sort by</option>
             </select>
-           <button id="resortBtn" onclick="reSort()" style="display: none;">↻ Re-sort</button>  <!-- ADD THIS -->
+               <button id="resortBtn" onclick="reSort()" style="display: none;">↻ Re-sort</button>
             <button onclick="toggleSearch()">🔍</button>
-            <button onclick="showUpdateListModal()">Update List</button>
             <button id="exportButtonMain" onclick="exportData()">Export</button>
         </div>
 
@@ -882,46 +881,57 @@ input[type="text"],
         <!-- Floating Action Button -->
         <button class="fab" onclick="showAddEntryModal()">+</button>
 
-        <!-- Add Entry Modal -->
-        <div id="addEntryModal" class="modal">
-            <div class="modal-content">
-                <h2>Add New Entry</h2>
-                
-                <div id="entryTypeSelection" class="nav-buttons">
-                    <button type="button" onclick="showManualEntry()">✏️ Manual Entry</button>
-                    <button type="button" onclick="showPasteEntry()">📋 Paste Entry</button>
-                    <button type="button" onclick="closeAddEntryModal()">Cancel</button>
-                </div>
+       <!-- Add Entry Modal -->
+<div id="addEntryModal" class="modal">
+    <div class="modal-content">
+        <h2>Add New Entry</h2>
+        
+        <div id="entryTypeSelection" class="nav-buttons">
+            <button type="button" onclick="showManualEntry()">✏️ Manual Entry</button>
+            <button type="button" onclick="showPasteEntry()">📋 Paste Entry</button>
+            <button type="button" onclick="showUpdatePatientsSection()">🔄 Update Patients</button>
+            <button type="button" onclick="closeAddEntryModal()">Cancel</button>
+        </div>
 
-                <form id="addEntryForm" onsubmit="addEntry(event)" style="display: none;">
-                    <div id="newEntryFields"></div>
-                    <div class="nav-buttons">
-                        <button type="submit">Save Entry</button>
-                        <button type="button" onclick="backToEntrySelection()">← Back</button>
-                    </div>
-                </form>
+        <form id="addEntryForm" onsubmit="addEntry(event)" style="display: none;">
+            <div id="newEntryFields"></div>
+            <div class="nav-buttons">
+                <button type="submit">Save Entry</button>
+                <button type="button" onclick="backToEntrySelection()">← Back</button>
+            </div>
+        </form>
 
-                <div id="pasteEntrySection" style="display: none;">
-                    <label for="pasteTextArea">Paste Cerner patient list data:</label>
-                    <textarea id="pasteTextArea" class="import-textarea" placeholder="Paste patient list here..." rows="10"></textarea>
-                    <div class="nav-buttons">
-                        <button type="button" onclick="processPastedEntry()">Process & Add</button>
-                        <button type="button" onclick="backToEntrySelection()">← Back</button>
-                    </div>
-                </div>
+        <div id="pasteEntrySection" style="display: none;">
+            <label for="pasteTextArea">Paste Cerner patient list data:</label>
+            <textarea id="pasteTextArea" class="import-textarea" placeholder="Paste patient list here..." rows="10"></textarea>
+            <div class="nav-buttons">
+                <button type="button" onclick="processPastedEntry()">Process & Add</button>
+                <button type="button" onclick="backToEntrySelection()">← Back</button>
             </div>
         </div>
 
-        <!-- Update List Modal -->
-        <div id="updateListModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeUpdateListModal()" style="float: right; font-size: 30px; cursor: pointer; color: var(--danger);">&times;</span>
-                <h2>Update Patient List</h2>
-                <p style="color: var(--accent-4); margin-bottom: 10px;">Paste the patient list below:</p>
-                <textarea id="updateListData" class="import-textarea" placeholder="Paste patient list here..."></textarea>
-                <button class="button" onclick="processUpdateList()">Update List</button>
+        <!-- Add the Update Patients section -->
+        <div id="updatePatientsSection" style="display: none;">
+            <h3 style="color: var(--accent-4); margin-bottom: 10px;">Update Patient List</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 10px;">Paste the patient list below to update room assignments and attending physicians:</p>
+            <textarea id="updateListDataModal" class="import-textarea" placeholder="Paste patient list here..." rows="10"></textarea>
+            <div class="nav-buttons">
+                <button type="button" onclick="processUpdateListFromModal()">Update List</button>
+                <button type="button" onclick="backToEntrySelection()">← Back</button>
             </div>
         </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+	    
+
 
         <!-- Details View -->
         <div class="details-view" id="detailsView">
@@ -1707,11 +1717,13 @@ function exportJSON() {
         }
 
         function backToEntrySelection() {
-            document.getElementById('entryTypeSelection').style.display = 'block';
-            document.getElementById('addEntryForm').style.display = 'none';
-            document.getElementById('pasteEntrySection').style.display = 'none';
-            document.getElementById('pasteTextArea').value = '';
-        }
+    document.getElementById('entryTypeSelection').style.display = 'block';
+    document.getElementById('addEntryForm').style.display = 'none';
+    document.getElementById('pasteEntrySection').style.display = 'none';
+    document.getElementById('updatePatientsSection').style.display = 'none';
+    document.getElementById('pasteTextArea').value = '';
+    document.getElementById('updateListDataModal').value = '';
+}
 
 
 
@@ -1999,21 +2011,6 @@ function parseCernerData(text) {
 
 
 
-
-
-
-
-
-
-        // ============ UPDATE LIST FUNCTIONS ============
-        function showUpdateListModal() {
-            document.getElementById('updateListModal').style.display = 'block';
-        }
-
-        function closeUpdateListModal() {
-            document.getElementById('updateListModal').style.display = 'none';
-            document.getElementById('updateListData').value = '';
-        }
 
 
 
@@ -5775,6 +5772,76 @@ function copyStaffPresentation() {
 
 
 
+
+	    function showUpdatePatientsSection() {
+    document.getElementById('entryTypeSelection').style.display = 'none';
+    document.getElementById('updatePatientsSection').style.display = 'block';
+    document.getElementById('updateListDataModal').focus();
+}
+
+
+
+	    function processUpdateListFromModal() {
+    const text = document.getElementById('updateListDataModal').value.trim();
+    if (!text) {
+        alert('Please paste the patient list');
+        return;
+    }
+
+    const minimal = parseCernerData(text);
+    if (minimal.length === 0) {
+        alert('No valid patient entries found. Please check the format.');
+        return;
+    }
+
+    // build lookup maps for your existing patients
+    const byMRN  = new Map();
+    const byName = new Map();
+    patientData.forEach(p => {
+        if (p.MRN)           byMRN.set(p.MRN, p);
+        if (p.Name?.trim())  byName.set(p.Name.trim().toUpperCase(), p);
+    });
+
+    // now create a brand-new array in EXACTLY the pasted order
+    const updated = minimal.map(mini => {
+        // try MRN match, then Name match
+        const key = mini.Name.trim().toUpperCase();
+        const existing = byMRN.get(mini.MRN) || byName.get(key);
+
+        if (existing) {
+            // keep all existing fields, but update RM/MRN/Att (and A/G if you like)
+            existing.RM   = mini.RM;
+            existing.MRN  = mini.MRN;
+            existing.Att  = mini.Att;
+            if (mini['A/G']) existing['A/G'] = mini['A/G'];
+            return existing;
+        } else {
+            // brand new patient: has RM, MRN, Att, Type, plus A/G
+            return mini;
+        }
+    });
+
+    // replace your master list
+    patientData = updated;
+
+    saveToLocalStorage();
+    displayRows();
+    closeAddEntryModal(); // Close the modal after updating
+
+    alert(
+        `List updated!\n\n` +
+        `Total now: ${patientData.length}\n` +
+        `Matched existing: ${minimal.filter(m => byMRN.has(m.MRN) || byName.has(m.Name.toUpperCase())).length}\n` +
+        `New patients: ${minimal.filter(m => !(byMRN.has(m.MRN)||byName.has(m.Name.toUpperCase()))).length}`
+    );
+
+    // Re-apply sort if one was active
+    if (currentSortColumn) {
+        reSort();
+    }
+}
+
+	    
 	    
 
     </script>
