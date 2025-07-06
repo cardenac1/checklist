@@ -5868,6 +5868,12 @@ function extractDoseInfo(line) {
     
     // Format PMH phrase
     const pmhPhrase = pmh ? `with PMH ${pmh}` : 'with no PMH';
+ 
+ // Extract patient identifiers
+    const name = patient.Name || 'Unknown';
+    const rm = patient.RM || 'Unknown';
+    const mrn = patient.MRN || 'Unknown';
+    
 
 // Build the presentation with patient identifiers at the top
     let presentation = `${name} ${rm} MRN: ${mrn}\n`;
