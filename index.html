@@ -1713,46 +1713,99 @@ function exportJSON() {
             document.getElementById('pasteTextArea').value = '';
         }
 
-        function generateNewEntryFields(type = 'Patient') {
-            const newEntryFields = document.getElementById('newEntryFields');
-            newEntryFields.innerHTML = '';
-            
-            if (!type || type === true) {
-                const typeSelection = document.createElement('div');
-                typeSelection.innerHTML = `
-                    <h3 style="margin-bottom: 1rem;">Select Entry Type:</h3>
-                    <div class="nav-buttons" style="margin-bottom: 1rem;">
-                        <button type="button" onclick="generateNewEntryFields('Patient')">Regular Patient</button>
-                        <button type="button" onclick="generateNewEntryFields('Consult')">Consult</button>
-                    </div>
-                `;
-                newEntryFields.appendChild(typeSelection);
-                return;
-            }
-            
-            const typeLabel = document.createElement('h3');
-            typeLabel.textContent = `New ${type} Entry`;
-            typeLabel.style.marginBottom = '1rem';
-            typeLabel.style.color = type === 'Consult' ? 'var(--secondary)' : 'var(--primary)';
-            newEntryFields.appendChild(typeLabel);
-            
-            const typeInput = document.createElement('input');
-            typeInput.type = 'hidden';
-            typeInput.value = type;
-            typeInput.setAttribute('data-type', 'true');
-            newEntryFields.appendChild(typeInput);
 
-            const fieldsToShow = type === 'Consult' ? 
-                ['Name', 'RM', 'MRN', 'A/G', 'CC', 'HPI'] : 
-                ['Name', 'RM', 'MRN', 'Att', 'Problems'];
-            
-            fieldsToShow.forEach(header => {
-                const input = document.createElement('input');
-                input.placeholder = header;
-                input.setAttribute('data-header', header);
-                newEntryFields.appendChild(input);
-            });
-        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	    function generateNewEntryFields(type = 'Patient') {
+    const newEntryFields = document.getElementById('newEntryFields');
+    newEntryFields.innerHTML = '';
+    
+    // If type selection is needed
+    if (!type || type === true) {
+        const typeSelection = document.createElement('div');
+        typeSelection.innerHTML = `
+            <h3 style="margin-bottom: 1rem;">Select Entry Type:</h3>
+            <div class="nav-buttons" style="margin-bottom: 1rem;">
+                <button type="button" onclick="generateNewEntryFields('Patient')">Regular Patient</button>
+                <button type="button" onclick="generateNewEntryFields('Consult')">Consult</button>
+            </div>
+        `;
+        newEntryFields.appendChild(typeSelection);
+        return;
+    }
+    
+    const typeLabel = document.createElement('h3');
+    typeLabel.textContent = `New ${type} Entry`;
+    typeLabel.style.marginBottom = '1rem';
+    typeLabel.style.color = type === 'Consult' ? 'var(--secondary)' : 'var(--primary)';
+    newEntryFields.appendChild(typeLabel);
+    
+    const typeInput = document.createElement('input');
+    typeInput.type = 'hidden';
+    typeInput.value = type;
+    typeInput.setAttribute('data-type', 'true');
+    newEntryFields.appendChild(typeInput);
+
+    // Define the fields you want to show
+    const fieldsToShow = ['RM', 'Name', 'MRN', 'Problems', 'To do'];
+    
+    fieldsToShow.forEach(header => {
+        const label = document.createElement('label');
+        label.textContent = header;
+        label.style.display = 'block';
+        label.style.marginTop = '0.5rem';
+        label.style.marginBottom = '0.25rem';
+        label.style.color = 'var(--text-secondary)';
+        label.style.fontSize = '0.9rem';
+        newEntryFields.appendChild(label);
+        
+        const input = document.createElement('input');
+        input.placeholder = `Enter ${header}...`;
+        input.setAttribute('data-header', header);
+        input.style.width = '100%';
+        input.style.marginBottom = '0.75rem';
+        newEntryFields.appendChild(input);
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	    
 
 
 
