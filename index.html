@@ -5749,12 +5749,14 @@ function extractDoseInfo(line) {
     
     // Format PMH phrase
     const pmhPhrase = pmh ? `with PMH ${pmh}` : 'with no PMH';
-    
-    // Build the presentation
-    let presentation = `${cc}\n\n`;
+
+// Build the presentation with patient identifiers at the top
+    let presentation = `${name} ${rm} MRN: ${mrn}\n`;
+    presentation += `${cc}\n\n`;
     presentation += `${ageGender} ${pmhPhrase}, ${hpi} ${ros}\n\n`;
-    presentation += ` ${violin} ${pe}\n\n`;
+    presentation += `${violin} ${pe}\n\n`;
     presentation += `Plan: ${todo}`;
+    
     
     // Create modal for presentation
     const modal = document.createElement('div');
