@@ -6006,7 +6006,7 @@ function copyPatientInfo(patient, button) {
     const mrn = patient.MRN || 'Unknown';
     
     // Format the text to copy
-    const textToCopy = `${name} - ${rm} - MRN: ${mrn}`;
+    const textToCopy = `${name}\n${rm}\n${mrn}`;
     
     // Copy to clipboard
     navigator.clipboard.writeText(textToCopy).then(() => {
