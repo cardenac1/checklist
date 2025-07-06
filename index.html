@@ -601,6 +601,40 @@
 }
 
 
+	    /* Clipboard Button */
+.clipboard-btn {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    min-height: 40px;
+}
+
+.clipboard-btn:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+}
+
+.clipboard-btn.copied {
+    background: var(--success);
+    border-color: var(--success);
+}
+
+	    
 
 
 	    /* ===== TABLET AND MOBILE STYLES ===== */
@@ -631,13 +665,6 @@
   }
 
 
-.clipboard-btn {
-    min-width: 35px;
-    min-height: 35px;
-    padding: 0.4rem;
-    font-size: 1rem;
-    right: 0.5rem;
-}
 
 .row-item {
     padding-right: 4.5rem; /* Increased padding to prevent text overlap */
@@ -848,43 +875,12 @@ input[type="text"],
 
 
 
-
-
-
-
-
-
-	    /* Clipboard Button */
-.clipboard-btn {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    background: var(--card-bg);
-    border: 2px solid var(--border);
-    border-radius: 0.25rem;
-    padding: 0.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 1.2rem;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 40px;
-    min-height: 40px;
-}
-
-.clipboard-btn:hover {
-    background: var(--primary);
-    border-color: var(--primary);
-    transform: translateY(-50%) scale(1.1);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
-}
-
-.clipboard-btn.copied {
-    background: var(--success);
-    border-color: var(--success);
+	    .clipboard-btn {
+    min-width: 35px;
+    min-height: 35px;
+    padding: 0.4rem;
+    font-size: 1rem;
+    right: 0;  /* Changed from 0.5rem to 0 */
 }
 
 /* Adjust row item padding to make room for clipboard button */
