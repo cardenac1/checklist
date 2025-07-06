@@ -631,18 +631,18 @@
   }
 
 
- .clipboard-btn {
-        min-width: 35px;
-        min-height: 35px;
-        padding: 0.4rem;
-        font-size: 1rem;
-        right: 0.5rem;
-    }
-    
-    .row-item {
-        padding-right: 3.5rem; /* Less padding on mobile */
-    }
+.clipboard-btn {
+    min-width: 35px;
+    min-height: 35px;
+    padding: 0.4rem;
+    font-size: 1rem;
+    right: 0.5rem;
+}
 
+.row-item {
+    padding-right: 4.5rem; /* Increased padding to prevent text overlap */
+}
+	
 
 
 
@@ -1317,6 +1317,8 @@ function exportJSON() {
         contentContainer.style.display = 'flex';
         contentContainer.style.alignItems = 'center';
         contentContainer.style.position = 'relative';
+	contentContainer.style.paddingRight = '3rem'; // Reserve space for button
+
         
         // Display the selected columns vertically
         const columnsDiv = document.createElement('div');
