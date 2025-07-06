@@ -1527,6 +1527,19 @@ function exportJSON() {
             fieldsToShow.forEach(header => {
                 const label = document.createElement('label');
                 label.textContent = header;
+
+
+		      
+    // Use custom label for consult mode, otherwise use original header
+    if (currentViewMode === 'consult' && CONSULT_MODE_LABELS[header]) {
+        label.textContent = CONSULT_MODE_LABELS[header];
+    } else {
+        label.textContent = header;
+    }
+
+
+
+		    
                 
                 // Add buttons for specific fields in chart check mode
                 if (currentViewMode === 'chartcheck') {
@@ -2082,7 +2095,25 @@ function processUpdateList() {
 
 
 
-
+// Custom labels for consult mode
+const CONSULT_MODE_LABELS = {
+    'Name': 'Name',
+    'RM': 'Location',
+    'MRN': 'MRN',
+    'A/G': 'A/G',
+    'CC': 'CC/Level',
+    'HPI': 'HPI/Mech',
+    'ROS': 'ROS/1o and 2o',
+    'PMH': 'PMH',
+    'Meds': 'Meds',
+    'All': 'All',
+    'Surg hx': 'SurgHx',
+    'FSH': 'FSH#',
+    'VIOLIN': 'VIOLIN',
+    'PE': 'PE',
+    'To do': 'To Do',
+    'Priority': 'Priority'
+};
 
 
 
