@@ -856,6 +856,7 @@ input[type="text"],
             <select id="columnSelect" onchange="sortRows()">
                 <option value="">Sort by</option>
             </select>
+           <button id="resortBtn" onclick="reSort()" style="display: none;">↻ Re-sort</button>  <!-- ADD THIS -->
             <button onclick="toggleSearch()">🔍</button>
             <button onclick="showUpdateListModal()">Update List</button>
             <button id="exportButtonMain" onclick="exportData()">Export</button>
@@ -1023,6 +1024,7 @@ input[type="text"],
         let fullOrdersText = '';
         let showFullOrders = false;
         let currentChart = null;
+	let currentSortColumn = ''; // Track current sort column
 
         // Master headers structure
         const MASTER_HEADERS = [
@@ -1331,6 +1333,10 @@ function exportJSON() {
 	    function sortRows() {
     const column = document.getElementById('columnSelect').value;
     if (column) {
+        // Save the current sort column and show re-sort button
+        currentSortColumn = column;
+        document.getElementById('resortBtn').style.display = 'inline-block';
+        
         patientData.sort((a, b) => {
             const valueA = a[column] || '';
             const valueB = b[column] || '';
@@ -1347,8 +1353,35 @@ function exportJSON() {
             return valueA.toString().toLowerCase().localeCompare(valueB.toString().toLowerCase());
         });
         displayRows();
+    } else {
+        // Hide re-sort button if no sort selected
+        document.getElementById('resortBtn').style.display = 'none';
+        currentSortColumn = '';
     }
 }
+
+
+
+
+	    function reSort() {
+    if (currentSortColumn) {
+        // Set the dropdown to the current sort column
+        document.getElementById('columnSelect').value = currentSortColumn;
+        // Call the existing sort function
+        sortRows();
+        
+        // Optional: Show a brief confirmation
+        const btn = document.getElementById('resortBtn');
+        const originalText = btn.textContent;
+        btn.textContent = '✓ Sorted!';
+        setTimeout(() => {
+            btn.textContent = originalText;
+        }, 1000);
+    }
+}
+
+
+	    
 
 
 
