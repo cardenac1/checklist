@@ -2315,7 +2315,7 @@ const CONSULT_MODE_LABELS = {
             const plan = patient['To do'] || '';
 
             const pmhPhrase = pmh ? `with PMH ${pmh}` : "with no PMH";
-            let finalLine = `\\i Discussed with Attending Physician\\i0\\par`;
+            let finalLine = `\\i Discussed with Attending Physician\\i0\\par .supp2\\par`;
 
             if (type === "consult") {
                 noteText = 
