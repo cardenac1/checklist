@@ -3130,24 +3130,25 @@ Object.keys(diastolicReadings).forEach(timeKey => {
         }
     });
     
-    // Add other outputs
-    Object.entries(ioData.outputs.other).forEach(([outputType, entries]) => {
-        if (entries && entries.length > 0) {
-            entries.forEach(entry => {
-                const timeKey = entry.dateTimeStr;
-                timeSet.add(timeKey);
-                vitalReadings.push({
-                    type: outputType,
-                    value: entry.volume,
-                    unit: 'mL',
-                    time: timeKey,
-                    datetime: entry.dateTime,
-                    abnormal: outputType.toLowerCase().includes('blood') && entry.volume > 50
-                });
+
+
+	Object.entries(ioData.outputs.other).forEach(([outputType, entries]) => {
+    if (entries && entries.length > 0) {
+        entries.forEach(entry => {
+            const timeKey = entry.dateTimeStr;
+            timeSet.add(timeKey);
+            vitalReadings.push({
+                type: outputType,
+                value: entry.volume || entry.count, // Use volume if available, otherwise use count
+                unit: outputType.toLowerCase().includes('count') ? 'count' : 'mL', // Assign appropriate unit
+                time: timeKey,
+                datetime: entry.dateTime,
+                abnormal: outputType.toLowerCase().includes('blood') && (entry.volume || entry.count) > 50 // Check abnormality for both volume and count
             });
-        }
-    });
-    
+        });
+    }
+});
+	
     // Convert time set to sorted array
     const now = new Date();
     const twentyFourHoursAgo = new Date(now - 24 * 60 * 60 * 1000);
