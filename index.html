@@ -3132,22 +3132,35 @@ Object.keys(diastolicReadings).forEach(timeKey => {
     
 
 
-	Object.entries(ioData.outputs.other).forEach(([outputType, entries]) => {
+Object.entries(ioData.outputs.other).forEach(([outputType, entries]) => {
     if (entries && entries.length > 0) {
         entries.forEach(entry => {
             const timeKey = entry.dateTimeStr;
             timeSet.add(timeKey);
+            // Determine value and unit
+            let value = entry.volume || entry.count || entry.value; // Check volume, count, or value
+            let unit = outputType.toLowerCase().includes('count') ? 'count' : 'mL';
+            
+            if (value === undefined) {
+                console.warn(`No valid value found for ${outputType} at ${timeKey}`);
+                return; // Skip entries with no valid value
+            }
+
             vitalReadings.push({
                 type: outputType,
-                value: entry.volume || entry.count, // Use volume if available, otherwise use count
-                unit: outputType.toLowerCase().includes('count') ? 'count' : 'mL', // Assign appropriate unit
+                value: value,
+                unit: unit,
                 time: timeKey,
                 datetime: entry.dateTime,
-                abnormal: outputType.toLowerCase().includes('blood') && (entry.volume || entry.count) > 50 // Check abnormality for both volume and count
+                abnormal: outputType.toLowerCase().includes('blood') && value > 50
             });
         });
     }
 });
+
+
+
+	
 	
     // Convert time set to sorted array
     const now = new Date();
