@@ -3137,14 +3137,16 @@ Object.entries(ioData.outputs.other).forEach(([outputType, entries]) => {
         entries.forEach(entry => {
             const timeKey = entry.dateTimeStr;
             timeSet.add(timeKey);
-            // Determine value and unit
-            let value = entry.volume || entry.count || entry.value; // Check volume, count, or value
-            let unit = outputType.toLowerCase().includes('count') ? 'count' : 'mL';
+            // Get the value (assuming field is 'value' for counts, 'volume' for mL-based outputs)
+            let value = entry.volume || entry.value;
             
             if (value === undefined) {
                 console.warn(`No valid value found for ${outputType} at ${timeKey}`);
                 return; // Skip entries with no valid value
             }
+
+            // Set unit: 'count' for types including "count", 'mL' for others
+            let unit = outputType.toLowerCase().includes('count') ? 'count' : 'mL';
 
             vitalReadings.push({
                 type: outputType,
