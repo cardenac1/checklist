@@ -298,6 +298,16 @@
             }
         }
 
+
+.details-view,
+.consult-view,
+.chart-check {
+    max-width: none !important; /* Let it stretch full width */
+    margin: 0 !important;       /* No centering gap */
+    padding: 0.5rem;             /* Small gap from edges */
+    width: 100%;                 /* Use full available width */
+}
+
         /* Details View */
         .details-view {
             display: none;
@@ -309,6 +319,7 @@
             background: var(--dark-bg);
             z-index: 1500;
             overflow-y: auto;
+	     padding: 0.5rem; 
         }
 
         .details-header {
@@ -348,9 +359,10 @@
         }
 
         #editForm {
-            padding: 1.5rem;
-            max-width: 800px;
-            margin: 0 auto;
+   		 padding: 0.5rem;
+    		max-width: none;
+    		margin: 0;
+   		 width: 100%;
         }
 
         textarea, input[type="text"] {
@@ -635,7 +647,117 @@
     border-color: var(--success);
 }
 
-	    
+	  
+
+
+/* Chart Check Mode Split Layout */
+.chart-check-layout {
+    display: flex;
+    gap: 1rem;
+    height: calc(100vh - 200px);
+}
+
+.chart-check-left {
+    flex: 2;
+    overflow-y: auto;
+    padding-right: 1rem;
+}
+
+.chart-check-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--card-bg);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    border: 2px solid var(--primary);
+}
+
+.chart-check-right h3 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.chart-check-right textarea {
+    flex: 1;
+    resize: none;
+    background: var(--dark-bg);
+    border: 1px solid var(--border);
+    border-radius: 0.25rem;
+    padding: 0.75rem;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+
+/* Help icons */
+.help-icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background: var(--secondary);
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    font-size: 12px;
+    line-height: 16px;
+    margin-left: 8px;
+    cursor: help;
+    position: relative;
+}
+
+
+
+
+
+
+.help-tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: 125%;
+    left: 100%;
+    margin-left: 8px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid var(--border);
+    white-space: pre-line;
+    font-size: 0.8rem;
+    z-index: 1000;
+    min-width: 200px;
+    max-width: 300px;
+    transition: opacity 0.3s;
+}
+
+
+
+.help-icon:hover .help-tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .chart-check-layout {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .chart-check-left {
+        padding-right: 0;
+    }
+    
+    .chart-check-right {
+        margin-top: 1rem;
+        max-height: 300px;
+    }
+}
+
+
+
+  
 
 
 	    /* ===== TABLET AND MOBILE STYLES ===== */
@@ -671,6 +793,79 @@
     padding-right: 1rem; /* Increased padding to prevent text overlap */
 }
 	
+
+
+/* Chart Check Mode Colorful Borders */
+.chart-check-left input[type="text"],
+.chart-check-left textarea {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart-check-left label:nth-of-type(1) + input,
+.chart-check-left label:nth-of-type(1) + textarea {
+    border-color: var(--accent-1);
+    box-shadow: 0 0 0 1px rgba(0, 229, 255, 0.2);
+}
+
+.chart-check-left label:nth-of-type(2) + input,
+.chart-check-left label:nth-of-type(2) + textarea {
+    border-color: var(--accent-2);
+    box-shadow: 0 0 0 1px rgba(242, 99, 99, 0.2);
+}
+
+.chart-check-left label:nth-of-type(3) + input,
+.chart-check-left label:nth-of-type(3) + textarea {
+    border-color: var(--accent-3);
+    box-shadow: 0 0 0 1px rgba(121, 232, 159, 0.2);
+}
+
+.chart-check-left label:nth-of-type(4) + input,
+.chart-check-left label:nth-of-type(4) + textarea {
+    border-color: var(--accent-4);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.chart-check-left label:nth-of-type(5) + input,
+.chart-check-left label:nth-of-type(5) + textarea {
+    border-color: var(--accent-5);
+    box-shadow: 0 0 0 1px rgba(255, 128, 0, 0.2);
+}
+
+.chart-check-left label:nth-of-type(6) + input,
+.chart-check-left label:nth-of-type(6) + textarea {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+}
+
+.chart-check-left label:nth-of-type(7) + input,
+.chart-check-left label:nth-of-type(7) + textarea {
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 1px rgba(6, 182, 212, 0.2);
+}
+
+.chart-check-left label:nth-of-type(8) + input,
+.chart-check-left label:nth-of-type(8) + textarea {
+    border-color: var(--success);
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.2);
+}
+
+.chart-check-left input[type="text"]:focus,
+.chart-check-left textarea:focus {
+    box-shadow: 0 0 0 2px currentColor !important;
+}
+
+/* Right panel textarea gets a special color too */
+.chart-check-right textarea {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.3) !important;
+}
+
+.chart-check-right textarea:focus {
+    box-shadow: 0 0 0 2px var(--primary) !important;
+}
+
+
+
 
 
 
@@ -1612,10 +1807,198 @@ function exportJSON() {
                     // Show basic fields for both patient and consult types
                     fieldsToShow = ['Name', 'RM', 'MRN', 'Att', 'Problems', 'ICS', 'VIOLIN', 'ORDERS', 'To do', 'Priority'];
                     break;
+
+
+
+
+
+
+
+
                     
-                case 'chartcheck':
-                    // Show chart check fields
-                    fieldsToShow = ['Name', 'RM', 'MRN', 'Att', 'Problems', 'ICS', 'VIOLIN', 'ORDERS', 'To do', 'Priority'];
+case 'chartcheck':
+    // Show chart check fields in split layout
+    const chartCheckContainer = document.createElement('div');
+    chartCheckContainer.className = 'chart-check-layout';
+    
+    const leftPanel = document.createElement('div');
+    leftPanel.className = 'chart-check-left';
+    
+    const rightPanel = document.createElement('div');
+    rightPanel.className = 'chart-check-right';
+    rightPanel.innerHTML = `
+        <h3>Plan</h3>
+        <textarea id="field_To_do" placeholder="Enter patient plan...">${patient['To do'] || ''}</textarea>
+    `;
+    
+    fieldsToShow = ['Name', 'RM', 'MRN', 'Att', 'Problems', 'ICS', 'VIOLIN', 'ORDERS', 'Priority'];
+    
+    // Create fields for left panel
+    fieldsToShow.forEach(header => {
+        // Skip 'To do' as it's in the right panel
+        if (header === 'To do') return;
+        
+
+
+
+const label = document.createElement('label');
+
+// Define which fields get help icons and their content
+const helpContent = {
+    'Problems': '<b>Problems/HPI Section</b><br><br>• Primary surgical problem<br>• POD (Post-operative day)<br>• Current status<br>• <i>Use Update POD button for automatic calculation</i>',
+    'ICS': '<b>Intake/Continuity/Support</b><br><br>• <b>I</b>: Intake status (NPO, clear liquids, etc.)<br>• <b>C</b>: Continuity of care notes<br>• <b>S</b>: Support systems and social factors',
+    'VIOLIN': '<b>Vitals/I&O/Labs/Imaging/O2/Neuro</b><br><br>• <b>V</b>: Vital signs trends<br>• <b>I</b>: Intake and output<br>• <b>O</b>: Oxygen requirements<br>• <b>L</b>: Laboratory values<br>• <b>I</b>: Imaging results<br>• <b>N</b>: Neurological status',
+    'ORDERS': '<b>Current Orders</b><br><br>• <b>N/F</b>: Nutrition/Fluids<br>• <b>Pain</b>: Pain medications<br>• <b>LTD</b>: Labs to do<br>• <b>Abx</b>: Antibiotics/Pressors<br>• <b>AC</b>: Anticoagulation/DVT prophylaxis<br>• <b>Dispo</b>: Disposition plans',
+    'Priority': '<b>Priority Level</b><br><br>• <b>1</b>: Urgent/critical<br>• <b>2</b>: Important<br>• <b>3</b>: Routine<br>• <b>4</b>: Low priority<br>• <i>Lower numbers = higher priority</i>'
+};
+
+// Only add help icon for certain fields
+if (helpContent[header]) {
+    label.innerHTML = `${header}<span class="help-icon">?<div class="help-tooltip">${helpContent[header]}</div></span>`;
+} else {
+    label.textContent = header;
+}
+
+
+
+
+
+        
+        // Add buttons for specific fields
+        if (header === 'Problems') {
+            const podBtn = document.createElement('button');
+            podBtn.textContent = 'Update POD';
+            podBtn.style.marginLeft = '10px';
+            podBtn.style.padding = '0.3rem 0.6rem';
+            podBtn.style.fontSize = '0.8rem';
+            podBtn.onclick = function(e) {
+                e.preventDefault();
+                updatePOD();
+            };
+            label.appendChild(podBtn);
+        } else if (header === 'VIOLIN') {
+            // Add warning messages before VIOLIN field
+            const warningDiv = document.createElement('div');
+            warningDiv.id = 'warningMessages';
+            warningDiv.className = 'warning-messages hidden';
+            leftPanel.appendChild(warningDiv);
+            
+            const btnContainer = document.createElement('span');
+            btnContainer.style.marginLeft = '10px';
+            
+            const importBtn = document.createElement('button');
+            importBtn.textContent = 'Import Data';
+            importBtn.style.margin = '0 2px';
+            importBtn.style.padding = '0.3rem 0.6rem';
+            importBtn.style.fontSize = '0.8rem';
+            importBtn.onclick = function(e) {
+                e.preventDefault();
+                showImportModal();
+            };
+            
+            const tableBtn = document.createElement('button');
+            tableBtn.textContent = 'Show Table';
+            tableBtn.style.margin = '0 2px';
+            tableBtn.style.padding = '0.3rem 0.6rem';
+            tableBtn.style.fontSize = '0.8rem';
+            tableBtn.onclick = function(e) {
+                e.preventDefault();
+                showTableView();
+            };
+            
+            const graphBtn = document.createElement('button');
+            graphBtn.textContent = 'Show Vitals Table';
+            graphBtn.style.margin = '0 2px';
+            graphBtn.style.padding = '0.3rem 0.6rem';
+            graphBtn.style.fontSize = '0.8rem';
+            graphBtn.onclick = function(e) {
+                e.preventDefault();
+                showVitalsTable();
+            };
+            
+            btnContainer.appendChild(importBtn);
+            btnContainer.appendChild(tableBtn);
+            btnContainer.appendChild(graphBtn);
+            label.appendChild(btnContainer);
+        } else if (header === 'ORDERS') {
+            const btnContainer = document.createElement('span');
+            btnContainer.style.marginLeft = '10px';
+            
+            const abbrevBtn = document.createElement('button');
+            abbrevBtn.textContent = 'Abbrev Orders';
+            abbrevBtn.style.margin = '0 2px';
+            abbrevBtn.style.padding = '0.3rem 0.6rem';
+            abbrevBtn.style.fontSize = '0.8rem';
+            abbrevBtn.onclick = function(e) {
+                e.preventDefault();
+                updateOrders();
+            };
+            
+            const fullBtn = document.createElement('button');
+            fullBtn.textContent = 'Full Orders';
+            fullBtn.style.margin = '0 2px';
+            fullBtn.style.padding = '0.3rem 0.6rem';
+            fullBtn.style.fontSize = '0.8rem';
+            fullBtn.onclick = function(e) {
+                e.preventDefault();
+                toggleOrdersView();
+            };
+            
+            btnContainer.appendChild(abbrevBtn);
+            btnContainer.appendChild(fullBtn);
+            label.appendChild(btnContainer);
+        }
+        
+        const input = header === 'Name' || header === 'RM' || header === 'MRN' || header === 'Att' || header === 'Priority' ? 
+            document.createElement('input') : document.createElement('textarea');
+            
+        if (input.tagName === 'INPUT') {
+            input.type = 'text';
+        }
+        
+        input.id = `field_${header.replace(/\s+/g, '_')}`;
+        input.value = patient[header] || '';
+        input.addEventListener('input', function() {
+            patient[header] = this.value;
+            if (header === 'Name') {
+                document.getElementById('stickyTextContainer').textContent = this.value || 'Unnamed Patient';
+            }
+            saveToLocalStorage();
+            if (input.tagName === 'TEXTAREA') {
+                autoResizeTextarea(this);
+            }
+        });
+        
+        leftPanel.appendChild(label);
+        
+        // Add full orders display above ORDERS field
+        if (header === 'ORDERS') {
+            const fullOrdersDiv = document.createElement('div');
+            fullOrdersDiv.id = 'fullOrdersDisplay';
+            fullOrdersDiv.className = 'orders-section hidden';
+            leftPanel.appendChild(fullOrdersDiv);
+        }
+        
+        leftPanel.appendChild(input);
+        
+        if (input.tagName === 'TEXTAREA') {
+            setTimeout(() => autoResizeTextarea(input), 0);
+        }
+    });
+    
+    // Set up To Do textarea event listener
+    const todoTextarea = rightPanel.querySelector('#field_To_do');
+    todoTextarea.addEventListener('input', function() {
+        patient['To do'] = this.value;
+        saveToLocalStorage();
+    });
+    
+   
+
+
+  chartCheckContainer.appendChild(leftPanel);
+                    chartCheckContainer.appendChild(rightPanel);
+                    form.appendChild(chartCheckContainer);
                     
                     // Load lab data if stored
                     if (patient.ImportedData) {
@@ -1628,7 +2011,13 @@ function exportJSON() {
                             labData = {};
                         }
                     }
-                    break;
+                    return; // Exit early to prevent duplicate field creation
+
+
+
+
+
+
                     
                 case 'consult':
                     // Show consult fields
@@ -2597,15 +2986,6 @@ function processImportedData() {
 
 
 
-
-
-
-
-
-
-
-
-
         function showTableView() {
             document.getElementById('tableModal').style.display = 'block';
             generateTableView();
@@ -3110,6 +3490,10 @@ Object.keys(diastolicReadings).forEach(timeKey => {
             });
         });
     }
+
+
+
+
     
     // Add drain outputs
     Object.entries(ioData.outputs.drains).forEach(([drainType, entries]) => {
@@ -3131,51 +3515,6 @@ Object.keys(diastolicReadings).forEach(timeKey => {
     });
     
 
-
-
-
-
-
-
-	Object.entries(ioData.outputs.other).forEach(([outputType, entries]) => {
-    if (entries && entries.length > 0) {
-        entries.forEach(entry => {
-            const timeKey = entry.dateTimeStr;
-            timeSet.add(timeKey);
-            
-            // Try multiple possible value fields
-            let value = entry.volume || entry.value || entry.count || entry.amount;
-            
-            // If still no value and it's a count type, default to 1
-            if (value === undefined && outputType.toLowerCase().includes('count')) {
-                value = 1;
-            }
-            
-            if (value === undefined) {
-                console.warn(`No valid value found for ${outputType} at ${timeKey}`, entry);
-                return;
-            }
-            
-            let unit = outputType.toLowerCase().includes('count') ? 'count' : 'mL';
-            vitalReadings.push({
-                type: outputType,
-                value: value,
-                unit: unit,
-                time: timeKey,
-                datetime: entry.dateTime,
-                abnormal: outputType.toLowerCase().includes('blood') && value > 50
-            });
-        });
-    }
-});
-
-
-
-	
-
-
-
-	
 	
     // Convert time set to sorted array
     const now = new Date();
@@ -3202,16 +3541,23 @@ Object.keys(diastolicReadings).forEach(timeKey => {
     // Get all unique vital types and organize them by category
     const allTypes = [...new Set(vitalReadings.map(r => r.type))];
     
-    // Categorize the types - UPDATE THIS LINE
-    const vitalTypes = ['Temperature', 'Heart Rate', 'Systolic BP', 'Diastolic BP', 'O2 Saturation'];
-    const intakeTypes = allTypes.filter(t => 
-        t.includes('Enteral') || t.includes('Blood Product') || 
-        (vitalReadings.find(r => r.type === t && ioData.intakes.other && 
-         ioData.intakes.other.some(i => i.description === t)))
-    );
-    const outputTypes = allTypes.filter(t => 
-        !vitalTypes.includes(t) && !intakeTypes.includes(t)
-    );
+// Categorize the types
+const vitalTypes = ['Temperature', 'Heart Rate', 'Systolic BP', 'Diastolic BP', 'O2 Saturation'];
+const intakeTypes = allTypes.filter(t => 
+    t.includes('Enteral') || t.includes('Blood Product') || 
+    (vitalReadings.find(r => r.type === t && ioData.intakes.other && 
+     ioData.intakes.other.some(i => i.description === t)))
+);
+const countTypes = allTypes.filter(t => t.includes('Count'));
+const outputTypes = allTypes.filter(t => 
+    !vitalTypes.includes(t) && !intakeTypes.includes(t) && !countTypes.includes(t)
+);
+
+
+
+
+
+
     
     // Build the VERTICAL table HTML
     let tableHTML = `
@@ -3232,6 +3578,12 @@ Object.keys(diastolicReadings).forEach(timeKey => {
     if (outputTypes.length > 0) {
         tableHTML += `<th colspan="${outputTypes.length}" style="border: 1px solid var(--border); padding: 8px; background: var(--danger); color: white; text-align: center;">OUTPUTS</th>`;
     }
+
+if (countTypes.length > 0) {
+    tableHTML += `<th colspan="${countTypes.length}" style="border: 1px solid var(--border); padding: 8px; background: var(--accent-5); color: white; text-align: center;">COUNTS</th>`;
+}
+
+
     
     tableHTML += `</tr><tr>`;
     
@@ -3247,6 +3599,14 @@ Object.keys(diastolicReadings).forEach(timeKey => {
     outputTypes.forEach(outputType => {
         tableHTML += `<th style="border: 1px solid var(--border); padding: 8px; background: var(--danger); color: white; min-width: 100px; text-align: center; font-size: 0.85em;">${outputType}</th>`;
     });
+
+
+countTypes.forEach(countType => {
+    tableHTML += `<th style="border: 1px solid var(--border); padding: 8px; background: var(--accent-5); color: white; min-width: 100px; text-align: center; font-size: 0.85em;">${countType}</th>`;
+});
+
+
+
     
     tableHTML += `</tr></thead><tbody>`;
     
@@ -3297,6 +3657,45 @@ Object.keys(diastolicReadings).forEach(timeKey => {
                 tableHTML += `<td style="border: 1px solid var(--border); padding: 8px; text-align: center; color: var(--text-secondary);">-</td>`;
             }
         });
+
+
+
+// Process count data and add to vital readings
+Object.entries(ioData.counts || {}).forEach(([countType, entries]) => {
+    if (entries && entries.length > 0) {
+        entries.forEach(entry => {
+            const timeKey = entry.dateTimeStr;
+            timeSet.add(timeKey);
+            vitalReadings.push({
+                type: countType,
+                value: entry.count,
+                unit: 'count',
+                time: timeKey,
+                datetime: entry.dateTime,
+                abnormal: countType.toLowerCase().includes('stool') && entry.count > 1
+            });
+        });
+    }
+});
+
+
+
+
+
+
+// Add count data
+countTypes.forEach(countType => {
+    const reading = vitalReadings.find(r => r.type === countType && r.time === time);
+    if (reading) {
+        const style = reading.abnormal ? 'color: #ff4444; font-weight: bold;' : '';
+        tableHTML += `<td style="border: 1px solid var(--border); padding: 8px; text-align: center; background: rgba(255, 128, 0, 0.1); ${style}">${reading.value}</td>`;
+    } else {
+        tableHTML += `<td style="border: 1px solid var(--border); padding: 8px; text-align: center; color: var(--text-secondary);">-</td>`;
+    }
+});
+
+
+
         
         tableHTML += `</tr>`;
     });
@@ -4058,6 +4457,38 @@ function extractIntakeOutputData(text) {
             }
         });
     }
+
+
+
+// Process count entries
+const countData = {};
+if (outputSection) {
+    const countRegex = /(Stool Count|Urine Count|Vomit Count|.*?Count):\s*(\d+)\s*\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/gi;
+    let countMatch;
+    while ((countMatch = countRegex.exec(outputSection)) !== null) {
+        const countType = countMatch[1];
+        const count = parseInt(countMatch[2]);
+        const dateTime = parseDateTime(`(${countMatch[3]} ${countMatch[4]})`);
+        
+        if (isWithinTimeWindow(dateTime)) {
+            if (!countData[countType]) {
+                countData[countType] = [];
+            }
+            countData[countType].push({
+                count: count,
+                dateTime: dateTime,
+                dateTimeStr: `${countMatch[3]} ${countMatch[4]}`
+            });
+        }
+    }
+}
+
+ioData.counts = countData;
+
+// Calculate elapsed time
+
+
+
     
     // Calculate elapsed time
     const elapsedMs = now - cutoffDate;
@@ -4093,59 +4524,67 @@ function generateIntakeOutputWarnings(ioData, weight) {
         minute: '2-digit'
     });
     
-    // 1. Check urine output
-    if (ioData.outputs.urine.length > 0) {
-        const totalUrine = ioData.outputs.urine.reduce((sum, entry) => sum + entry.volume, 0);
-        const hourlyOutput = Math.round(totalUrine / elapsedHours);
+ 
+
+
+
+// 1. Check urine output
+if (ioData.outputs.urine.length > 0) {
+    const totalUrine = ioData.outputs.urine.reduce((sum, entry) => sum + entry.volume, 0);
+    const hourlyOutput = Math.round(totalUrine / elapsedHours);
+    
+    if (weight) {
+        const urinePerKgHr = (hourlyOutput / weight).toFixed(2);
         
-        if (weight) {
-            const urinePerKgHr = (hourlyOutput / weight).toFixed(2);
-            
-            if (urinePerKgHr < 0.1) {
-                warnings.push(`*ANURIA!* *${hourlyOutput} mL/hr* (${urinePerKgHr} mL/kg/hr) - total ${totalUrine} mL in ${elapsedHoursDisplay}hr - last: ${ioData.outputs.lastUrineTimeStr}`);
-            } else if (urinePerKgHr < 0.5) {
-                warnings.push(`LOW URINE OUTPUT! *${hourlyOutput} mL/hr* (${urinePerKgHr} mL/kg/hr, expected: ≥0.5 mL/kg/hr) - total ${totalUrine} mL in ${elapsedHoursDisplay}hr - last: ${ioData.outputs.lastUrineTimeStr}`);
-            } else {
-                warnings.push(`Urine output: ${hourlyOutput} mL/hr (${urinePerKgHr} mL/kg/hr) - total ${totalUrine} mL in ${elapsedHoursDisplay}hr - last: ${ioData.outputs.lastUrineTimeStr}`);
-            }
+        if (urinePerKgHr < 0.1) {
+            warnings.push(`*ANURIA!* ${urinePerKgHr} mL/kg/hr - total *${totalUrine} mL* in ${elapsedHoursDisplay}hr - last: ${ioData.outputs.lastUrineTimeStr}`);
+        } else if (urinePerKgHr < 0.5) {
+            warnings.push(`LOW URINE OUTPUT! ${urinePerKgHr} mL/kg/hr, expected: ≥0.5 mL/kg/hr - total *${totalUrine} mL* in ${elapsedHoursDisplay}hr - last: ${ioData.outputs.lastUrineTimeStr}`);
         } else {
-            warnings.push(`Urine output: ${hourlyOutput} mL/hr - total ${totalUrine} mL in ${elapsedHoursDisplay}hr - last: ${ioData.outputs.lastUrineTimeStr} (no weight available)`);
-        }
-        
-        if (ioData.outputs.urinaryCatheter) {
-            warnings.push(`*Has urinary catheter*`);
+            warnings.push(`Urine output: (${urinePerKgHr} mL/kg/hr) - total ${totalUrine} mL in ${elapsedHoursDisplay}hr - last: ${ioData.outputs.lastUrineTimeStr}`);
         }
     } else {
-        warnings.push(`*No urine output recorded since ${cutoffStr}!*`);
+        warnings.push(`Urine output: total ${totalUrine} mL in ${elapsedHoursDisplay}hr - last: ${ioData.outputs.lastUrineTimeStr} (no weight available)`);
     }
     
-    // 2. Check drains
-    Object.entries(ioData.outputs.drains).forEach(([drainType, entries]) => {
-        if (entries.length > 0) {
-            const total = entries.reduce((sum, entry) => sum + entry.volume, 0);
-            const hourlyDrain = Math.round(total / elapsedHours);
-            const latest = entries.sort((a, b) => b.dateTime - a.dateTime)[0];
-            
-            if (hourlyDrain > 30) {
-                warnings.push(`${drainType}: *${hourlyDrain} mL/hr* (HIGH OUTPUT) - total ${total} mL in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
-            } else {
-                warnings.push(`${drainType}: ${hourlyDrain} mL/hr - total ${total} mL in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
-            }
-        }
-    });
+    if (ioData.outputs.urinaryCatheter) {
+        warnings.push(`*Has urinary catheter*`);
+    }
+} else {
+    warnings.push(`*No urine output recorded since ${cutoffStr}!*`);
+}
+
+
+
+
+
+
+
+
+
+
     
-    // 3. Check blood loss
-    if (ioData.outputs.other['Estimated Blood Loss']) {
-        const bloodLoss = ioData.outputs.other['Estimated Blood Loss'];
-        const total = bloodLoss.reduce((sum, entry) => sum + entry.volume, 0);
-        const hourlyRate = Math.round(total / elapsedHours);
+// 2. Check drains
+Object.entries(ioData.outputs.drains).forEach(([drainType, entries]) => {
+    if (entries.length > 0) {
+        const total = entries.reduce((sum, entry) => sum + entry.volume, 0);
+        const latest = entries.sort((a, b) => b.dateTime - a.dateTime)[0];
         
-        if (hourlyRate > 10) {
-            warnings.push(`*Estimated Blood Loss: ${total} mL* (${hourlyRate} mL/hr) in ${elapsedHoursDisplay}hr`);
+        if (total > (30 * elapsedHours)) {
+            warnings.push(`${drainType}: *${total} mL* (HIGH OUTPUT) in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
         } else {
-            warnings.push(`*Estimated Blood Loss: ${total} mL* in ${elapsedHoursDisplay}hr`);
+            warnings.push(`${drainType}: ${total} mL in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
         }
     }
+});
+    
+// 3. Check blood loss
+if (ioData.outputs.other['Estimated Blood Loss']) {
+    const bloodLoss = ioData.outputs.other['Estimated Blood Loss'];
+    const total = bloodLoss.reduce((sum, entry) => sum + entry.volume, 0);
+    
+    warnings.push(`*Estimated Blood Loss: ${total} mL* in ${elapsedHoursDisplay}hr`);
+}
     
     // 4. Check intakes
     if (ioData.intakes.enteral.length > 0) {
@@ -4175,20 +4614,40 @@ function generateIntakeOutputWarnings(ioData, weight) {
         warnings.push(`*No intake recorded since ${cutoffStr}* (${elapsedHoursDisplay}hr)`);
     }
     
-    // 7. Check other outputs
-    Object.entries(ioData.outputs.other).forEach(([outputType, entries]) => {
-        if (outputType !== 'Estimated Blood Loss' && entries.length > 0) {
-            const total = entries.reduce((sum, entry) => sum + entry.volume, 0);
-            const hourlyRate = Math.round(total / elapsedHours);
-            const latest = entries.sort((a, b) => b.dateTime - a.dateTime)[0];
-            
-            if (hourlyRate > 10) {
-                warnings.push(`${outputType}: ${hourlyRate} mL/hr - total ${total} mL in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
-            } else {
-                warnings.push(`${outputType}: ${total} mL in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
-            }
+// 7. Check other outputs
+Object.entries(ioData.outputs.other).forEach(([outputType, entries]) => {
+    if (outputType !== 'Estimated Blood Loss' && entries.length > 0) {
+        const total = entries.reduce((sum, entry) => sum + entry.volume, 0);
+        const latest = entries.sort((a, b) => b.dateTime - a.dateTime)[0];
+        
+        warnings.push(`${outputType}: ${total} mL in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
+    }
+});
+
+
+
+
+// 8. Check counts
+Object.entries(ioData.counts || {}).forEach(([countType, entries]) => {
+    if (entries.length > 0) {
+        const totalCount = entries.reduce((sum, entry) => sum + entry.count, 0);
+        const latest = entries.sort((a, b) => b.dateTime - a.dateTime)[0];
+        
+        if (countType.toLowerCase().includes('stool') && totalCount > 3) {
+            warnings.push(`*${countType} Total: ${totalCount}* in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
+        } else if (countType.toLowerCase().includes('vomit') && totalCount > 0) {
+            warnings.push(`*${countType} Total: ${totalCount}* in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
+        } else {
+            warnings.push(`${countType} Total: ${totalCount} in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
         }
-    });
+    }
+});
+
+
+
+
+
+
     
     return warnings;
 }
