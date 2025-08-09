@@ -1378,7 +1378,19 @@ input[type="text"],
         <div id="vitalChart" style="width: 100%; overflow-x: auto;"></div> <!-- Changed to div for table -->
     </div>
 </div>
-
+	
+<!-- Help Modal -->
+<div id="helpModal" class="help-modal">
+    <div class="help-modal-content">
+        <div class="help-modal-header">
+            <h2 id="helpModalTitle" class="help-modal-title">Help & Instructions</h2>
+            <button class="help-modal-close" onclick="closeHelpModal()">&times;</button>
+        </div>
+        <div id="helpModalBody" class="help-modal-body">
+            <!-- Content will be inserted here -->
+        </div>
+    </div>
+</div>
 
 
 
@@ -2165,13 +2177,27 @@ if (helpContent[header]) {
     }
 
 		      
-    // Use custom label for consult mode, otherwise use original header
-    if (currentViewMode === 'consult' && CONSULT_MODE_LABELS[header]) {
+
+
+
+
+
+				if (currentViewMode === 'consult' && CONSULT_MODE_LABELS[header]) {
+    if (helpContent[header]) {
+        label.innerHTML = `${CONSULT_MODE_LABELS[header]}<button class="help-button" onclick="showHelpModal('${header}')">?</button>`;
+    } else {
         label.textContent = CONSULT_MODE_LABELS[header];
+    }
+} else {
+    if (helpContent[header]) {
+        label.innerHTML = `${header}<button class="help-button" onclick="showHelpModal('${header}')">?</button>`;
     } else {
         label.textContent = header;
     }
+}
 
+
+				
 
 
 		    
