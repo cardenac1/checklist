@@ -696,19 +696,26 @@
 
 
 
-
 .help-button {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: var(--secondary);
     color: white;
     border: none;
-    border-radius: 4px;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
     margin-left: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
+    font-weight: bold;
 }
+
+
+
+		
 
 .help-button:hover {
     background: var(--primary);
@@ -2003,7 +2010,7 @@ const label = document.createElement('label');
 
 		
 if (helpContent[header]) {
-    label.innerHTML = `${header}<button class="help-button" onclick="showHelpModal('${header}')">?</button>`;
+    label.innerHTML = `${header}<button class="help-button" onclick="event.stopPropagation(); event.preventDefault(); showHelpModal('${header}')">?</button>`;
 } else {
     label.textContent = header;
 }
@@ -2183,20 +2190,19 @@ if (helpContent[header]) {
 			fieldsToShow.forEach(header => {
     const label = document.createElement('label');
 
-    // Single help button logic
-    if (currentViewMode === 'consult' && CONSULT_MODE_LABELS[header]) {
-        if (helpContent[header]) {
-            label.innerHTML = `${CONSULT_MODE_LABELS[header]}<button class="help-button" onclick="showHelpModal('${header}')">?</button>`;
-        } else {
-            label.textContent = CONSULT_MODE_LABELS[header];
-        }
+if (currentViewMode === 'consult' && CONSULT_MODE_LABELS[header]) {
+    if (helpContent[header]) {
+        label.innerHTML = `${CONSULT_MODE_LABELS[header]}<button class="help-button" onclick="event.stopPropagation(); event.preventDefault(); showHelpModal('${header}')">?</button>`;
     } else {
-        if (helpContent[header]) {
-            label.innerHTML = `${header}<button class="help-button" onclick="showHelpModal('${header}')">?</button>`;
-        } else {
-            label.textContent = header;
-        }
+        label.textContent = CONSULT_MODE_LABELS[header];
     }
+} else {
+    if (helpContent[header]) {
+        label.innerHTML = `${header}<button class="help-button" onclick="event.stopPropagation(); event.preventDefault(); showHelpModal('${header}')">?</button>`;
+    } else {
+        label.textContent = header;
+    }
+}
 
 				
 				
