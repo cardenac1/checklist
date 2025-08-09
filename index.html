@@ -1977,7 +1977,7 @@ const helpContent = {
 
 		
 if (helpContent[header]) {
-    label.innerHTML = `${header}<button class="help-button" onclick="showHelpModal('${header}')">Help</button>`;
+    label.innerHTML = `${header}<button class="help-button" onclick="showHelpModal('${header}')">?</button>`;
 } else {
     label.textContent = header;
 }
@@ -2155,8 +2155,14 @@ if (helpContent[header]) {
             
             fieldsToShow.forEach(header => {
                 const label = document.createElement('label');
-                label.textContent = header;
 
+
+				    // Add this help button logic here too:
+    if (helpContent[header]) {
+        label.innerHTML = `${CONSULT_MODE_LABELS[header] || header}<button class="help-button" onclick="showHelpModal('${header}')">?</button>`;
+    } else {
+        label.textContent = CONSULT_MODE_LABELS[header] || header;
+    }
 
 		      
     // Use custom label for consult mode, otherwise use original header
