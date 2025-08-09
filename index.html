@@ -299,14 +299,7 @@
         }
 
 
-.details-view,
-.consult-view,
-.chart-check {
-    max-width: none !important; /* Let it stretch full width */
-    margin: 0 !important;       /* No centering gap */
-    padding: 0.5rem;             /* Small gap from edges */
-    width: 100%;                 /* Use full available width */
-}
+
 
         /* Details View */
         .details-view {
@@ -465,6 +458,10 @@
             font-size: 0.9rem;
             font-family: inherit;
         }
+
+
+
+
 
 
 
@@ -739,60 +736,27 @@
     opacity: 1;
 }
 
-@media (max-width: 768px) {
-    .chart-check-layout {
-        flex-direction: column;
-        height: auto;
-    }
-    
-    .chart-check-left {
-        padding-right: 0;
-    }
-    
-    .chart-check-right {
-        margin-top: 1rem;
-        max-height: 300px;
-    }
-}
 
 
 
-  
-
-
-	    /* ===== TABLET AND MOBILE STYLES ===== */
-@media (max-width: 768px) {
-  /* MAIN PAGE BUTTON GRIDS – 2-column snap grid */
-  .controls {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-    padding: 0.5rem;
-    background: rgba(30, 30, 30, 0.2);
-  }
-  .controls > * {
-    width: 100%;
-  }
-  .controls button,
-  .controls .file-input-label,
-  .controls select {
-    padding: 0.4rem 0.3rem;
-    font-size: 0.75rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
 
 
 
-.row-item {
-    padding-right: 1rem; /* Increased padding to prevent text overlap */
-}
-	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* Chart Check Mode Colorful Borders */
@@ -863,6 +827,68 @@
 .chart-check-right textarea:focus {
     box-shadow: 0 0 0 2px var(--primary) !important;
 }
+
+
+
+
+
+
+
+
+@media (max-width: 768px) {
+    .chart-check-layout {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .chart-check-left {
+        padding-right: 0;
+    }
+    
+    .chart-check-right {
+        margin-top: 1rem;
+        max-height: 300px;
+    }
+}
+
+
+
+  
+
+
+	    /* ===== TABLET AND MOBILE STYLES ===== */
+@media (max-width: 768px) {
+  /* MAIN PAGE BUTTON GRIDS – 2-column snap grid */
+  .controls {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    background: rgba(30, 30, 30, 0.2);
+  }
+  .controls > * {
+    width: 100%;
+  }
+  .controls button,
+  .controls .file-input-label,
+  .controls select {
+    padding: 0.4rem 0.3rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+
+
+.row-item {
+    padding-right: 1rem; /* Increased padding to prevent text overlap */
+}
+	
 
 
 
