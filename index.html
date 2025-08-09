@@ -6758,19 +6758,22 @@ function closeHelpModal() {
 }
 
 
-		// Close help modal when clicking outside
+// FIXED VERSION
 document.addEventListener('click', function(event) {
     const helpModal = document.getElementById('helpModal');
-    const helpModalContent = document.querySelector('.help-modal-content');
     
     if (helpModal && helpModal.style.display === 'block') {
-        // If click is on the modal background (not the content), close it
-        if (event.target === helpModal || !helpModalContent.contains(event.target)) {
+        const helpModalContent = helpModal.querySelector('.help-modal-content');
+        
+        // Check if helpModalContent exists before calling contains()
+        if (helpModalContent && !helpModalContent.contains(event.target)) {
+            closeHelpModal();
+        } else if (!helpModalContent && event.target === helpModal) {
+            // Fallback if modal content not found
             closeHelpModal();
         }
     }
 });
-
 		
 
 function createHelpModal() {
@@ -6789,27 +6792,11 @@ function createHelpModal() {
         </div>
     `;
     
-   // Close modal when clicking outside
-modal.onclick = function(event) {
-    if (event.target === modal) {
-        closeHelpModal();
-    }
-};
+
     
     document.body.appendChild(modal);
     return modal;
 }
-
-// Close modal with Escape key
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        closeHelpModal();
-    }
-});
-
-
-
-
 
 
 
