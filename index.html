@@ -1499,6 +1499,10 @@ const helpContent = {
             document.getElementById('fileInput').addEventListener('change', handleFileUpload);
         }
 
+
+
+	
+
         // ============ DATA MANAGEMENT ============
         function saveToLocalStorage() {
             try {
@@ -6754,22 +6758,6 @@ function closeHelpModal() {
 }
 
 
-// FIXED VERSION
-document.addEventListener('click', function(event) {
-    const helpModal = document.getElementById('helpModal');
-    
-    if (helpModal && helpModal.style.display === 'block') {
-        const helpModalContent = helpModal.querySelector('.help-modal-content');
-        
-        // Check if helpModalContent exists before calling contains()
-        if (helpModalContent && !helpModalContent.contains(event.target)) {
-            closeHelpModal();
-        } else if (!helpModalContent && event.target === helpModal) {
-            // Fallback if modal content not found
-            closeHelpModal();
-        }
-    }
-});
 		
 
 function createHelpModal() {
