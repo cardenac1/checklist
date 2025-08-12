@@ -5469,7 +5469,6 @@ function generateWarnings(data) {
 
 
 
-
 // Extract and process intake/output data
 if (lastImportedData) {
     const ioData = extractIntakeOutputData(lastImportedData);
@@ -5477,39 +5476,6 @@ if (lastImportedData) {
     
     // Add all I/O warnings
     warnings.push(...ioWarnings);
-    
-    // Extract and add fluid balance warnings
-    const intakeMatch = lastImportedData.match(/Total\s+Summary[\s\S]*?Intake\s+mL\s+([\d,]+(?:\.\d+)?)/i);
-    const outputMatch = lastImportedData.match(/Total\s+Summary[\s\S]*?Output\s+mL\s+([\d,]+(?:\.\d+)?)/i);
-    const balanceMatch = lastImportedData.match(/Fluid\s+Balance\s+([-+]?[\d,]+(?:\.\d+)?)/i);
-    
-    let fluidBalance = null;
-    
-    if (balanceMatch) {
-        fluidBalance = parseFloat(balanceMatch[1].replace(/,/g, ''));
-    } else if (intakeMatch && outputMatch) {
-        const totalIntake = parseFloat(intakeMatch[1].replace(/,/g, ''));
-        const totalOutput = parseFloat(outputMatch[1].replace(/,/g, ''));
-        fluidBalance = totalIntake - totalOutput;
-    }
-    
-    if (fluidBalance !== null) {
-        const sign = fluidBalance >= 0 ? '+' : '';
-        
-        // Generate fluid balance warnings
-        if (fluidBalance > 2000) {
-            warnings.push(`*SIGNIFICANT POSITIVE FLUID BALANCE!* ${sign}${fluidBalance.toFixed(0)} mL - consider diuretics/fluid restriction`);
-        } else if (fluidBalance > 1000) {
-            warnings.push(`*Positive fluid balance:* ${sign}${fluidBalance.toFixed(0)} mL - monitor for fluid overload`);
-        } else if (fluidBalance < -2000) {
-            warnings.push(`*SIGNIFICANT NEGATIVE FLUID BALANCE!* ${sign}${fluidBalance.toFixed(0)} mL - consider fluid resuscitation`);
-        } else if (fluidBalance < -1000) {
-            warnings.push(`*Negative fluid balance:* ${sign}${fluidBalance.toFixed(0)} mL - monitor for dehydration`);
-        } else {
-            warnings.push(`Fluid balance: ${sign}${fluidBalance.toFixed(0)} mL`);
-        }
-    }
-    
 } else {
     // Fallback to old method if no imported data
     if (data.output !== null && data.weight) {
@@ -5525,7 +5491,6 @@ if (lastImportedData) {
         warnings.push('Weight not found - cannot calculate expected urine output');
     }
 }
-
 
 
 
