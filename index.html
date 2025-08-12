@@ -4685,6 +4685,38 @@ ioData.counts = countData;
         elapsedHours: elapsedHours
     });
 
+
+	  // ADD THIS AT THE END, BEFORE THE RETURN STATEMENT:
+    
+    // Extract total intake/output from summary table
+    const intakeMatch = text.match(/Total\s+Summary[\s\S]*?Intake\s+mL\s+([\d,]+(?:\.\d+)?)/i);
+    const outputMatch = text.match(/Total\s+Summary[\s\S]*?Output\s+mL\s+([\d,]+(?:\.\d+)?)/i);
+    const balanceMatch = text.match(/Fluid\s+Balance\s+([-+]?[\d,]+(?:\.\d+)?)/i);
+    
+    if (intakeMatch) {
+        ioData.totalIntake = parseFloat(intakeMatch[1].replace(/,/g, ''));
+    }
+    
+    if (outputMatch) {
+        ioData.totalOutput = parseFloat(outputMatch[1].replace(/,/g, ''));
+    }
+    
+    if (balanceMatch) {
+        ioData.fluidBalance = parseFloat(balanceMatch[1].replace(/,/g, ''));
+    } else if (ioData.totalIntake !== null && ioData.totalOutput !== null) {
+        // Calculate if not explicitly provided
+        ioData.fluidBalance = ioData.totalIntake - ioData.totalOutput;
+    }
+    
+    console.log('Fluid Balance Data:', {
+        totalIntake: ioData.totalIntake,
+        totalOutput: ioData.totalOutput,
+        fluidBalance: ioData.fluidBalance
+    });
+
+
+	
+
     return ioData;
 }
 
@@ -4822,6 +4854,22 @@ Object.entries(ioData.counts || {}).forEach(([countType, entries]) => {
         }
     }
 });
+
+
+	  // Add fluid balance warning
+    if (ioData.fluidBalance !== null) {
+        const balance = ioData.fluidBalance;
+        const intake = ioData.totalIntake;
+        const output = ioData.totalOutput;
+        
+        if (Math.abs(balance) > 1000) {
+            const sign = balance >= 0 ? '+' : '';
+            warnings.push(`*SIGNIFICANT FLUID BALANCE: ${sign}${balance.toFixed(1)} mL* (I:${intake}, O:${output})`);
+        } else {
+            const sign = balance >= 0 ? '+' : '';
+            warnings.push(`Fluid Balance: ${sign}${balance.toFixed(1)} mL (I:${intake}, O:${output})`);
+        }
+    }
 
 
 
@@ -4990,6 +5038,20 @@ function generateFishbone(data) {
         }
         fishbone += '\n';
     }
+
+
+	// ADD THIS NEW SECTION:
+// Add fluid balance from I/O summary if available
+if (lastImportedData) {
+    const ioData = extractIntakeOutputData(lastImportedData);
+    if (ioData.fluidBalance !== null) {
+        const sign = ioData.fluidBalance >= 0 ? '+' : '';
+        fishbone += `Fluid Balance: ${sign}${ioData.fluidBalance.toFixed(1)} mL\n`;
+    }
+}
+
+
+	
 
     // ——— CBC Fishbone ———
     // Pull raw CBC values
