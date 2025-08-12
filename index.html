@@ -4487,24 +4487,26 @@ extractLabValue('Lipase:', 'lipase');
 function extractIntakeOutputData(text) {
     console.log('extractIntakeOutputData called with text length:', text ? text.length : 0);
     
-    const ioData = {
-        intakes: {
-            enteral: [],
-            bloodProducts: [],
-            other: []
-        },
-        outputs: {
-            urine: [],
-            urinaryCatheter: false,
-            lastUrineTime: null,
-            drains: {},
-            other: {}
-        }, 
-		       
-        totalIntake: null,
-        totalOutput: null,
-        fluidBalance: null
-    };
+const ioData = {
+    intakes: {
+        enteral: [],
+        bloodProducts: [],
+        other: []
+    },
+    outputs: {
+        urine: [],
+        urinaryCatheter: false,
+        lastUrineTime: null,
+        drains: {},
+        other: {}
+    },
+    counts: {},
+    elapsedHours: null,
+    cutoffTime: null,
+    totalIntake: null,
+    totalOutput: null,
+    fluidBalance: null
+};
 
     // Extract intake/output section
     const ioMatch = text.match(/<Intake and Output Start>([\s\S]*?)<Intake and Output End>/i);
@@ -4982,22 +4984,44 @@ function generateFishbone(data) {
     // FIX 1: Add newline after vitals section
     fishbone += '\n';
 
-    // Intake and Output
-    if (data.intake !== null) {
-        fishbone += `I: ${data.intake}\n`;
-    }
-    if (data.output !== null) {
-        fishbone += `O: ${data.output}`;
-        // Calculate expected output
-        if (data.weight) {
-            const expectedOutput = data.weight * 0.5 * 24; // 0.5 cc/kg/hr over 24 hours
-            if (data.output < expectedOutput) {
-                fishbone += '*';
-            }
+// Intake and Output
+if (data.intake !== null) {
+    fishbone += `I: ${data.intake}\n`;
+}
+if (data.output !== null) {
+    fishbone += `O: ${data.output}`;
+    // Calculate expected output
+    if (data.weight) {
+        const expectedOutput = data.weight * 0.5 * 24; // 0.5 cc/kg/hr over 24 hours
+        if (data.output < expectedOutput) {
+            fishbone += '*';
         }
-        fishbone += '\n';
     }
+    fishbone += '\n';
+}
 
+// Extract fluid balance directly from imported data
+if (lastImportedData) {
+    // Simple fluid balance extraction
+    const intakeMatch = lastImportedData.match(/Total\s+Summary[\s\S]*?Intake\s+mL\s+([\d,]+(?:\.\d+)?)/i);
+    const outputMatch = lastImportedData.match(/Total\s+Summary[\s\S]*?Output\s+mL\s+([\d,]+(?:\.\d+)?)/i);
+    const balanceMatch = lastImportedData.match(/Fluid\s+Balance\s+([-+]?[\d,]+(?:\.\d+)?)/i);
+    
+    let fluidBalance = null;
+    
+    if (balanceMatch) {
+        fluidBalance = parseFloat(balanceMatch[1].replace(/,/g, ''));
+    } else if (intakeMatch && outputMatch) {
+        const totalIntake = parseFloat(intakeMatch[1].replace(/,/g, ''));
+        const totalOutput = parseFloat(outputMatch[1].replace(/,/g, ''));
+        fluidBalance = totalIntake - totalOutput;
+    }
+    
+    if (fluidBalance !== null) {
+        const sign = fluidBalance >= 0 ? '+' : '';
+        fishbone += `Fluid Balance: ${sign}${fluidBalance.toFixed(1)} mL\n`;
+    }
+}
 
 	
 
