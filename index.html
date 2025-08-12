@@ -3675,7 +3675,7 @@ Object.keys(diastolicReadings).forEach(timeKey => {
 
 
     
-    // Add drain outputs
+  // Add drain outputs
     Object.entries(ioData.outputs.drains).forEach(([drainType, entries]) => {
         if (entries && entries.length > 0) {
             const cleanDrainType = drainType.replace(/^Other:\s*/i, '');
@@ -3693,6 +3693,28 @@ Object.keys(diastolicReadings).forEach(timeKey => {
             });
         }
     });
+    
+    // Process count data and add to vital readings (MOVED HERE!)
+    Object.entries(ioData.counts || {}).forEach(([countType, entries]) => {
+        if (entries && entries.length > 0) {
+            entries.forEach(entry => {
+                const timeKey = entry.dateTimeStr;
+                timeSet.add(timeKey);
+                vitalReadings.push({
+                    type: countType,
+                    value: entry.count,
+                    unit: 'count',
+                    time: timeKey,
+                    datetime: entry.dateTime,
+                    abnormal: countType.toLowerCase().includes('stool') && entry.count > 1
+                });
+            });
+        }
+    });
+
+	
+    // Convert time set to sorted array
+    const now = new Date();
     
 
 	
@@ -3838,25 +3860,8 @@ countTypes.forEach(countType => {
             }
         });
 
-
-
-// Process count data and add to vital readings
-Object.entries(ioData.counts || {}).forEach(([countType, entries]) => {
-    if (entries && entries.length > 0) {
-        entries.forEach(entry => {
-            const timeKey = entry.dateTimeStr;
-            timeSet.add(timeKey);
-            vitalReadings.push({
-                type: countType,
-                value: entry.count,
-                unit: 'count',
-                time: timeKey,
-                datetime: entry.dateTime,
-                abnormal: countType.toLowerCase().includes('stool') && entry.count > 1
-            });
-        });
-    }
-});
+// Add count data
+countTypes.forEach(countType => {
 
 
 
