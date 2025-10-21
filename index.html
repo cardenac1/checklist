@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medical Fishbone Generator</title>
+    <title>Medical Checklists</title>
     <style>
         * {
             margin: 0;
@@ -11,2015 +11,1169 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --primary: #ffffff;
-            --primary-dark: #e5e5e5;
-            --secondary: #a0a0a0;
-            --danger: #ff6b6b;
-            --success: #51cf66;
-            --warning: #ffd43b;
-            --dark-bg: #0d1117;
-            --card-bg: #161b22;
-            --card-hover: #21262d;
-            --border: #30363d;
-            --text-primary: #f0f6fc;
-            --text-secondary: #8b949e;
-            --accent-1: #ffd43b;
-            --accent-2: #ff6b6b;
-            --accent-3: #51cf66;
-        }
-
-        body {
-            background: var(--dark-bg);
-            color: var(--text-primary);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            padding: 2rem;
-        }
+  }
 
         .container {
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
+            background: rgba(30, 30, 46, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
 
-        .header {
+        h1 {
+            color: #fff;
+            font-size: 2.5em;
+            margin-bottom: 10px;
             text-align: center;
-            margin-bottom: 3rem;
-            padding: 2rem;
-            background: var(--card-bg);
-            border-radius: 1rem;
-            border: 2px solid var(--border);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            letter-spacing: 2px;
         }
 
-        .header h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 1rem;
-        }
-
-        .instructions {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            border-left: 4px solid var(--warning);
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-        }
-
-        .instructions h3 {
-            color: var(--warning);
-            margin-bottom: 0.5rem;
-        }
-
-        .input-section {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 1rem;
-            margin-bottom: 2rem;
-            border: 1px solid var(--border);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        }
-
-        .input-controls {
+        .tabs {
             display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
+            gap: 10px;
+            margin: 20px 0;
             flex-wrap: wrap;
+            justify-content: center;
         }
 
-        button {
-            background: linear-gradient(135deg, var(--card-hover), var(--border));
-            color: var(--primary);
-            border: 1px solid var(--border);
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            font-weight: 500;
+        .tab-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            color: #e0e0e0;
+            padding: 12px 24px;
+            border-radius: 10px;
             cursor: pointer;
+            font-size: 1em;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
         }
 
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: var(--dark-bg);
+        .tab-button:hover {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: rgba(102, 126, 234, 0.5);
         }
 
-        button:active {
-            transform: translateY(0);
+        .tab-button.active {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
         }
 
-        button.success {
-            background: linear-gradient(135deg, var(--success), #40c057);
-            color: var(--dark-bg);
-        }
-
-        button.warning {
-            background: linear-gradient(135deg, var(--warning), #fab005);
-            color: var(--dark-bg);
-        }
-
-        #dataInput {
-            width: 100%;
-            min-height: 200px;
-            background: var(--dark-bg);
-            color: var(--text-primary);
-            border: 2px solid var(--border);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            resize: vertical;
-            transition: border-color 0.3s ease;
-        }
-
-        #dataInput:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-        }
-
-        .results {
+        .tab-content {
             display: none;
-            margin-top: 2rem;
         }
 
-        .fishbone-section, .warnings-section {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 1rem;
-            margin-bottom: 2rem;
-            border: 1px solid var(--border);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        .tab-content.active {
+            display: block;
         }
 
-        .fishbone-section h3 {
-            color: var(--accent-3);
-            margin-bottom: 1rem;
+        .progress-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 25px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: #b0b0b0;
+        }
+
+        .progress-bar-bg {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 0.3s ease, background 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-        }
-
-        .warnings-section h3 {
-            color: var(--accent-2);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        #fishboneOutput {
-            background: var(--dark-bg);
-            color: var(--text-primary);
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            white-space: pre-wrap;
-            border: 1px solid var(--border);
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .warning-item {
-            background: rgba(239, 68, 68, 0.1);
-            border-left: 4px solid var(--danger);
-            padding: 1rem;
-            margin-bottom: 0.5rem;
-            border-radius: 0.25rem;
-            color: var(--text-primary);
-        }
-
-        .success-message {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid var(--success);
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-            color: var(--success);
-            display: none;
-        }
-
-        .excel-prompt {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 1rem;
-            border: 2px solid var(--accent-3);
-            text-align: center;
-            display: none;
-            margin-top: 2rem;
-            box-shadow: 0 8px 32px rgba(81, 207, 102, 0.2);
-        }
-
-        .excel-prompt h3 {
-            color: var(--accent-3);
-            margin-bottom: 1rem;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .spinner {
-            border: 4px solid var(--border);
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            border: 1px solid var(--border);
-            text-align: center;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-        }
-
-        .stat-number {
-            font-size: 2rem;
+            justify-content: center;
+            color: white;
             font-weight: bold;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 0.85em;
         }
 
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
+        .progress-bar.complete {
+            background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
         }
 
-        @media (max-width: 768px) {
-            body {
-                padding: 1rem;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .input-controls {
-                flex-direction: column;
-            }
-            
-            button {
-                width: 100%;
-            }
+        .section {
+            margin: 25px 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .section-title {
+            color: #fff;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            margin: 12px 0;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .checklist-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .checklist-item input[type="checkbox"] {
+            margin-right: 12px;
+            margin-top: 4px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #667eea;
+            flex-shrink: 0;
+        }
+
+        .checklist-item label {
+            cursor: pointer;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .checklist-item label a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .checklist-item label a:hover {
+            text-decoration: underline;
+        }
+
+        .checklist-item.checked label {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        .subsection {
+            margin-left: 32px;
+            margin-top: 8px;
+        }
+
+        .sub-item {
+            margin: 8px 0;
+            font-size: 0.95em;
+        }
+
+        .child-item {
+            margin-left: 45px;
+            font-size: 0.9em;
+            color: #b0b0b0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🐟 Medical Fishbone Generator</h1>
-            <p>Generate comprehensive fishbone diagrams and clinical warnings from medical data</p>
+        <h1>Medical Checklists</h1>
+        
+        <div class="tabs">
+            <button class="tab-button active" data-tab="violin">VIOLIN</button>
+            <button class="tab-button" data-tab="trauma">Trauma</button>
+            <button class="tab-button" data-tab="consult">Consult</button>
+            <button class="tab-button" data-tab="problems">Problems/HPI</button>
         </div>
 
-        <div class="instructions">
-            <h3>📋 Instructions</h3>
-            <p><strong>Copy and paste data from .lio. Below</strong></p>
-            <p>Paste your medical data including vitals, labs, intake/output, and medication information into the text area below.</p>
-        </div>
-
-        <div class="input-section">
-            <div class="input-controls">
-                <button onclick="pasteFromClipboard()">📋 Paste from Clipboard</button>
-                <button onclick="processData()">⚡ Generate Fishbone</button>
-                <button onclick="clearData()">🗑️ Clear</button>
+        <!-- Top Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-label">
+                <span>Progress</span>
+                <span id="progress-text-top">0 / 0</span>
             </div>
-            <textarea id="dataInput" placeholder="Paste your medical data here...&#10;&#10;Include:&#10;- Vital signs (temperature, HR, BP, O2 sat)&#10;- Laboratory values (CBC, BMP, LFTs, etc.)&#10;- Intake and output data&#10;- Medication lists&#10;- Any other relevant clinical data"></textarea>
-        </div>
-
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Processing medical data...</p>
-        </div>
-
-        <div class="success-message" id="successMessage">
-            ✅ Fishbone diagram generated successfully and copied to clipboard!
-        </div>
-
-        <div class="results" id="results">
-            <div class="stats" id="stats">
-                <!-- Stats will be populated dynamically -->
-            </div>
-
-            <div class="fishbone-section">
-                <h3>🐟 Fishbone Diagram <button onclick="copyFishbone()" style="margin-left: auto; padding: 0.5rem 1rem; font-size: 0.8rem;">📋 Copy Fishbone</button></h3>
-                <div id="fishboneOutput"></div>
-            </div>
-
-            <div class="warnings-section">
-                <h3>⚠️ Clinical Warnings</h3>
-                <div id="warningsOutput"></div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar" id="progress-bar-top">0%</div>
             </div>
         </div>
 
-        <div class="excel-prompt" id="excelPrompt">
-            <h3>📊 Ready for Excel</h3>
-            <p>Your fishbone diagram has been copied to clipboard.</p>
-            <p><strong>Now paste the fishbone into Excel for documentation.</strong></p>
-            <button onclick="hideExcelPrompt()">Got it!</button>
+        <!-- VIOLIN Tab -->
+        <div class="tab-content active" id="violin-content">
+            <div class="section">
+                <div class="section-title">VIOLIN</div>
+                
+                <div class="subsection">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="labs">
+                        <label for="labs"><strong>Labs</strong></label>
+                    </div>
+                    <div class="subsection">
+                        <div class="checklist-item sub-item">
+                            <input type="checkbox" id="cbc-coags">
+                            <label for="cbc-coags">CBC/COAGS: WBC, Hgb, HCT, PLT, Diff, PT, PTT/INR, Fibrinogen, ROTEM</label>
+                        </div>
+                        <div class="checklist-item sub-item">
+                            <input type="checkbox" id="lytes">
+                            <label for="lytes">Lytes: BMP, Ca, Mg, P, Tbil, Dbili</label>
+                        </div>
+                        <div class="checklist-item sub-item">
+                            <input type="checkbox" id="gi-labs">
+                            <label for="gi-labs">GI Labs: ALK, GGT, AST/ALT</label>
+                        </div>
+                        <div class="checklist-item sub-item">
+                            <input type="checkbox" id="abg">
+                            <label for="abg">ABG: pH, PO2, PCO2, Bicarb, Base excess, Lactate</label>
+                        </div>
+                        <div class="checklist-item sub-item">
+                            <input type="checkbox" id="misc-labs">
+                            <label for="misc-labs">MISC: Trops, CK, CKMB, Hgb A1C, albumin, prealbumin, Procal, UA, Urine studies</label>
+                        </div>
+                        <div class="checklist-item sub-item">
+                            <input type="checkbox" id="micro">
+                            <label for="micro">Microbiology/pathology results</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="vitals">
+                    <label for="vitals"><strong>VITALS:</strong> HR, SBP, DBP, MAP, Temp, RR, SPO2, O2 therapy, Vent: Mode, RR, Vt, PEEP, FIO2, PIP, ETCO2</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="ios">
+                    <label for="ios"><strong>I/Os:</strong> Blood products, oral, IVF, meds, tube feeds / BM, ostomy, urostomy, drains/tubes, UOP, emesis, blood loss, dialysis, Fluid balance</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="pac">
+                    <label for="pac"><strong>Pulmonary Artery Catheter Values:</strong> CVP, PASP/PADP, PAMAP, CO, CI, SvO2, SV, SVI, SVR</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="imaging">
+                    <label for="imaging"><strong>Review imaging</strong></label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">NEURO</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="neuro-dx">
+                    <label for="neuro-dx">Dx</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="neuro-exam">
+                    <label for="neuro-exam">Exam: GCS 15 (E4V5M6), PERRLA, strength and sensation intact BUE+BLE, CN II-XII grossly intact, EOMI, minimal pain</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="neuro-meds">
+                    <label for="neuro-meds">Meds: wean off sedation, convert pain meds to PO and home regimen</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="neuro-ebm">
+                    <label for="neuro-ebm">Evidence based mx of active diagnosis</label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">PULM</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="pulm-dx">
+                    <label for="pulm-dx">Dx</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="pulm-exam">
+                    <label for="pulm-exam">Exam: CTAB, regular rate, O2 sat, O2 support/vent settings, RR, ABG, RSBI, spot trial results, Types of trach and size, date placed, wean to decannulation, chest tube outputs/air leaks/size/location, SOB, CP</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="pulm-meds">
+                    <label for="pulm-meds">Meds: home meds, convert nebs to dc regimen</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="pulm-wean">
+                    <label for="pulm-wean">Wean off support, optimize vent settings</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="pulm-trach">
+                    <label for="pulm-trach">Tracheostomy indicated for prolonged mechanical ventilation (>10 days) unlikely to wean (max duration 3 weeks on ETT) (book and consent)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="pulm-ebm">
+                    <label for="pulm-ebm">Evidence based mx of active diagnosis</label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">CV</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="cv-dx">
+                    <label for="cv-dx">Dx</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="cv-exam">
+                    <label for="cv-exam">Exam: HR, BP, MAP, CVP, PAC values, PT/DP, Radial/Ulnar pulses, BLE edema, VENOUS/ARTERIAL ACCESS gauge/size and location</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="cv-access">
+                    <label for="cv-access">WHENEVER POSSIBLE → Remove or replace central lines, PICC, peripheral IVs, arterial line</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="cv-wean">
+                    <label for="cv-wean">Wean off pressors/continuous cardiac drips, convert to PO</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="cv-restart">
+                    <label for="cv-restart">Restart cardiac meds</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="cv-ebm">
+                    <label for="cv-ebm">Evidence based mx of active diagnosis</label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">GI</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="gi-dx">
+                    <label for="gi-dx">Dx</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="gi-lfts">
+                    <label for="gi-lfts">LFTs/GI labs</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="gi-exam">
+                    <label for="gi-exam">Exam: abdominal exam, incision exam, drains/NGT/OGT quality/quantity of output, BM/Gas quality/quantity, Nausea, vomiting</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="gi-diet">
+                    <label for="gi-diet"><strong>Diet/Nutrition</strong></label>
+                </div>
+                <div class="subsection">
+                    <div class="checklist-item sub-item">
+                        <input type="checkbox" id="gi-advance">
+                        <label for="gi-advance">Advance as tolerated to regular diet</label>
+                    </div>
+                    <div class="checklist-item sub-item">
+                        <input type="checkbox" id="gi-tpn">
+                        <label for="gi-tpn">TPN/PPN considerations and ordering</label>
+                    </div>
+                    <div class="checklist-item sub-item">
+                        <input type="checkbox" id="gi-tf">
+                        <label for="gi-tf">TF indications and advance to goal rate</label>
+                    </div>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="gi-stress">
+                    <label for="gi-stress">Stress ulcer prophylaxis</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="gi-bowel">
+                    <label for="gi-bowel">Bowel regimen</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="gi-ebm">
+                    <label for="gi-ebm">Evidence based mx of active diagnosis</label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">RENAL/FLUIDS</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="renal-dx">
+                    <label for="renal-dx">Dx</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="renal-labs">
+                    <label for="renal-labs">BMP/Ca/Mag/Phos</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="renal-exam">
+                    <label for="renal-exam">Exam: I/Os, fluid balance, UOP, foley/voids, HD method/rate/target, Dysuria/urine retention</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="renal-ivf">
+                    <label for="renal-ivf">IVF - Maintenance fluid rate</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="renal-foley">
+                    <label for="renal-foley">Dc foley, BS/SC vs. void</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="renal-hd">
+                    <label for="renal-hd">Wean from HD as able, CVVHD → iHD if chronic</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="renal-aki">
+                    <label for="renal-aki">AKI management</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="renal-lytes">
+                    <label for="renal-lytes">Replete lytes</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="renal-dc-ivf">
+                    <label for="renal-dc-ivf">DC IVF</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="renal-ebm">
+                    <label for="renal-ebm">Evidence based mx of active diagnosis</label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">HEME</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="heme-dx">
+                    <label for="heme-dx">Dx</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="heme-coags">
+                    <label for="heme-coags">Coags: Hgb, Hct, PLT, PT, PTT/INR, Fibrinogen, ROTEM</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="heme-exam">
+                    <label for="heme-exam">Exam: BLE edema</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="heme-dvt">
+                    <label for="heme-dvt">Check start DVT prophylaxis or home AC (aspirin/plavix) when appropriate</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="heme-dc-ac">
+                    <label for="heme-dc-ac">Dc IV anticoagulants and start PO discharge regimen</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="heme-ebm">
+                    <label for="heme-ebm">Evidence based mx of active diagnosis</label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">INFECTION</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="infection-dx">
+                    <label for="infection-dx">Dx</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="infection-exam">
+                    <label for="infection-exam">Exam: WBC, Diff, Cultures with speciation/sensitivities, Tmax, Tcurr</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="infection-abx">
+                    <label for="infection-abx">Abx: duration, type, route when to dc</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="infection-trough">
+                    <label for="infection-trough">Order Vancomycin/medication trough levels</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="infection-dc">
+                    <label for="infection-dc">DC antibiotics, Otherwise set up long term antibiotic IV access if needed</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="infection-ebm">
+                    <label for="infection-ebm">Evidence based mx of active diagnosis</label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">ENDO</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="endo-dx">
+                    <label for="endo-dx">Dx</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="endo-glucose">
+                    <label for="endo-glucose">Ideal Glucose range: 140-180</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="endo-insulin">
+                    <label for="endo-insulin">Convert ISS or insulin gtt to basal bolus regimen when stable</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="endo-dc">
+                    <label for="endo-dc">Dc home oral hypoglycemics</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="endo-ebm">
+                    <label for="endo-ebm">Evidence based mx of active diagnosis</label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">SKIN/OTHER</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="skin-wounds">
+                    <label for="skin-wounds">Wounds/wound care</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="skin-pt">
+                    <label for="skin-pt">PT/OT OOB to chair</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="skin-home-meds">
+                    <label for="skin-home-meds">RESTART HOME MEDS when able</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="skin-hcp">
+                    <label for="skin-hcp">HCP/GOALS OF CARE</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="skin-dispo">
+                    <label for="skin-dispo">DISPO: Downgrade or discharge</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trauma Tab -->
+        <div class="tab-content" id="trauma-content">
+            <div class="section" style="border-left-color: #dc2626;">
+                <div class="section-title">ADD TO LIST</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-add">
+                    <label for="trauma-add">Add to list</label>
+                </div>
+            </div>
+
+            <div class="section" style="border-left-color: #d97706;">
+                <div class="section-title">STAFF</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-staff">
+                    <label for="trauma-staff">Staff</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-scans">
+                    <label for="trauma-scans">Order Scans</label>
+                </div>
+            </div>
+
+            <div class="section" style="border-left-color: #16a34a;">
+                <div class="section-title">NOTE (include HCP)</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-hcp">
+                    <label for="trauma-hcp">Advanced Directives/Goals of Care/HCP</label>
+                </div>
+            </div>
+
+            <div class="section" style="border-left-color: #9333ea;">
+                <div class="section-title">F/U SCANS AND LABS</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-imaging-review">
+                    <label for="trauma-imaging-review">Primary review of imaging</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-plan">
+                    <label for="trauma-plan">Plan by injury: CTH, CT C/T/L Spine, CT chest/abdomen/pelvis, + additional scans (attending reads). <a href="https://docs.google.com/document/d/12lbPO5K7jMPhruuoedT-piCaQSr9dja2OObAeMD2NWk/edit?tab=t.0" target="_blank" rel="noopener noreferrer">Reading CT scans</a></label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-labs">
+                    <label for="trauma-labs">Review labs</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-or">
+                    <label for="trauma-or">If going to OR: NPO at midnight ± IVF, Book OR + Call OR, consent, Type & screen within 3 days + historical, order 2U PRBCs on hold, Urine ± HCG EKG CXR coags, Order special booking needs/instruments</label>
+                </div>
+            </div>
+
+            <div class="section" style="border-left-color: #c026d3;">
+                <div class="section-title">DISPO/ADDENDUM</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-signout">
+                    <label for="trauma-signout">Sign out DISPO to ICU/Floor/ED</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-ebm">
+                    <label for="trauma-ebm">EVIDENCE BASED RECOMMENDATIONS FOR THEIR DIAGNOSIS</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-family">
+                    <label for="trauma-family">Update family</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-tertiary">
+                    <label for="trauma-tertiary">Tertiary Survey</label>
+                </div>
+            </div>
+
+            <div class="section" style="border-left-color: #0284c7;">
+                <div class="section-title">ORDERS/CONSULTS</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-extra">
+                    <label for="trauma-extra">Extra Scans/Consults</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-pso">
+                    <label for="trauma-pso">PSO if admitting - call bed board</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-diet">
+                    <label for="trauma-diet">Diet order vs. NPO/IVF</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-patient-care">
+                    <label for="trauma-patient-care"><strong>Patient care</strong></label>
+                </div>
+                <div class="subsection">
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="trauma-glucose">
+                        <label for="trauma-glucose">Blood glucose monitoring</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="trauma-lines">
+                        <label for="trauma-lines">Lines/tubes/drains: Drain / NGT / Foley / OGT / chest tube / central line / arterial line / Peripheral IV orders</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="trauma-vitals">
+                        <label for="trauma-vitals">Vital signs</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="trauma-io">
+                        <label for="trauma-io">Intake and output</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="trauma-scd">
+                        <label for="trauma-scd">Intermittent Pneumatic Compression/SCDs</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="trauma-telem">
+                        <label for="trauma-telem">Cardiac telemetry</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="trauma-weight">
+                        <label for="trauma-weight">Daily weight</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="trauma-neuro-check">
+                        <label for="trauma-neuro-check">Neurological / neurovascular checks</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="trauma-code">
+                        <label for="trauma-code">Code / resuscitation status</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="trauma-is">
+                        <label for="trauma-is">Incentive spirometry</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="trauma-pulse-ox">
+                        <label for="trauma-pulse-ox">Continuous pulse oximetry</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="trauma-notify">
+                        <label for="trauma-notify">Notify provider of abnormal vital signs (SBP >180 or <100, MAP <65, HR >110 or <50, RR >30 or <10, Change in O2 delivery)</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="trauma-activity">
+                        <label for="trauma-activity">Activity: OOB ad lib/with assistance/Bedrest, weight bearing status</label>
+                    </div>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-pain">
+                    <label for="trauma-pain">Pain meds</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-dvt">
+                    <label for="trauma-dvt"><a href="http://www.icucalorie.com/dvt/">DVT prophylaxis</a></label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-home-meds">
+                    <label for="trauma-home-meds">Home medications</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-am-labs">
+                    <label for="trauma-am-labs">Daily 2 AM labs (6am txp)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-interval">
+                    <label for="trauma-interval">Interval scans/studies/consults</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-orders-ebm">
+                    <label for="trauma-orders-ebm">EVIDENCE BASED MANAGEMENT of their diagnosis</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Consult Tab -->
+        <div class="tab-content" id="consult-content">
+            <div class="section" style="border-left-color: #2563eb;">
+                <div class="section-title">ADD TO LIST</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="consult-add">
+                    <label for="consult-add">Add to list</label>
+                </div>
+            </div>
+
+            <div class="section" style="border-left-color: #2563eb;">
+                <div class="section-title">STAFF</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="consult-review">
+                    <label for="consult-review">Review HX/Vitals/IOs/Labs/Imaging with attending reads</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="consult-staff">
+                    <label for="consult-staff">Staff</label>
+                </div>
+            </div>
+
+            <div class="section" style="border-left-color: #9333ea;">
+                <div class="section-title">NOTE</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="consult-note">
+                    <label for="consult-note">Complete consultation note</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="consult-ebm-note">
+                    <label for="consult-ebm-note">EVIDENCE BASED RECOMMENDATIONS FOR THEIR DIAGNOSIS</label>
+                </div>
+            </div>
+
+            <div class="section" style="border-left-color: #d97706;">
+                <div class="section-title">ORDERS</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="consult-pso">
+                    <label for="consult-pso">PSO if admitting - call bed board</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="consult-diet">
+                    <label for="consult-diet">Diet order vs. NPO/IVF</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="consult-patient-care">
+                    <label for="consult-patient-care"><strong>Patient care</strong></label>
+                </div>
+                <div class="subsection">
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="consult-glucose">
+                        <label for="consult-glucose">Blood glucose monitoring</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="consult-lines">
+                        <label for="consult-lines">Lines/tubes/drains: Drain / NGT / Foley / OGT / chest tube / central line / arterial line / Peripheral IV orders</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="consult-vitals">
+                        <label for="consult-vitals">Vital signs</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="consult-io">
+                        <label for="consult-io">Intake and output</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="consult-scd">
+                        <label for="consult-scd">Intermittent Pneumatic Compression/SCDs</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="consult-telem">
+                        <label for="consult-telem">Cardiac telemetry</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="consult-weight">
+                        <label for="consult-weight">Daily weight</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="consult-neuro-check">
+                        <label for="consult-neuro-check">Neurological / neurovascular checks</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="consult-code">
+                        <label for="consult-code">Code / resuscitation status</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="consult-is">
+                        <label for="consult-is">Incentive spirometry</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="consult-pulse-ox">
+                        <label for="consult-pulse-ox">Continuous pulse oximetry</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="consult-notify">
+                        <label for="consult-notify">Notify provider of abnormal vital signs (SBP >180 or <100, MAP <65, HR >110 or <50, RR >30 or <10, Change in O2 delivery)</label>
+                    </div>
+                    <div class="checklist-item child-item">
+                        <input type="checkbox" id="consult-activity">
+                        <label for="consult-activity">Activity: OOB ad lib/with assistance/Bedrest, weight bearing status</label>
+                    </div>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="consult-pain">
+                    <label for="consult-pain">Pain meds</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="consult-dvt">
+                    <label for="consult-dvt"><a href="http://www.icucalorie.com/dvt/">DVT prophylaxis</a></label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="consult-home-meds">
+                    <label for="consult-home-meds">Home meds</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="consult-am-labs">
+                    <label for="consult-am-labs">Daily 2 AM labs (6am txp)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="consult-consults">
+                    <label for="consult-consults">Consultations/Imaging/Interventions</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="consult-orders-ebm">
+                    <label for="consult-orders-ebm">EVIDENCE BASED MANAGEMENT of their diagnosis</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="consult-or">
+                    <label for="consult-or">Booking for OR: NPO at midnight ± IVF, Book OR + Call OR, consent, Type & screen within 3 days + historical, order 2U PRBCs on hold, Urine ± HCG EKG CXR coags, Order special booking needs/instruments</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Problems/HPI Tab -->
+        <div class="tab-content" id="problems-content">
+            <div class="section">
+                <div class="section-title">HPI</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="hpi-story">
+                    <label for="hpi-story"><strong>Story:</strong> ASK EVERYTHING BUT WRITE DOWN THE POSITIVES! FOCUS ON WHAT IS RELEVANT TO THE SURGICAL CONSULTATION</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="hpi-onset">
+                    <label for="hpi-onset">Onset: Sequence of events and why presenting today; preceding events</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="hpi-where">
+                    <label for="hpi-where">Where coming from and what did they do there?</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="hpi-interventions">
+                    <label for="hpi-interventions">Interventions, medications, studies, consultations</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="hpi-tubes">
+                    <label for="hpi-tubes">If they have tubes, drains or devices: are they functioning? What have the outputs been?</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="hpi-pqrs">
+                    <label for="hpi-pqrs">Palliating, provoking, Quality, radiation, severity</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="hpi-prior">
+                    <label for="hpi-prior">Prior episodes, evolution over time</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="hpi-trauma">
+                    <label for="hpi-trauma"><strong>Trauma Details:</strong> Time of injury, Mechanism (MVC/MCC speed, location of force transfer), Seatbelt/helmet/airbags/protective devices, Post-injury course, Identified injuries, Therapies/interventions</label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Review of Systems</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ros-const">
+                    <label for="ros-const"><strong>Constitutional:</strong> fever, chills, night sweats, weight loss, anorexia (last MEAL), travel, sick contacts, diet changes</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ros-neuro">
+                    <label for="ros-neuro"><strong>Neurologic:</strong> headache, dizziness, numbness, tingling, weakness, presyncope/syncope, tremors, convulsions/seizures, unsteady gait</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ros-skin">
+                    <label for="ros-skin"><strong>Skin:</strong> jaundice, rash, lesions, petechiae, itching</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ros-enmt">
+                    <label for="ros-enmt"><strong>ENMT:</strong> vision changes, hearing changes, ear or eye pain, sore throat, congestion, runny nose, hoarseness, dysphagia</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ros-resp">
+                    <label for="ros-resp"><strong>Respiratory:</strong> shortness of breath, cough, wheezing</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ros-cv">
+                    <label for="ros-cv"><strong>Cardiovascular:</strong> chest pain, palpitations</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ros-gi">
+                    <label for="ros-gi"><strong>Gastrointestinal:</strong> nausea, vomiting, last BM and gas, change in bowel habits, abdominal pain</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ros-gu">
+                    <label for="ros-gu"><strong>Genitourinary:</strong> dysuria, urine retention (last void: ___), hematuria, discharge</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ros-msk">
+                    <label for="ros-msk"><strong>Musculoskeletal:</strong> pain, joint swelling, stiffness, myalgias, trauma</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ros-psych">
+                    <label for="ros-psych"><strong>Psychiatric:</strong> anxiety, depression, restlessness, suicidal ideation</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ros-heme">
+                    <label for="ros-heme"><strong>Heme/Lymph:</strong> bleeding tendency, bruising tendency, petechiae, swollen nodes</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ros-mens">
+                    <label for="ros-mens"><strong>Menstrual:</strong> LMP, menopausal</label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Past Medical and Surgical History</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="pmh-dx">
+                    <label for="pmh-dx">Previous diagnoses</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="pmh-chronic">
+                    <label for="pmh-chronic">Chronic conditions</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="pmh-surgeries">
+                    <label for="pmh-surgeries">Previous surgeries</label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Current Medications</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="meds-home">
+                    <label for="meds-home">Home medications</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="meds-hospital">
+                    <label for="meds-hospital">Current hospital medications</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="meds-allergies">
+                    <label for="meds-allergies">Allergies (cross-check)</label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Social History</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="soc-contact">
+                    <label for="soc-contact">Emergency contact #</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="soc-smoke">
+                    <label for="soc-smoke">Smoking history</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="soc-alcohol">
+                    <label for="soc-alcohol">Alcohol use</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="soc-drugs">
+                    <label for="soc-drugs">Recreational/illicit drugs</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="soc-other">
+                    <label for="soc-other">Caffeine, Sexual history, Nutrition/diet, Occupation, Religion/spiritual beliefs</label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Family History</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="fhx-hereditary">
+                    <label for="fhx-hereditary">Major hereditary diseases (cardiovascular, diabetes, cancer, bleeding disorders)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="fhx-liver">
+                    <label for="fhx-liver">Liver/biliary/pancreatic disease</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="fhx-other">
+                    <label for="fhx-other">Other significant familial conditions</label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Clinical Examination</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="exam-gen">
+                    <label for="exam-gen"><strong>Gen:</strong> Well appearing in no acute distress. Alert and oriented x3</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="exam-neuro">
+                    <label for="exam-neuro"><strong>Neuro:</strong> strength and sensation intact BUE+BLE, CN II–XII grossly intact, EOMI</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="exam-resp">
+                    <label for="exam-resp"><strong>Resp:</strong> Non-labored breathing. No use of accessory muscles, no retractions</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="exam-cv">
+                    <label for="exam-cv"><strong>CV:</strong> Hemodynamically stable</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="exam-pulse">
+                    <label for="exam-pulse"><strong>Pulse:</strong> palpable b/l DP/PT pulses, radial/ulnar pulses</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="exam-abd">
+                    <label for="exam-abd"><strong>Abd:</strong> soft, non-tender, non-distended; no voluntary or involuntary guarding; no rebound or jolt tenderness</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="exam-wound">
+                    <label for="exam-wound"><strong>Wound:</strong> Incisions clean, dry, intact</label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Trauma Examination</div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-head">
+                    <label for="trauma-head"><strong>Head:</strong> Normocephalic, atraumatic, no deformities, abrasions, tenderness, oropharynx clear, no blood in nares or ears, hearing intact</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-neuro-exam">
+                    <label for="trauma-neuro-exam"><strong>Neuro:</strong> GCS 15, Pupils equal and reactive to light bilaterally, extraocular muscles intact, gross motor and sensory intact in all 4 extremities</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-face">
+                    <label for="trauma-face"><strong>Face:</strong> Atraumatic, no deformities, abrasions, tenderness</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-chest-exam">
+                    <label for="trauma-chest-exam"><strong>Chest:</strong> clear to auscultation bilaterally, non-tender, atraumatic, pulling on incentive spirometer</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-cvs">
+                    <label for="trauma-cvs"><strong>CVS:</strong> RRR, hemodynamically stable</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-abdomen">
+                    <label for="trauma-abdomen"><strong>Abdomen:</strong> soft, non-tender, non-distended, no voluntary or involuntary guarding, no jolt or rebound tenderness</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-pelvis">
+                    <label for="trauma-pelvis"><strong>Pelvis:</strong> Stable</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-ue">
+                    <label for="trauma-ue"><strong>Upper Extremities:</strong> Atraumatic, no deformities, abrasions, tenderness, Bilateral radial pulses palpable, brisk capillary refill</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-le">
+                    <label for="trauma-le"><strong>Lower Extremities:</strong> Atraumatic, no deformities, abrasions, tenderness, brisk capillary refill, Bilateral femoral, DP, PT pulses palpable</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-spine">
+                    <label for="trauma-spine"><strong>Spine:</strong> No obvious cervical, lumbar, or thoracic spine deformities, no step offs, no tenderness, trachea midline</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-perineum">
+                    <label for="trauma-perineum"><strong>Perineum:</strong> No gross blood in the perineum, rectal exam deferred, anal wink reflex intact</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trauma-gcs">
+                    <label for="trauma-gcs"><strong>GCS:</strong> Eye opening (E4 spontaneously, E3 to voice, E2 to pain, E1 none), Verbal (V5 oriented, V4 confused, V3 inappropriate words, V2 incomprehensible, V1 none), Motor (M6 obeys, M5 localizes, M4 withdraws, M3 decorticate, M2 decerebrate, M1 none)</label>
+                </div>
+            </div>
+
+            <div style="margin-top:2rem; padding: 15px; background: rgba(59, 130, 246, 0.1); border-radius: 10px; border-left: 4px solid #3b82f6;">
+                <a href="https://www.isncscialgorithm.com/Form" target="_blank" style="color:#3b82f6; text-decoration:underline; font-weight: 600;">ASIA Neurological Exam Form & Algorithm →</a>
+            </div>
+        </div>
+
+        <!-- Bottom Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-label">
+                <span>Progress</span>
+                <span id="progress-text-bottom">0 / 0</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar" id="progress-bar-bottom">0%</div>
+            </div>
         </div>
     </div>
 
     <script>
-        let currentFishbone = '';
-        let currentStats = {};
+        // Tab switching
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
 
-        // Helper function to parse date/time from medical data
-        function parseDateTime(dateTimeStr) {
-            const match = dateTimeStr.match(/\((\d{2})\/(\d{2})\/(\d{2})\s+(\d{2}):(\d{2}):(\d{2})\)/);
-            if (!match) return null;
-            
-            const [_, month, day, year, hour, minute, second] = match;
-            const fullYear = 2000 + parseInt(year);
-            return new Date(fullYear, parseInt(month) - 1, parseInt(day), 
-                           parseInt(hour), parseInt(minute), parseInt(second));
-        }
-
-        // Helper function to check if entry is within 24 hours
-        function isWithin24Hours(dateTime) {
-            if (!dateTime) return false;
-            const now = new Date();
-            const twentyFourHoursAgo = new Date(now - 24 * 60 * 60 * 1000);
-            return dateTime >= twentyFourHoursAgo && dateTime <= now;
-        }
-
-        function extractLabValues(text) {
-            const data = {
-                vitals: {},
-                labs: {},
-                dates: {},
-                times: {},
-                weight: null,
-                intake: null,
-                output: null,
-                o2therapy: null,
-                age: null
-            };
-
-            // Extract weight
-            const weightMatch = text.match(/Weight Measured:\s*([\d.]+)\s*kg/i);
-            if (weightMatch) {
-                data.weight = parseFloat(weightMatch[1]);
-            }
-
-            // Extract age
-            const ageMatch = text.match(/Age:\s*(\d+)\s*Years/i);
-            if (ageMatch) {
-                data.age = parseInt(ageMatch[1], 10);
-            }
-
-            // Helper: parse "MM/DD/YY HH:MM:SS" into a Date
-            function parseTS(dateStr, timeStr) {
-                const [mo, day, yr] = dateStr.split('/').map(n => parseInt(n, 10));
-                const [h, m, s] = timeStr.split(':').map(n => parseInt(n, 10));
-                return new Date(2000 + yr, mo - 1, day, h, m, s);
-            }
-
-            // Helper function to pick latest entry
-            function pickLatest(regex, text) {
-                const arr = [];
-                let mm;
-                while ((mm = regex.exec(text)) !== null) {
-                    arr.push({
-                        val: mm[1].trim(),
-                        ts: parseTS(mm[2], mm[3])
-                    });
-                }
-                if (!arr.length) return null;
-                arr.sort((a,b) => a.ts - b.ts);
-                return arr.pop().val;
-            }
-
-            // Oxygen Therapy
-            const o2Entries = [];
-            const o2Regex = /Oxygen Therapy:\s*(.+?)\s*\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/gi;
-            let m;
-            while ((m = o2Regex.exec(text)) !== null) {
-                o2Entries.push({
-                    desc: m[1].trim(),
-                    ts: parseTS(m[2], m[3])
-                });
-            }
-
-            if (o2Entries.length) {
-                o2Entries.sort((a, b) => a.ts - b.ts);
-                const latest = o2Entries.pop();
-                data.o2therapyRaw = latest.desc;
-                const rawLower = latest.desc.toLowerCase();
-
-                if (/room air/i.test(rawLower)) {
-                    data.o2therapyCode = 'RA';
-                } else if (/invasive mechanical ventilator/i.test(rawLower)) {
-                    data.o2therapyCode = 'Vent';
-                } else if (/non-invasive mechanical ventilator/i.test(rawLower) || /bipap|cpap/i.test(rawLower)) {
-                    data.o2therapyCode = 'BiPAP/CPAP';
-                } else if (/high[- ]?flow nasal cannula/i.test(rawLower)) {
-                    data.o2therapyCode = 'HFNC';
-                } else if (/nasal cannula/i.test(rawLower) && !/high[- ]?flow/i.test(rawLower)) {
-                    data.o2therapyCode = 'NC';
-                } else if (/non-?rebreather/i.test(rawLower)) {
-                    data.o2therapyCode = 'NRB';
-                } else {
-                    data.o2therapyCode = 'O2';
-                }
-            }
-
-            // Oxygen Flow Rate
-            const flowEntries = [];
-            const flowRegex = /Oxygen Flow Rate:\s*([\d.]+\s*L\/min)\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi;
-            while ((m = flowRegex.exec(text)) !== null) {
-                flowEntries.push({
-                    rate: m[1].trim(),
-                    ts: parseTS(m[2], m[3])
-                });
-            }
-            if (flowEntries.length) {
-                flowEntries.sort((a, b) => a.ts - b.ts);
-                data.o2flowRaw = flowEntries.pop().rate;
-            }
-
-            // Ventilator Settings
-            data.ventModeRaw = pickLatest(/Ventilator Mode:\s*([^(]+)\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi, text);
-            data.ventFrequencyRaw = pickLatest(/Ventilator Frequency(?:,\s*Mandatory)?:\s*(\d+)\s*br\/min\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi, text);
-            data.ventTidalRaw = pickLatest(/Tidal Volume(?:,\s*Delivered)?:\s*(\d+)\s*mL\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi, text);
-            data.ventPeepRaw = pickLatest(/Positive End Expiratory Pressure:\s*(\d+)\s*cmH2O\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi, text);
-            data.ventFiO2Raw = pickLatest(/FIO2:\s*(\d+)\s*%\s*\(\s*(\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\s*\)/gi, text);
-
-            if (data.ventModeRaw && !data.o2therapyCode) {
-                data.o2therapyCode = 'Vent';
-                data.o2therapyRaw = 'Mechanical Ventilation';
-            }
-
-            // Extract vitals (only from last 24 hours)
-            function isWithin24Hours(dateTimeStr) {
-                const parts = dateTimeStr.match(/(\d{2})\/(\d{2})\/(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/);
-                if (!parts) return false;
-                const dt = new Date(`20${parts[3]}-${parts[1]}-${parts[2]} ${parts[4]}:${parts[5]}:${parts[6]}`);
-                const now = new Date();
-                const twentyFourHoursAgo = new Date(now - 24 * 60 * 60 * 1000);
-                return dt >= twentyFourHoursAgo && dt <= now;
-            }
-
-            // Extract temperature
-            const tempRegex = /Temperature\s*(?:Temporal Artery|Axillary)?:\s*([\d.]+).*?\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/gi;
-            const tempValues = [];
-            let tempMatch;
-            while ((tempMatch = tempRegex.exec(text)) !== null) {
-                const timeKey = `${tempMatch[2]} ${tempMatch[3]}`;
-                if (isWithin24Hours(timeKey)) {
-                    tempValues.push(parseFloat(tempMatch[1]));
-                }
-            }
-            if (tempValues.length > 0) {
-                data.vitals.temp = tempValues;
-            }
-
-            // Extract heart rate
-            const hrRegex = /(?:Heart Rate|Heart Rate Monitored|Apical Heart Rate).*?:\s*(\d+).*?\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/gi;
-            const hrValues = [];
-            let hrMatch;
-            while ((hrMatch = hrRegex.exec(text)) !== null) {
-                const timeKey = `${hrMatch[2]} ${hrMatch[3]}`;
-                if (isWithin24Hours(timeKey)) {
-                    hrValues.push(parseInt(hrMatch[1]));
-                }
-            }
-            if (hrValues.length > 0) {
-                data.vitals.hr = hrValues;
-            }
-
-            // Extract systolic BP
-            const sbpRegex = /Systolic Blood Pressure(?:\s+Invasive)?:\s*(\d+)\s*mmHg(?:\s+(?:Low|High))?\s*\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/gi;
-            const sbpValues = [];
-            let sbpMatch;
-            while ((sbpMatch = sbpRegex.exec(text)) !== null) {
-                const timeKey = `${sbpMatch[2]} ${sbpMatch[3]}`;
-                if (isWithin24Hours(timeKey)) {
-                    sbpValues.push(parseInt(sbpMatch[1]));
-                }
-            }
-            if (sbpValues.length > 0) {
-                data.vitals.sbp = sbpValues;
-            }
-
-            // Extract diastolic BP
-            const dbpRegex = /Diastolic Blood Pressure(?:\s+Invasive)?:\s*(\d+)\s*mmHg(?:\s+(?:Low|High))?\s*\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/gi;
-            const dbpValues = [];
-            let dbpMatch;
-            while ((dbpMatch = dbpRegex.exec(text)) !== null) {
-                const timeKey = `${dbpMatch[2]} ${dbpMatch[3]}`;
-                if (isWithin24Hours(timeKey)) {
-                    dbpValues.push(parseInt(dbpMatch[1]));
-                }
-            }
-            if (dbpValues.length > 0) {
-                data.vitals.dbp = dbpValues;
-            }
-
-            // Extract O2 saturation
-            const o2SatRegex = /O2 Saturation.*?:\s*(\d+).*?\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/gi;
-            const o2Values = [];
-            let o2Match;
-            while ((o2Match = o2SatRegex.exec(text)) !== null) {
-                const timeKey = `${o2Match[2]} ${o2Match[3]}`;
-                if (isWithin24Hours(timeKey)) {
-                    o2Values.push(parseInt(o2Match[1]));
-                }
-            }
-            if (o2Values.length > 0) {
-                data.vitals.o2 = o2Values;
-            }
-
-            // Extract lab values with dates
-            const extractLabValue = (pattern, name) => {
-                const matches = text.match(new RegExp(pattern + '.*?([\\d.]+).*?\\((\\d{2}/\\d{2}/\\d{2})\\s+(\\d{2}:\\d{2}:\\d{2})\\)', 'gi'));
-                if (matches && matches.length > 0) {
-                    const values = [];
-                    const dates = [];
-                    const times = [];
-                    
-                    matches.forEach(match => {
-                        const valueMatch = match.match(/:\s*[<>]?\s*([\d.]+)/);
-                        const dateTimeMatch = match.match(/\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/);
-                        if (valueMatch) {
-                            values.push(parseFloat(valueMatch[1]));
-                            if (dateTimeMatch) {
-                                dates.push(dateTimeMatch[1]);
-                                times.push(dateTimeMatch[2]);
-                            }
-                        }
-                    });
-
-                    data.labs[name] = values;
-                    if (dates.length > 0) {
-                        data.dates[name] = dates[0];
-                        data.times[name] = times[0];
-                    }
-                }
-            };
-
-            // Extract all lab values
-            extractLabValue('WBC:', 'wbc');
-            extractLabValue('Hgb:', 'hgb');
-            extractLabValue('Hct:', 'hct');
-            extractLabValue('Platelet Count:', 'plt');
-            extractLabValue('Sodium:', 'na');
-            extractLabValue('Potassium:', 'k');
-            extractLabValue('Chloride:', 'cl');
-            extractLabValue('CO2:', 'co2');
-            extractLabValue('BUN:', 'bun');
-            extractLabValue('Creatinine:', 'cr');
-            extractLabValue('Glucose:', 'glu');
-            extractLabValue('Calcium, Ionized:', 'ca');
-            extractLabValue('Ionized Calcium:', 'ca');
-            
-            // If no ionized calcium, try total calcium
-            if (!data.labs.ca || data.labs.ca.length === 0) {
-                extractLabValue('Calcium:', 'totalCa');
-                extractLabValue('Albumin:', 'albumin');
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTab = button.getAttribute('data-tab');
                 
-                if (data.labs.totalCa && data.labs.totalCa.length > 0 && 
-                    data.labs.albumin && data.labs.albumin.length > 0) {
-                    const totalCa = data.labs.totalCa[0];
-                    const albumin = data.labs.albumin[0];
-                    const correctedCa = totalCa + 0.8 * (4.0 - albumin);
-                    data.labs.ca = [parseFloat(correctedCa.toFixed(2))];
-                    data.labs.caType = 'corrected';
-                    if (data.dates.totalCa) {
-                        data.dates.ca = data.dates.totalCa;
-                        data.times.ca = data.times.totalCa;
-                    }
-                }
-            }
-            
-            extractLabValue('Magnesium Level:', 'mg');
-            extractLabValue('Inorganic Phosphorus:', 'phos');
-            extractLabValue('pH:', 'ph');
-            extractLabValue('pC02:', 'pco2');
-            extractLabValue('PO2:', 'po2');
-            extractLabValue('Bicarbonate:', 'bicarb');
-            extractLabValue('Lactic Acid:', 'lactate');
-            extractLabValue('AST:', 'ast');
-            extractLabValue('ALT:', 'alt');
-            extractLabValue('Total Bilirubin:', 'tbil');
-            extractLabValue('Direct Bilirubin:', 'dbil');
-            extractLabValue('Alkaline Phosphatase:', 'alk');
-            extractLabValue('GGT:', 'ggt');
-            extractLabValue('Prothrombin Time:', 'pt');
-            extractLabValue('INR:', 'inr');
-            extractLabValue('APTT:', 'ptt');
-            extractLabValue('Fibrinogen:', 'fib');
-            extractLabValue('Troponin I, High Sensitivity:', 'trop');
-            extractLabValue('Amylase:', 'amylase');
-            extractLabValue('Lipase:', 'lipase');
-
-            return data;
-        }
-
-        function extractIntakeOutputData(text) {
-            const ioData = {
-                intakes: {
-                    enteral: [],
-                    bloodProducts: [],
-                    other: []
-                },
-                outputs: {
-                    urine: [],
-                    urinaryCatheter: false,
-                    lastUrineTime: null,
-                    drains: {},
-                    other: {}
-                },
-                counts: {},
-                elapsedHours: null,
-                cutoffTime: null,
-                totalIntake: null,
-                totalOutput: null,
-                fluidBalance: null
-            };
-
-            // Extract intake/output section
-            const ioMatch = text.match(/<Intake and Output Start>([\s\S]*?)<Intake and Output End>/i);
-            if (!ioMatch) {
-                return ioData;
-            }
-            
-            const ioText = ioMatch[1];
-            
-            // Split into intake and output sections
-            const intakeMatch = ioText.match(/Intake\s*\n([\s\S]*?)(?=Output|$)/i);
-            const outputMatch = ioText.match(/Output\s*\n([\s\S]*?)$/i);
-            
-            const intakeSection = intakeMatch ? intakeMatch[1] : '';
-            const outputSection = outputMatch ? outputMatch[1] : '';
-
-            // Get current time and calculate 7 AM cutoff
-            const now = new Date();
-            const currentHour = now.getHours();
-            const cutoffDate = new Date(now);
-            
-            if (currentHour < 7) {
-                cutoffDate.setDate(cutoffDate.getDate() - 1);
-            }
-            cutoffDate.setHours(7, 0, 0, 0);
-
-            // Helper function to parse date/time
-            function parseDateTime(dateTimeStr) {
-                const match = dateTimeStr.match(/\((\d{2})\/(\d{2})\/(\d{2})\s+(\d{2}):(\d{2}):(\d{2})\)/);
-                if (!match) return null;
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
                 
-                const [_, month, day, year, hour, minute, second] = match;
-                const fullYear = 2000 + parseInt(year);
-                return new Date(fullYear, parseInt(month) - 1, parseInt(day), 
-                               parseInt(hour), parseInt(minute), parseInt(second));
-            }
-
-            // Helper function to check if entry is within time window
-            function isWithinTimeWindow(dateTime) {
-                if (!dateTime) return false;
-                return dateTime >= cutoffDate && dateTime <= now;
-            }
-
-            // Process intake entries
-            if (intakeSection && !intakeSection.includes('No qualifying data available')) {
-                const intakeLines = intakeSection.split('\n').filter(line => line.trim());
+                // Add active class to clicked button and corresponding content
+                button.classList.add('active');
+                document.getElementById(targetTab + '-content').classList.add('active');
                 
-                intakeLines.forEach(line => {
-                    if (line.trim() === '') return;
-                    
-                    const dateTime = parseDateTime(line);
-                    if (!isWithinTimeWindow(dateTime)) return;
-                    
-                    const volumeMatch = line.match(/:\s*(\d+)\s*mL/);
-                    if (!volumeMatch) return;
-                    
-                    const volume = parseInt(volumeMatch[1]);
-                    const entry = {
-                        description: line.split(':')[0].trim(),
-                        volume: volume,
-                        dateTime: dateTime,
-                        dateTimeStr: line.match(/\(([^)]+)\)/)[1]
-                    };
-                    
-                    // Categorize intake
-                    if (line.toLowerCase().includes('enteral') || 
-                        line.toLowerCase().includes('tube feed') ||
-                        line.toLowerCase().includes('feeding tube') ||
-                        line.toLowerCase().includes('nasogastric') ||
-                        line.toLowerCase().includes('ng tube') ||
-                        line.toLowerCase().includes('peg') ||
-                        line.toLowerCase().includes('jejunostomy')) {
-                        ioData.intakes.enteral.push(entry);
-                    } else if (line.toLowerCase().includes('blood') || 
-                               line.toLowerCase().includes('red blood cells') ||
-                               line.toLowerCase().includes('packed cells') ||
-                               line.toLowerCase().includes('plasma') || 
-                               line.toLowerCase().includes('platelets') ||
-                               line.toLowerCase().includes('fresh frozen') ||
-                               line.toLowerCase().includes('cryoprecipitate') ||
-                               line.toLowerCase().includes('albumin')) {
-                        ioData.intakes.bloodProducts.push(entry);
-                    } else {
-                        ioData.intakes.other.push(entry);
-                    }
-                });
-            }
-
-            // Process output entries
-            if (outputSection) {
-                const outputLines = outputSection.split('\n').filter(l => l.trim());
-                outputLines.forEach(rawLine => {
-                    let line = rawLine.trim();
-                    line = line.replace(/^#\d+\s*/, '');
-                    if (/^output$/i.test(line) && !line.includes(':')) return;
-                    const dateTime = parseDateTime(line);
-                    if (!isWithinTimeWindow(dateTime)) return;
-                    const volumeMatch = line.match(/:\s*(\d+)\s*mL/i);
-                    if (!volumeMatch) return;
-                    const volume = +volumeMatch[1];
-                    const dateTimeStr = (line.match(/\(([^)]+)\)/) || [,''])[1];
-                    
-                    let description = '';
-                    if (/Other:/i.test(line)) {
-                        const m = line.match(/Other:\s*([^:-]+?)(?:\s*-\s*|:)/i);
-                        description = m ? m[1].trim() : '';
-                    } else {
-                        description = line.split(':')[0].trim();
-                    }
-                    const entry = { description, volume, dateTime, dateTimeStr };
-                    
-                    if (/urinary catheter/i.test(line) || /straight cath/i.test(line) ||
-                        /urine output/i.test(line) || /void/i.test(line)) {
-                        ioData.outputs.urine.push(entry);
-                        if (/catheter/i.test(line)) ioData.outputs.urinaryCatheter = true;
-                        if (!ioData.outputs.lastUrineTime || dateTime > ioData.outputs.lastUrineTime) {
-                            ioData.outputs.lastUrineTime = dateTime;
-                            ioData.outputs.lastUrineTimeStr = dateTimeStr;
-                        }
-                    } else if (/estimated blood loss/i.test(line)) {
-                        ioData.outputs.other['Estimated Blood Loss'] = 
-                            ioData.outputs.other['Estimated Blood Loss'] || [];
-                        ioData.outputs.other['Estimated Blood Loss'].push(entry);
-                    } else if (/drain/i.test(description) || /jp/i.test(description)) {
-                        ioData.outputs.drains[description] = 
-                            ioData.outputs.drains[description] || [];
-                        ioData.outputs.drains[description].push(entry);
-                    } else {
-                        const key = description || 'Other Output';
-                        ioData.outputs.other[key] = ioData.outputs.other[key] || [];
-                        ioData.outputs.other[key].push(entry);
-                    }
-                });
-            }
-
-            // Process count entries
-            const countData = {};
-            if (outputSection) {
-                const countRegex = /(Stool Count|Urine Count|Vomit Count|.*?Count):\s*(\d+)\s*\((\d{2}\/\d{2}\/\d{2})\s+(\d{2}:\d{2}:\d{2})\)/gi;
-                let countMatch;
-                while ((countMatch = countRegex.exec(outputSection)) !== null) {
-                    const countType = countMatch[1];
-                    const count = parseInt(countMatch[2]);
-                    const dateTime = parseDateTime(`(${countMatch[3]} ${countMatch[4]})`);
-                    
-                    if (isWithinTimeWindow(dateTime)) {
-                        if (!countData[countType]) {
-                            countData[countType] = [];
-                        }
-                        countData[countType].push({
-                            count: count,
-                            dateTime: dateTime,
-                            dateTimeStr: `${countMatch[3]} ${countMatch[4]}`
-                        });
-                    }
-                }
-            }
-
-            ioData.counts = countData;
-
-            // Calculate elapsed time
-            const elapsedMs = now - cutoffDate;
-            const elapsedHours = elapsedMs / (1000 * 60 * 60);
-            ioData.elapsedHours = elapsedHours;
-            ioData.cutoffTime = cutoffDate;
-
-            return ioData;
-        }
-
-        function generateWarnings(data) {
-            const warnings = [];
-            const currentDate = new Date().toLocaleDateString('en-US', { 
-                month: '2-digit', 
-                day: '2-digit', 
-                year: '2-digit' 
+                // Update progress for new tab
+                updateProgress();
             });
-            
-            // Check for date mismatches by category
-            const dateCategories = {
-                'CBC': ['wbc', 'hgb', 'hct', 'plt'],
-                'CMP': ['na', 'k', 'cl', 'co2', 'bun', 'cr', 'glu', 'ca', 'mg', 'phos'],
-                'LFTs': ['ast', 'alt', 'tbil', 'dbil', 'alk', 'ggt'],
-                'Coags': ['pt', 'ptt', 'inr', 'fib'],
-                'ABG': ['ph', 'po2', 'pco2', 'bicarb', 'lactate']
-            };
-            
-            // Check each category for outdated values
-            for (const [category, labs] of Object.entries(dateCategories)) {
-                let outdated = false;
-                let lastDate = '';
-                
-                for (const lab of labs) {
-                    if (data.dates[lab] && data.dates[lab] !== currentDate) {
-                        outdated = true;
-                        lastDate = data.dates[lab];
-                        break;
-                    }
-                }
-                
-                if (outdated) {
-                    let labTime = '';
-                    for (const lab of labs) {
-                        if (data.times && data.times[lab]) {
-                            labTime = data.times[lab];
-                            break;
-                        }
-                    }
-                    if (labTime) {
-                        warnings.push(`Last ${category} from ${lastDate} ${labTime}!!`);
-                    } else {
-                        warnings.push(`Last ${category} from ${lastDate}!!`);
-                    }
-                }
-            }
-            
-            // Sodium check
-            if (data.labs.na && data.labs.na[0] !== undefined) {
-                const na = data.labs.na[0];
-                const naPrev = data.labs.na[1];
-                const naStr = naPrev !== undefined ? `*${na}* (*${naPrev}*)` : `*${na}*`;
-                
-                if (na < 135) {
-                    warnings.push(`Hyponatremic! 1L FWR, Salt tabs 2g BID, Na: ${naStr}`);
-                } else if (na > 145) {
-                    warnings.push(`Hypernatremic! Na: ${naStr} -> FWB/D5W/0.45 NS`);
-                }
-            } else {
-                warnings.push('no Na');
-            }
-            
-            // Potassium check
-            if (data.labs.k && data.labs.k[0] !== undefined) {
-                const k = data.labs.k[0];
-                const kPrev = data.labs.k[1];
-                const kStr = kPrev !== undefined ? `*${k}* (*${kPrev}*)` : `*${k}*`;
-                
-                if (k >= 3.3 && k <= 3.9) {
-                    warnings.push(`Give 40 meq K PO or IV, K=${kStr}`);
-                } else if (k >= 3 && k <= 3.2) {
-                    warnings.push(`Give 60 meq K IV, K=${kStr}`);
-                } else if (k >= 2.6 && k <= 2.9) {
-                    warnings.push(`Give 80 meq K IV and NHO, K=${kStr}`);
-                } else if (k > 0 && k <= 2.6) {
-                    warnings.push(`Give 100 meq K and NHO, K=${kStr}`);
-                } else if (k > 5) {
-                    warnings.push(`Hyperkalemic!!, K=${kStr}`);
-                }
-            } else {
-                warnings.push('No K');
-            }
-            
-            // Calcium check
-            if (data.labs.ca && data.labs.ca[0] !== undefined) {
-                const ca = data.labs.ca[0];
-                const caPrev = data.labs.ca[1];
-                const caType = data.labs.caType;
-                const isIonized = ca < 7 && !caType;
-                
-                if (isIonized) {
-                    const caStr = caPrev !== undefined ? `*${ca}* (*${caPrev}*)` : `*${ca}*`;
-                    if (ca >= 3.5 && ca < 4) {
-                        warnings.push(`Give 4g calcium gluconate, 2g/hr, iCa=${caStr}`);
-                    } else if (ca >= 3 && ca <= 3.4) {
-                        warnings.push(`Give 6g calcium gluconate 2g/hr, iCa=${caStr}`);
-                    } else if (ca >= 2.5 && ca <= 2.9) {
-                        warnings.push(`Give 8g calcium gluconate 2g/hr, iCa=${caStr}`);
-                    } else if (ca > 0 && ca < 2.5) {
-                        warnings.push(`Give 10g calcium gluconate 2g/hr, notify senior! iCa=${caStr}`);
-                    } else if (ca > 5.3) {
-                        warnings.push(`Hypercalcemia! iCa=${caStr}`);
-                    }
-                } else {
-                    const caLabel = caType === 'corrected' ? 'Corrected Ca' : 'Total Ca';
-                    const caStr = caPrev !== undefined ? `*${ca}* (*${caPrev}*)` : `*${ca}*`;
-                    
-                    if (ca < 8.5) {
-                        if (ca >= 8.0 && ca < 8.5) {
-                            warnings.push(`Mild hypocalcemia: ${caLabel}=${caStr}`);
-                        } else if (ca >= 7.0 && ca < 8.0) {
-                            warnings.push(`Moderate hypocalcemia: ${caLabel}=${caStr}, give calcium`);
-                        } else if (ca < 7.0) {
-                            warnings.push(`Severe hypocalcemia: ${caLabel}=${caStr}, give IV calcium!`);
-                        }
-                    } else if (ca > 10.2) {
-                        if (ca > 10.2 && ca <= 11.5) {
-                            warnings.push(`Mild hypercalcemia: ${caLabel}=${caStr}`);
-                        } else if (ca > 11.5 && ca <= 13.0) {
-                            warnings.push(`Moderate hypercalcemia: ${caLabel}=${caStr}`);
-                        } else if (ca > 13.0) {
-                            warnings.push(`Severe hypercalcemia: ${caLabel}=${caStr}, urgent treatment!`);
-                        }
-                    }
-                }
-            } else {
-                warnings.push('Calcium not found');
-            }
-            
-            // Magnesium check
-            if (data.labs.mg && data.labs.mg[0] !== undefined) {
-                const mg = data.labs.mg[0];
-                const mgPrev = data.labs.mg[1];
-                const mgStr = mgPrev !== undefined ? `*${mg}* (*${mgPrev}*)` : `*${mg}*`;
-                
-                if (mg >= 1.6 && mg <= 1.9) {
-                    warnings.push(`Give 4g mag sulfate IV/2hr@2g/hr, Mg: ${mgStr}`);
-                } else if (mg >= 1 && mg <= 1.5) {
-                    warnings.push(`Give 6g mag sulfate IV/3hr@2g/hr, Mg: ${mgStr}`);
-                } else if (mg > 0 && mg <= 1) {
-                    warnings.push(`Give 8g mag sulfate IV/4hr@2g/hr, Mg: ${mgStr}`);
-                }
-            } else {
-                warnings.push('No mag');
-            }
-            
-            // Phosphorus check
-            if (data.labs.phos && data.labs.phos[0] !== undefined) {
-                const p = data.labs.phos[0];
-                const pPrev = data.labs.phos[1];
-                const pStr = pPrev !== undefined ? `*${p}* (*${pPrev}*)` : `*${p}*`;
-                
-                if (p >= 2 && p < 2.5) {
-                    warnings.push(`Give 15 mmol phos (22.5 Meq K IV), P=${pStr}`);
-                } else if (p >= 1.6 && p <= 1.9) {
-                    warnings.push(`Give 30 mmol phos (45 Meq K IV), P=${pStr}`);
-                } else if (p > 0 && p <= 1.6) {
-                    warnings.push(`Give 40 mmol phos (60 Meq K IV), P=${pStr}`);
-                }
-            }
-            
-            return warnings;
-        }
-
-        function generateIntakeOutputWarnings(ioData, weight) {
-            const warnings = [];
-            
-            // Get elapsed hours and cutoff time
-            const elapsedHours = ioData.elapsedHours || 24;
-            const elapsedHoursDisplay = Math.round(elapsedHours);
-            const cutoffTime = ioData.cutoffTime || new Date();
-            
-            // Format cutoff time for display
-            const cutoffStr = cutoffTime.toLocaleString('en-US', {
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-
-            // Check urine output
-            if (ioData.outputs.urine.length > 0) {
-                const totalUrine = ioData.outputs.urine.reduce((sum, entry) => sum + entry.volume, 0);
-                const hourlyOutput = Math.round(totalUrine / elapsedHours);
-                
-                if (weight) {
-                    const urinePerKgHr = (hourlyOutput / weight).toFixed(2);
-                    
-                    if (urinePerKgHr < 0.1) {
-                        warnings.push(`*ANURIA!* ${urinePerKgHr} mL/kg/hr - total *${totalUrine} mL* in ${elapsedHoursDisplay}hr - last: ${ioData.outputs.lastUrineTimeStr}`);
-                    } else if (urinePerKgHr < 0.5) {
-                        warnings.push(`LOW URINE OUTPUT! ${urinePerKgHr} mL/kg/hr, expected: ≥0.5 mL/kg/hr - total *${totalUrine} mL* in ${elapsedHoursDisplay}hr - last: ${ioData.outputs.lastUrineTimeStr}`);
-                    } else {
-                        warnings.push(`Urine output: (${urinePerKgHr} mL/kg/hr) - total ${totalUrine} mL in ${elapsedHoursDisplay}hr - last: ${ioData.outputs.lastUrineTimeStr}`);
-                    }
-                } else {
-                    warnings.push(`Urine output: total ${totalUrine} mL in ${elapsedHoursDisplay}hr - last: ${ioData.outputs.lastUrineTimeStr} (no weight available)`);
-                }
-                
-                if (ioData.outputs.urinaryCatheter) {
-                    warnings.push(`*Has urinary catheter*`);
-                }
-            } else {
-                warnings.push(`*No urine output recorded since ${cutoffStr}!*`);
-            }
-
-            // Check drains
-            Object.entries(ioData.outputs.drains).forEach(([drainType, entries]) => {
-                if (entries.length > 0) {
-                    const total = entries.reduce((sum, entry) => sum + entry.volume, 0);
-                    const latest = entries.sort((a, b) => b.dateTime - a.dateTime)[0];
-                    
-                    if (total > (30 * elapsedHours)) {
-                        warnings.push(`${drainType}: *${total} mL* (HIGH OUTPUT) in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
-                    } else {
-                        warnings.push(`${drainType}: ${total} mL in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
-                    }
-                }
-            });
-            
-            // Check blood loss
-            if (ioData.outputs.other['Estimated Blood Loss']) {
-                const bloodLoss = ioData.outputs.other['Estimated Blood Loss'];
-                const total = bloodLoss.reduce((sum, entry) => sum + entry.volume, 0);
-                
-                warnings.push(`*Estimated Blood Loss: ${total} mL* in ${elapsedHoursDisplay}hr`);
-            }
-            
-            // Check intakes
-            if (ioData.intakes.enteral.length > 0) {
-                const totalEnteral = ioData.intakes.enteral.reduce((sum, entry) => sum + entry.volume, 0);
-                const hourlyEnteral = Math.round(totalEnteral / elapsedHours);
-                const latestEnteral = ioData.intakes.enteral.sort((a, b) => b.dateTime - a.dateTime)[0];
-                
-                if (weight) {
-                    const enteralPerKgHr = (hourlyEnteral / weight).toFixed(2);
-                    warnings.push(`*Enteral feeding: ${hourlyEnteral} mL/hr* (${enteralPerKgHr} mL/kg/hr) - total ${totalEnteral} mL in ${elapsedHoursDisplay}hr - last: ${latestEnteral.dateTimeStr}`);
-                } else {
-                    warnings.push(`*Enteral feeding: ${hourlyEnteral} mL/hr* - total ${totalEnteral} mL in ${elapsedHoursDisplay}hr - last: ${latestEnteral.dateTimeStr}`);
-                }
-            }
-            
-            // Check blood products
-            if (ioData.intakes.bloodProducts.length > 0) {
-                const totalBlood = ioData.intakes.bloodProducts.reduce((sum, entry) => sum + entry.volume, 0);
-                const latestBlood = ioData.intakes.bloodProducts.sort((a, b) => b.dateTime - a.dateTime)[0];
-                warnings.push(`*Blood products: ${totalBlood} mL* in ${elapsedHoursDisplay}hr - last: ${latestBlood.dateTimeStr}`);
-            }
-            
-            // Check if no intake at all
-            if (ioData.intakes.enteral.length === 0 && 
-                ioData.intakes.bloodProducts.length === 0 && 
-                ioData.intakes.other.length === 0) {
-                warnings.push(`*No intake recorded since ${cutoffStr}* (${elapsedHoursDisplay}hr)`);
-            }
-            
-            // Check other outputs
-            Object.entries(ioData.outputs.other).forEach(([outputType, entries]) => {
-                if (outputType !== 'Estimated Blood Loss' && entries.length > 0) {
-                    const total = entries.reduce((sum, entry) => sum + entry.volume, 0);
-                    const latest = entries.sort((a, b) => b.dateTime - a.dateTime)[0];
-                    
-                    warnings.push(`${outputType}: ${total} mL in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
-                }
-            });
-
-            // Check counts
-            Object.entries(ioData.counts || {}).forEach(([countType, entries]) => {
-                if (entries.length > 0) {
-                    const totalCount = entries.reduce((sum, entry) => sum + entry.count, 0);
-                    const latest = entries.sort((a, b) => b.dateTime - a.dateTime)[0];
-                    
-                    if (countType.toLowerCase().includes('stool') && totalCount > 3) {
-                        warnings.push(`*${countType} Total: ${totalCount}* in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
-                    } else if (countType.toLowerCase().includes('vomit') && totalCount > 0) {
-                        warnings.push(`*${countType} Total: ${totalCount}* in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
-                    } else {
-                        warnings.push(`${countType} Total: ${totalCount} in ${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`);
-                    }
-                }
-            });
-            
-            return warnings;
-        }
-
-        function generateFishbone(data) {
-            let fishbone = '';
-            
-            // Helper function to wrap abnormal values
-            const markAbnormal = (value) => `*${value}*`;
-            
-            // VITALS SECTION
-            if (data.vitals.temp && data.vitals.temp.length > 0) {
-                const tempMin = Math.min(...data.vitals.temp).toFixed(1);
-                const tempMax = Math.max(...data.vitals.temp).toFixed(1);
-                const tempAvg = (data.vitals.temp.reduce((a, b) => a + b, 0) / data.vitals.temp.length).toFixed(1);
-                
-                const hadFever = data.vitals.temp.some(t => t > 38);
-                const hadHypothermia = data.vitals.temp.some(t => t < 35);
-                
-                if (hadFever || hadHypothermia) {
-                    fishbone += `T ${markAbnormal(`${tempMin}-${tempMax}`)} (${tempAvg}), `;
-                } else {
-                    fishbone += `T ${tempMin}-${tempMax} (${tempAvg}), `;
-                }
-            } else {
-                fishbone += 'no T, ';
-            }
-            
-            if (data.vitals.hr && data.vitals.hr.length > 0) {
-                const hrMin = Math.min(...data.vitals.hr);
-                const hrMax = Math.max(...data.vitals.hr);
-                const hrAvg = Math.round(data.vitals.hr.reduce((a, b) => a + b, 0) / data.vitals.hr.length);
-                
-                const hadTachycardia = data.vitals.hr.some(hr => hr > 100);
-                const hadBradycardia = data.vitals.hr.some(hr => hr < 60);
-                
-                if (hadTachycardia || hadBradycardia) {
-                    fishbone += `HR ${markAbnormal(`${hrMin}-${hrMax}`)}(${hrAvg}), `;
-                } else {
-                    fishbone += `HR ${hrMin}-${hrMax}(${hrAvg}), `;
-                }
-            } else {
-                fishbone += 'no HR, ';
-            }
-
-            // Handle SBP and DBP separately
-            if (data.vitals.sbp && data.vitals.sbp.length > 0) {
-                const sbpMin = Math.min(...data.vitals.sbp);
-                const sbpMax = Math.max(...data.vitals.sbp);
-                const sbpAvg = Math.round(data.vitals.sbp.reduce((a, b) => a + b, 0) / data.vitals.sbp.length);
-                
-                const hadHypotension = data.vitals.sbp.some(sbp => sbp < 90);
-                const hadHypertension = data.vitals.sbp.some(sbp => sbp > 180);
-                
-                if (hadHypotension || hadHypertension) {
-                    fishbone += `SBP ${markAbnormal(`${sbpMin}-${sbpMax}`)} (${sbpAvg}), `;
-                } else {
-                    fishbone += `SBP ${sbpMin}-${sbpMax} (${sbpAvg}), `;
-                }
-            } else {
-                fishbone += 'no SBP, ';
-            }
-
-            if (data.vitals.dbp && data.vitals.dbp.length > 0) {
-                const dbpMin = Math.min(...data.vitals.dbp);
-                const dbpMax = Math.max(...data.vitals.dbp);
-                const dbpAvg = Math.round(data.vitals.dbp.reduce((a, b) => a + b, 0) / data.vitals.dbp.length);
-                
-                const hadDiastolicHypertension = data.vitals.dbp.some(dbp => dbp > 120);
-                const hadDiastolicHypotension = data.vitals.dbp.some(dbp => dbp < 60);
-                
-                if (hadDiastolicHypertension || hadDiastolicHypotension) {
-                    fishbone += `DBP ${markAbnormal(`${dbpMin}-${dbpMax}`)} (${dbpAvg}) `;
-                } else {
-                    fishbone += `DBP ${dbpMin}-${dbpMax} (${dbpAvg}) `;
-                }
-            } else {
-                fishbone += 'no DBP ';
-            }
-
-            // O2 saturation with therapy
-            if (data.vitals.o2 && data.vitals.o2.length > 0) {
-                const o2Min = Math.min(...data.vitals.o2);
-                const o2Max = Math.max(...data.vitals.o2);
-                
-                const hadHypoxia = data.vitals.o2.some(o2 => o2 < 94);
-                
-                if (hadHypoxia) {
-                    fishbone += `O2 ${markAbnormal(`${o2Min}-${o2Max}`)}`;
-                } else {
-                    fishbone += `O2 ${o2Min}-${o2Max}`;
-                }
-                
-                if (data.o2therapyCode && data.o2therapyCode !== 'RA') {
-                    fishbone += `-${markAbnormal(data.o2therapyCode)}`;
-                    if (data.o2flowRaw && data.o2therapyCode !== 'Vent') {
-                        fishbone += `@${data.o2flowRaw}`;
-                    }
-                }
-
-            } else if (data.o2therapyCode) {
-                if (data.o2therapyCode === 'RA') {
-                    fishbone += `O2: ${data.o2therapyCode}`;
-                } else {
-                    fishbone += `O2: ${markAbnormal(data.o2therapyCode)}`;
-                    if (data.o2flowRaw && data.o2therapyCode !== 'Vent') {
-                        fishbone += `@${data.o2flowRaw}`;
-                    }
-                }
-            } else {
-                fishbone += 'no O2';
-            }
-
-            fishbone += '\n';
-
-            // OXYGEN THERAPY DETAILS
-            if (data.o2therapyCode === 'Vent') {
-                const mode = data.ventModeRaw ? data.ventModeRaw.replace(/[\s\/\+]+/g,'') : '';
-                const freq = data.ventFrequencyRaw || '';
-                const tv = data.ventTidalRaw || '';
-                const peep = data.ventPeepRaw || '';
-                const fio2 = data.ventFiO2Raw || '';
-                const settings = [freq, tv, peep, fio2 ? fio2 + '%' : ''].filter(x => x).join('/');
-                fishbone += `${markAbnormal(`Ventilator: ${mode} ${settings}`)}\n`;
-            }
-
-            // INTAKE/OUTPUT SECTION
-            const text = document.getElementById('dataInput').value;
-            if (text) {
-                const ioData = extractIntakeOutputData(text);
-                const elapsedHours = ioData.elapsedHours || 24;
-                const elapsedHoursDisplay = Math.round(elapsedHours);
-                
-                // Get total intake from the summary section
-                let totalIntake = 0;
-                const intakeSummaryMatch = text.match(/Total\s+Summary[\s\S]*?Intake\s+mL\s+([\d,]+(?:\.\d+)?)/i);
-                if (intakeSummaryMatch) {
-                    totalIntake = parseFloat(intakeSummaryMatch[1].replace(/,/g, ''));
-                } else {
-                    totalIntake += ioData.intakes.enteral.reduce((sum, entry) => sum + entry.volume, 0);
-                    totalIntake += ioData.intakes.bloodProducts.reduce((sum, entry) => sum + entry.volume, 0);
-                    totalIntake += ioData.intakes.other.reduce((sum, entry) => sum + entry.volume, 0);
-                }
-                
-                // Get total output from the summary section
-                let totalOutput = 0;
-                const outputSummaryMatch = text.match(/Total\s+Summary[\s\S]*?Output\s+mL\s+([\d,]+(?:\.\d+)?)/i);
-                if (outputSummaryMatch) {
-                    totalOutput = parseFloat(outputSummaryMatch[1].replace(/,/g, ''));
-                } else {
-                    totalOutput += ioData.outputs.urine.reduce((sum, entry) => sum + entry.volume, 0);
-                    Object.values(ioData.outputs.drains).forEach(entries => {
-                        totalOutput += entries.reduce((sum, entry) => sum + entry.volume, 0);
-                    });
-                    Object.values(ioData.outputs.other).forEach(entries => {
-                        totalOutput += entries.reduce((sum, entry) => sum + entry.volume, 0);
-                    });
-                }
-                
-                // INTAKES
-                fishbone += `I: ${totalIntake}\n`;
-                let hasIntakes = false;
-
-                if (ioData.intakes.enteral.length > 0) {
-                    const totalEnteral = ioData.intakes.enteral.reduce((sum, entry) => sum + entry.volume, 0);
-                    const hourlyEnteral = Math.round(totalEnteral / elapsedHours);
-                    const latestEnteral = ioData.intakes.enteral.sort((a, b) => b.dateTime - a.dateTime)[0];
-                    fishbone += `Enteral: ${totalEnteral}mL/${elapsedHoursDisplay}hr (${hourlyEnteral}mL/hr) - last: ${latestEnteral.dateTimeStr}\n`;
-                    hasIntakes = true;
-                }
-                
-                if (ioData.intakes.bloodProducts.length > 0) {
-                    const totalBlood = ioData.intakes.bloodProducts.reduce((sum, entry) => sum + entry.volume, 0);
-                    const latestBlood = ioData.intakes.bloodProducts.sort((a, b) => b.dateTime - a.dateTime)[0];
-                    fishbone += `Blood products: ${totalBlood}mL/${elapsedHoursDisplay}hr - last: ${latestBlood.dateTimeStr}\n`;
-                    hasIntakes = true;
-                }
-                
-                if (ioData.intakes.other.length > 0) {
-                    const groupedIntakes = {};
-                    ioData.intakes.other.forEach(entry => {
-                        const type = entry.description || 'Other intake';
-                        if (!groupedIntakes[type]) groupedIntakes[type] = [];
-                        groupedIntakes[type].push(entry);
-                    });
-                    
-                    Object.entries(groupedIntakes).forEach(([type, entries]) => {
-                        const total = entries.reduce((sum, entry) => sum + entry.volume, 0);
-                        const latest = entries.sort((a, b) => b.dateTime - a.dateTime)[0];
-                        fishbone += `${type}: ${total}mL/${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}\n`;
-                        hasIntakes = true;
-                    });
-                }
-                
-                if (!hasIntakes) {
-                    fishbone += `None found (fluids, infusions, blood products, oral) in last ${elapsedHoursDisplay}hr\n`;
-                }
-                
-                // OUTPUTS  
-                fishbone += `O: ${totalOutput}\n`;
-                let hasOutputs = false;
-
-                // Urine output
-                if (ioData.outputs.urine.length > 0) {
-                    const totalUrine = ioData.outputs.urine.reduce((sum, entry) => sum + entry.volume, 0);
-                    const hourlyOutput = Math.round(totalUrine / elapsedHours);
-                    
-                    // Start with Foley if present
-                    let urineStr = '';
-                    if (ioData.outputs.urinaryCatheter) {
-                        urineStr = `${markAbnormal('Foley')} `;
-                    }
-                    
-                    urineStr += `UOP: ${totalUrine}mL/${elapsedHoursDisplay}hr`;
-                    if (data.weight) {
-                        const urinePerKgHr = (hourlyOutput / data.weight).toFixed(2);
-                        urineStr += ` (${urinePerKgHr}mL/kg/hr)`;
-                        if (urinePerKgHr < 0.5) {
-                            const foleyPrefix = ioData.outputs.urinaryCatheter ? `${markAbnormal('Foley')} ` : '';
-                            urineStr = `${foleyPrefix}UOP: ${markAbnormal(`${totalUrine}mL/${elapsedHoursDisplay}hr (${urinePerKgHr}mL/kg/hr)`)}`;
-                        }
-                    }
-                    urineStr += ` - last: ${ioData.outputs.lastUrineTimeStr}`;
-                    
-                    fishbone += urineStr + '\n';
-                    hasOutputs = true;
-                } else {
-                    fishbone += `${markAbnormal('No urine found')}\n`;
-                    hasOutputs = true;
-                }
-                
-                // Drains
-                Object.entries(ioData.outputs.drains).forEach(([drainType, entries]) => {
-                    if (entries.length > 0) {
-                        const total = entries.reduce((sum, entry) => sum + entry.volume, 0);
-                        const latest = entries.sort((a, b) => b.dateTime - a.dateTime)[0];
-                        let drainStr = `${markAbnormal(drainType)}: ${total}mL/${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`;
-                        if (total > (30 * elapsedHours)) {
-                            drainStr = `${markAbnormal(drainType)}: ${markAbnormal(`${total}mL/${elapsedHoursDisplay}hr`)} - last: ${latest.dateTimeStr}`;
-                        }
-                        fishbone += drainStr + '\n';
-                        hasOutputs = true;
-                    }
-                });
-                
-                // Other outputs
-                Object.entries(ioData.outputs.other).forEach(([outputType, entries]) => {
-                    if (entries.length > 0) {
-                        const total = entries.reduce((sum, entry) => sum + entry.volume, 0);
-                        const latest = entries.sort((a, b) => b.dateTime - a.dateTime)[0];
-                        if (outputType.includes('Blood Loss')) {
-                            fishbone += `${outputType}: ${markAbnormal(`${total}mL/${elapsedHoursDisplay}hr`)} - last: ${latest.dateTimeStr}\n`;
-                        } else {
-                            fishbone += `${outputType}: ${total}mL/${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}\n`;
-                        }
-                        hasOutputs = true;
-                    }
-                });
-                
-                // COUNTS
-                if (Object.keys(ioData.counts || {}).length > 0) {
-                    fishbone += `COUNTS:\n`;
-                    Object.entries(ioData.counts || {}).forEach(([countType, entries]) => {
-                        if (entries.length > 0) {
-                            const totalCount = entries.reduce((sum, entry) => sum + entry.count, 0);
-                            const latest = entries.sort((a, b) => b.dateTime - a.dateTime)[0];
-                            let countStr = `${countType}: ${totalCount}/${elapsedHoursDisplay}hr - last: ${latest.dateTimeStr}`;
-                            if ((countType.toLowerCase().includes('stool') && totalCount > 3) || 
-                                (countType.toLowerCase().includes('vomit') && totalCount > 0)) {
-                                countStr = `${countType}: ${markAbnormal(`${totalCount}/${elapsedHoursDisplay}hr`)} - last: ${latest.dateTimeStr}`;
-                            }
-                            fishbone += countStr + '\n';
-                        }
-                    });
-                }
-                
-                // Fluid balance
-                const intakeMatch = text.match(/Total\s+Summary[\s\S]*?Intake\s+mL\s+([\d,]+(?:\.\d+)?)/i);
-                const outputMatch = text.match(/Total\s+Summary[\s\S]*?Output\s+mL\s+([\d,]+(?:\.\d+)?)/i);
-                const balanceMatch = text.match(/Fluid\s+Balance\s+([-+]?[\d,]+(?:\.\d+)?)/i);
-                
-                let fluidBalance = null;
-                if (balanceMatch) {
-                    fluidBalance = parseFloat(balanceMatch[1].replace(/,/g, ''));
-                } else if (intakeMatch && outputMatch) {
-                    const totalIntake = parseFloat(intakeMatch[1].replace(/,/g, ''));
-                    const totalOutput = parseFloat(outputMatch[1].replace(/,/g, ''));
-                    fluidBalance = totalIntake - totalOutput;
-                }
-                
-                if (fluidBalance !== null) {
-                    const sign = fluidBalance >= 0 ? '+' : '';
-                    const absBalance = Math.abs(fluidBalance);
-                    
-                    if (absBalance > 100) {
-                        fishbone += `Fluid Balance: ${markAbnormal(`${sign}${fluidBalance.toFixed(1)}mL`)}\n`;
-                    } else {
-                        fishbone += `Fluid Balance: ${sign}${fluidBalance.toFixed(1)}mL\n`;
-                    }
-                }
-                
-                fishbone += '\n';
-            }
-
-            // CBC FISHBONE
-            const wbc = data.labs.wbc?.[0];
-            const hgb = data.labs.hgb?.[0];
-            const hct = data.labs.hct?.[0];
-            const plt = data.labs.plt?.[0];
-
-            const wbcPrev = data.labs.wbc?.[1];
-            const hgbPrev = data.labs.hgb?.[1];
-            const hctPrev = data.labs.hct?.[1];
-            const pltPrev = data.labs.plt?.[1];
-
-            let wbcStr = '--';
-            if (wbc !== undefined) {
-                if (wbc < 4.5 || wbc > 11) {
-                    wbcStr = wbcPrev !== undefined ? `${markAbnormal(wbc)}(${wbcPrev})` : markAbnormal(wbc);
-                } else {
-                    wbcStr = wbc.toString();
-                }
-            }
-
-            let hgbStr = '--';
-            if (hgb !== undefined) {
-                if (hgb <= 7 || (hgbPrev !== undefined && hgbPrev - hgb >= 1)) {
-                    hgbStr = `${markAbnormal(hgb)}${hgbPrev !== undefined ? `(${hgbPrev})` : ''}`;
-                } else {
-                    hgbStr = hgb.toString();
-                }
-            }
-
-            let hctStr = '--';
-            if (hct !== undefined) {
-                if (hct < 21 && hctPrev !== undefined) {
-                    hctStr = `${markAbnormal(hct)}(${hctPrev})`;
-                } else if (hct < 21) {
-                    hctStr = markAbnormal(hct);
-                } else {
-                    hctStr = hct.toString();
-                }
-            }
-
-            let pltStr = '--';
-            if (plt !== undefined) {
-                if ((plt < 150 || plt > 400) && pltPrev !== undefined) {
-                    pltStr = `${markAbnormal(plt)}(${pltPrev})`;
-                } else if (plt < 150 || plt > 400) {
-                    pltStr = markAbnormal(plt);
-                } else {
-                    pltStr = plt.toString();
-                }
-            }
-
-            const posBack = wbcStr.length;
-            const hctEndPos = posBack + 1 + hctStr.length;
-            const slashPos = hctEndPos;
-            const spacesAfterHgb = Math.max(0, slashPos - (wbcStr.length + 1 + hgbStr.length + 1));
-            
-            fishbone += `${wbcStr}\\${hgbStr} ${' '.repeat(spacesAfterHgb)}/${pltStr}\n`;
-            
-            let bottom = Array(slashPos + 1).fill(' ');
-            bottom[posBack] = '/';
-            for (let i = 0; i < hctStr.length; i++) {
-                bottom[posBack + 1 + i] = hctStr[i];
-            }
-            bottom[slashPos] = '\\';
-            fishbone += bottom.join('').trimEnd() + '\n';
-
-            // BMP FISHBONE
-            const na  = data.labs.na?.[0],
-                  k   = data.labs.k?.[0],
-                  cl  = data.labs.cl?.[0],
-                  co2 = data.labs.co2?.[0],
-                  bun = data.labs.bun?.[0],
-                  cr  = data.labs.cr?.[0],
-                  glu = data.labs.glu?.[0];
-
-            let naStr   = na  !== undefined ? na.toString()   : '--';
-            let kStr    = k   !== undefined ? (k < 3.5 || k > 5.0 ? markAbnormal(k) : k.toString()) : '--';
-            let clStr   = cl  !== undefined ? (cl < 96 || cl > 106 ? markAbnormal(cl) : cl.toString()) : '--';
-            let co2Str  = co2 !== undefined ? co2.toString()  : '--';
-            let bunStr  = bun !== undefined ? (bun > 24 ? markAbnormal(bun) : bun.toString()) : '--';
-
-            let crStr;
-            if (cr !== undefined) {
-                const prevCr = data.labs.cr?.[1];
-                if (cr > 1.2 || (prevCr !== undefined && cr - prevCr > 0.3)) {
-                    crStr = prevCr !== undefined ? `${markAbnormal(cr)}(${prevCr})` : markAbnormal(cr);
-                } else {
-                    crStr = cr.toString();
-                }
-            } else {
-                crStr = '--';
-            }
-
-            let gluStr  = glu !== undefined ? (glu > 200 || glu < 70 ? markAbnormal(glu) : glu.toString()) : '--';
-
-            const col1 = Math.max(naStr.length, kStr.length);
-            const col2 = Math.max(clStr.length, co2Str.length);
-            const col3 = Math.max(bunStr.length, crStr.length);
-
-            fishbone +=
-                `${naStr.padEnd(col1)} |` +
-                `${clStr.padEnd(col2)} |` +
-                `${bunStr.padEnd(col3)}/${gluStr}\n`;
-
-            fishbone +=
-                `${kStr.padEnd(col1)} |` +
-                `${co2Str.padEnd(col2)} |` +
-                `${crStr.padEnd(col3)}\\\n`;
-
-            // Check if labs are recent
-            const currentDate = new Date();
-            currentDate.setHours(0, 0, 0, 0);
-            const yesterday = new Date(currentDate);
-            yesterday.setDate(yesterday.getDate() - 1);
-
-            const isRecentDate = (dateStr) => {
-                if (!dateStr) return false;
-                const [month, day, year] = dateStr.split('/').map(n => parseInt(n));
-                const labDate = new Date(2000 + year, month - 1, day);
-                labDate.setHours(0, 0, 0, 0);
-                return labDate >= yesterday && labDate <= currentDate;
-            };
-
-            // LFTs SECTION
-            if ((data.labs.ast || data.labs.alt || data.labs.tbil || data.labs.alk) && 
-                (isRecentDate(data.dates.ast) || isRecentDate(data.dates.alt))) {
-                const ast = data.labs.ast?.[0];
-                const alt = data.labs.alt?.[0];
-                const astPrev = data.labs.ast?.[1];
-                const altPrev = data.labs.alt?.[1];
-                
-                let astAltStr = '';
-                if (ast && alt && (ast > 40 || alt > 40)) {
-                    astAltStr = `AST/ALT:${markAbnormal(`${ast}/${alt}`)}(${astPrev || '--'}/${altPrev || '--'})`;
-                } else if (ast && alt) {
-                    astAltStr = `AST/ALT:${ast}/${alt}`;
-                }
-                
-                const tbil = data.labs.tbil?.[0];
-                const tbilPrev = data.labs.tbil?.[1];
-                let tbilStr = '';
-                if (tbil !== undefined) {
-                    if (tbil > 1.2) {
-                        tbilStr = `TB:${markAbnormal(tbil)}${tbilPrev !== undefined ? `(${tbilPrev})` : ''}`;
-                    } else {
-                        tbilStr = `TB:${tbil}`;
-                    }
-                } else {
-                    tbilStr = 'TB:--';
-                }
-                
-                const dbil = data.labs.dbil?.[0];
-                const dbilPrev = data.labs.dbil?.[1];
-                let dbilStr = '';
-                if (dbil !== undefined) {
-                    if (dbil > 0.3) {
-                        dbilStr = `DB:${markAbnormal(dbil)}${dbilPrev !== undefined ? `(${dbilPrev})` : ''}`;
-                    } else {
-                        dbilStr = `DB:${dbil}`;
-                    }
-                } else {
-                    dbilStr = 'DB:--';
-                }
-                
-                const alk = data.labs.alk?.[0];
-                const alkPrev = data.labs.alk?.[1];
-                let alkStr = '';
-                if (alk !== undefined) {
-                    if (alk > 150 || alk < 40) {
-                        alkStr = `ALK:${markAbnormal(alk)}${alkPrev !== undefined ? `(${alkPrev})` : ''}`;
-                    } else {
-                        alkStr = `ALK:${alk}`;
-                    }
-                } else {
-                    alkStr = 'ALK:--';
-                }
-                
-                fishbone += `LFTs: ${astAltStr}, ${tbilStr}, ${dbilStr}, ${alkStr}`;
-                
-                const lfDate = data.dates.ast || data.dates.alt || data.dates.tbil;
-                const lfTime = data.times.ast || data.times.alt || data.times.tbil || '';
-                if (lfDate) {
-                    fishbone += ` (${lfDate}${lfTime ? ' ' + lfTime : ''})`;
-                }
-                fishbone += '\n';
-            }
-
-            // COAGULATION SECTION
-            if ((data.labs.pt || data.labs.ptt || data.labs.inr || data.labs.fib) &&
-                (isRecentDate(data.dates.pt) || isRecentDate(data.dates.ptt) || 
-                 isRecentDate(data.dates.inr) || isRecentDate(data.dates.fib))) {
-                
-                const pt = data.labs.pt?.[0];
-                const ptt = data.labs.ptt?.[0];
-                const inr = data.labs.inr?.[0];
-                const fib = data.labs.fib?.[0];
-                
-                const ptPrev = data.labs.pt?.[1];
-                const pttPrev = data.labs.ptt?.[1];
-                const inrPrev = data.labs.inr?.[1];
-                const fibPrev = data.labs.fib?.[1];
-                
-                let ptStr = '--';
-                if (pt !== undefined) {
-                    if (pt > 13.5 && ptPrev !== undefined) {
-                        ptStr = `${markAbnormal(pt)}(${ptPrev})`;
-                    } else if (pt > 13.5) {
-                        ptStr = markAbnormal(pt);
-                    } else {
-                        ptStr = pt.toString();
-                    }
-                }
-                
-                let pttStr = '--';
-                if (ptt !== undefined) {
-                    if (ptt > 35 && pttPrev !== undefined) {
-                        pttStr = `${markAbnormal(ptt)}(${pttPrev})`;
-                    } else if (ptt > 35) {
-                        pttStr = markAbnormal(ptt);
-                    } else {
-                        pttStr = ptt.toString();
-                    }
-                }
-                
-                let inrStr = '--';
-                if (inr !== undefined) {
-                    if (inr > 1.1 && inrPrev !== undefined) {
-                        inrStr = `${markAbnormal(inr)}(${inrPrev})`;
-                    } else if (inr > 1.1) {
-                        inrStr = markAbnormal(inr);
-                    } else {
-                        inrStr = inr.toString();
-                    }
-                }
-                
-                let fibStr = '--';
-                if (fib !== undefined) {
-                    if ((fib < 200 || fib > 400) && fibPrev !== undefined) {
-                        fibStr = `${markAbnormal(fib)}(${fibPrev})`;
-                    } else if (fib < 200 || fib > 400) {
-                        fibStr = markAbnormal(fib);
-                    } else {
-                        fibStr = fib.toString();
-                    }
-                }
-                
-                fishbone += `Coags: PT/PTT: ${ptStr}/${pttStr}, INR: ${inrStr}, Fib: ${fibStr}`;
-                
-                const coagDate = data.dates.pt || data.dates.ptt || data.dates.inr || data.dates.fib;
-                const coagTime = data.times.pt || data.times.ptt || data.times.inr || data.times.fib || '';
-                if (coagDate) {
-                    fishbone += ` (${coagDate}${coagTime ? ' ' + coagTime : ''})`;
-                }
-                fishbone += '\n';
-            }
-            
-            // ABG SECTION
-            if ((data.labs.ph || data.labs.po2 || data.labs.pco2) && 
-                (isRecentDate(data.dates.ph) || isRecentDate(data.dates.po2))) {
-                const ph = data.labs.ph?.[0];
-                const po2 = data.labs.po2?.[0];
-                const pco2 = data.labs.pco2?.[0];
-                const bicarb = data.labs.bicarb?.[0];
-                
-                let phStr = ph !== undefined ? (ph < 7.35 || ph > 7.45 ? markAbnormal(ph) : ph.toString()) : '--';
-                let po2Str = po2 !== undefined ? (po2 < 80 ? markAbnormal(po2) : po2.toString()) : '--';
-                let pco2Str = pco2 !== undefined ? (pco2 < 35 || pco2 > 45 ? markAbnormal(pco2) : pco2.toString()) : '--';
-                let bicarbStr = bicarb !== undefined ? (bicarb < 22 || bicarb > 28 ? markAbnormal(bicarb) : bicarb.toString()) : '--';
-                
-                fishbone += `ABG: ${phStr}/${pco2Str}/${po2Str}/${bicarbStr}`;
-                
-                const abgDate = data.dates.ph || data.dates.po2 || data.dates.pco2;
-                const abgTime = data.times.ph || data.times.po2 || data.times.pco2 || '';
-                if (abgDate) {
-                    fishbone += ` (${abgDate}${abgTime ? ' ' + abgTime : ''})`;
-                }
-                fishbone += '\n';
-            }
-            
-            // MISC LABS SECTION
-            const miscLabs = [];
-            
-            const lactate = data.labs.lactate?.[0];
-            if (lactate !== undefined) {
-                let lactateStr = `Lactate:${lactate > 2 ? markAbnormal(lactate) : lactate}`;
-                miscLabs.push(lactateStr);
-            }
-            
-            const trop = data.labs.trop?.[0];
-            if (trop !== undefined && isRecentDate(data.dates.trop)) {
-                let tropStr = `Trop:${trop > 0.04 ? markAbnormal(trop) : trop}`;
-                miscLabs.push(tropStr);
-            }
-            
-            const amylase = data.labs.amylase?.[0];
-            if (amylase !== undefined && isRecentDate(data.dates.amylase)) {
-                let amylaseStr = `Amylase:${amylase > 110 ? markAbnormal(amylase) : amylase}`;
-                miscLabs.push(amylaseStr);
-            }
-            
-            const lipase = data.labs.lipase?.[0];
-            if (lipase !== undefined && isRecentDate(data.dates.lipase)) {
-                let lipaseStr = `Lipase:${lipase > 140 ? markAbnormal(lipase) : lipase}`;
-                miscLabs.push(lipaseStr);
-            }
-            
-            if (miscLabs.length > 0) {
-                fishbone += `Misc: ${miscLabs.join(', ')}\n`;
-            }
-            
-            return fishbone;
-        }
-
-        function pasteFromClipboard() {
-            const textarea = document.getElementById('dataInput');
-            const button = event.target;
-            const originalText = button.textContent;
-            
-            button.textContent = '📋 Pasting...';
-            button.disabled = true;
-            
-            if (navigator.clipboard && navigator.clipboard.readText) {
-                navigator.clipboard.readText()
-                    .then(text => {
-                        if (text.trim()) {
-                            textarea.value = text;
-                            button.textContent = '✅ Pasted';
-                            button.classList.add('success');
-                            
-                            setTimeout(() => {
-                                button.textContent = originalText;
-                                button.classList.remove('success');
-                                button.disabled = false;
-                            }, 2000);
-                        } else {
-                            button.textContent = originalText;
-                            button.disabled = false;
-                            alert('Clipboard is empty or contains no text.');
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Failed to read clipboard: ', err);
-                        button.textContent = originalText;
-                        button.disabled = false;
-                        alert('Failed to read from clipboard. Please paste manually using Ctrl+V (or Cmd+V on Mac).');
-                    });
-            } else {
-                button.textContent = originalText;
-                button.disabled = false;
-                alert('Clipboard API not supported. Please paste manually using Ctrl+V (or Cmd+V on Mac).');
-                textarea.focus();
-            }
-        }
-
-        function generateStats(data, fishbone, warnings) {
-            const stats = {
-                vitalsCount: 0,
-                labsCount: 0,
-                warningsCount: warnings.length,
-                fishboneLines: fishbone.split('\n').length
-            };
-
-            // Count vitals
-            if (data.vitals) {
-                stats.vitalsCount = Object.keys(data.vitals).length;
-            }
-
-            // Count labs
-            if (data.labs) {
-                stats.labsCount = Object.keys(data.labs).length;
-            }
-
-            return stats;
-        }
-
-        function displayStats(stats) {
-            const statsContainer = document.getElementById('stats');
-            statsContainer.innerHTML = `
-                <div class="stat-card">
-                    <div class="stat-number">${stats.vitalsCount}</div>
-                    <div class="stat-label">Vital Parameters</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${stats.labsCount}</div>
-                    <div class="stat-label">Lab Values</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${stats.warningsCount}</div>
-                    <div class="stat-label">Clinical Warnings</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${stats.fishboneLines}</div>
-                    <div class="stat-label">Fishbone Lines</div>
-                </div>
-            `;
-        }
-
-        function processData() {
-            const inputText = document.getElementById('dataInput').value.trim();
-            
-            if (!inputText) {
-                alert('Please enter or paste medical data first.');
-                return;
-            }
-
-            // Show loading
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('results').style.display = 'none';
-            
-            // Process data after a short delay to show loading animation
-            setTimeout(() => {
-                try {
-                    // Extract lab values and generate fishbone
-                    const labData = extractLabValues(inputText);
-                    const fishbone = generateFishbone(labData);
-                    const warnings = generateWarnings(labData);
-                    
-                    // Generate I/O warnings if data available
-                    const ioData = extractIntakeOutputData(inputText);
-                    const ioWarnings = generateIntakeOutputWarnings(ioData, labData.weight);
-                    
-                    // Combine all warnings
-                    const allWarnings = [...warnings, ...ioWarnings];
-                    
-                    // Store current fishbone
-                    currentFishbone = fishbone;
-                    
-                    // Generate stats
-                    const stats = generateStats(labData, fishbone, allWarnings);
-                    currentStats = stats;
-                    
-                    // Display results
-                    displayResults(fishbone, allWarnings, stats);
-                    
-                    // Try to copy to clipboard automatically
-                    copyToClipboard(fishbone);
-                    
-                } catch (error) {
-                    console.error('Error processing data:', error);
-                    alert('Error processing medical data. Please check the format and try again.');
-                } finally {
-                    // Hide loading
-                    document.getElementById('loading').style.display = 'none';
-                }
-            }, 500);
-        }
-
-        function displayResults(fishbone, warnings, stats) {
-            // Display stats
-            displayStats(stats);
-            
-            // Display fishbone
-            document.getElementById('fishboneOutput').textContent = fishbone;
-            
-            // Display warnings
-            const warningsContainer = document.getElementById('warningsOutput');
-            if (warnings.length > 0) {
-                warningsContainer.innerHTML = warnings.map(warning => 
-                    `<div class="warning-item">${warning}</div>`
-                ).join('');
-            } else {
-                warningsContainer.innerHTML = '<div class="warning-item" style="border-color: var(--success); background: rgba(16, 185, 129, 0.1);">No clinical warnings detected</div>';
-            }
-            
-            // Show results
-            document.getElementById('results').style.display = 'block';
-        }
-
-        function copyToClipboard(text) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text)
-                    .then(() => {
-                        showSuccessMessage();
-                        showExcelPrompt();
-                    })
-                    .catch(err => {
-                        console.error('Failed to copy to clipboard: ', err);
-                    });
-            }
-        }
-
-        function copyFishbone() {
-            if (!currentFishbone) {
-                alert('No fishbone diagram available to copy.');
-                return;
-            }
-            
-            const button = event.target;
-            const originalText = button.textContent;
-            
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(currentFishbone)
-                    .then(() => {
-                        button.textContent = '✅ Copied!';
-                        button.classList.add('success');
-                        showExcelPrompt();
-                        
-                        setTimeout(() => {
-                            button.textContent = originalText;
-                            button.classList.remove('success');
-                        }, 2000);
-                    })
-                    .catch(err => {
-                        console.error('Failed to copy: ', err);
-                        // Fallback method
-                        fallbackCopyTextToClipboard(currentFishbone);
-                        button.textContent = '✅ Copied!';
-                        button.classList.add('success');
-                        showExcelPrompt();
-                        
-                        setTimeout(() => {
-                            button.textContent = originalText;
-                            button.classList.remove('success');
-                        }, 2000);
-                    });
-            } else {
-                // Fallback for older browsers
-                fallbackCopyTextToClipboard(currentFishbone);
-                button.textContent = '✅ Copied!';
-                button.classList.add('success');
-                showExcelPrompt();
-                
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.classList.remove('success');
-                }, 2000);
-            }
-        }
-
-        function fallbackCopyTextToClipboard(text) {
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-9999px';
-            document.body.appendChild(textArea);
-            textArea.select();
-            
-            try {
-                document.execCommand('copy');
-            } catch (err) {
-                console.error('Fallback copy failed:', err);
-                alert('Copy failed. Please select the fishbone text and copy manually.');
-            }
-            
-            document.body.removeChild(textArea);
-        }
-
-        function showSuccessMessage() {
-            const successMessage = document.getElementById('successMessage');
-            successMessage.style.display = 'block';
-            
-            setTimeout(() => {
-                successMessage.style.display = 'none';
-            }, 3000);
-        }
-
-        function showExcelPrompt() {
-            document.getElementById('excelPrompt').style.display = 'block';
-        }
-
-        function hideExcelPrompt() {
-            document.getElementById('excelPrompt').style.display = 'none';
-        }
-
-        function clearData() {
-            const confirmation = confirm('Are you sure you want to clear all data?');
-            if (confirmation) {
-                document.getElementById('dataInput').value = '';
-                document.getElementById('results').style.display = 'none';
-                document.getElementById('excelPrompt').style.display = 'none';
-                document.getElementById('successMessage').style.display = 'none';
-                currentFishbone = '';
-                currentStats = {};
-            }
-        }
-
-        // Auto-resize textarea
-        document.getElementById('dataInput').addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = this.scrollHeight + 'px';
         });
 
-        // Close modals when clicking outside
-        document.addEventListener('click', function(event) {
-            const excelPrompt = document.getElementById('excelPrompt');
-            if (event.target === excelPrompt) {
-                hideExcelPrompt();
+        // Progress tracking
+        function updateProgress() {
+            const activeTab = document.querySelector('.tab-content.active');
+            const checkboxes = activeTab.querySelectorAll('input[type="checkbox"]');
+            const checked = activeTab.querySelectorAll('input[type="checkbox"]:checked');
+            
+            const total = checkboxes.length;
+            const checkedCount = checked.length;
+            const percentage = total > 0 ? Math.round((checkedCount / total) * 100) : 0;
+
+            // Update both progress bars
+            const topBar = document.getElementById('progress-bar-top');
+            const bottomBar = document.getElementById('progress-bar-bottom');
+            const topText = document.getElementById('progress-text-top');
+            const bottomText = document.getElementById('progress-text-bottom');
+
+            topBar.style.width = percentage + '%';
+            topBar.textContent = percentage + '%';
+            topText.textContent = checkedCount + ' / ' + total;
+
+            bottomBar.style.width = percentage + '%';
+            bottomBar.textContent = percentage + '%';
+            bottomText.textContent = checkedCount + ' / ' + total;
+
+            if (percentage === 100) {
+                topBar.classList.add('complete');
+                bottomBar.classList.add('complete');
+            } else {
+                topBar.classList.remove('complete');
+                bottomBar.classList.remove('complete');
             }
+        }
+
+        // Checkbox change handler
+        const allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        allCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const item = this.parentElement;
+                if (this.checked) {
+                    item.classList.add('checked');
+                } else {
+                    item.classList.remove('checked');
+                }
+                updateProgress();
+            });
         });
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(event) {
-            // Ctrl/Cmd + Enter to process data
-            if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-                event.preventDefault();
-                processData();
-            }
-            
-            // Escape to hide prompts
-            if (event.key === 'Escape') {
-                hideExcelPrompt();
-            }
-        });
+        // Initial progress update
+        updateProgress();
     </script>
 </body>
 </html>
