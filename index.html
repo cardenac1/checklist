@@ -15,31 +15,57 @@
             background: #000000;
             color: #e0e0e0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 20px;
+            padding: 8px;
             min-height: 100vh;
+            border: 6px solid #667eea;
+            transition: border-color 0.3s ease;
+        }
+
+        body.complete {
+            border-color: #38ef7d;
+        }
+
+        .progress-indicator {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: rgba(102, 126, 234, 0.95);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85em;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            transition: background 0.3s ease;
+        }
+
+        .progress-indicator.complete {
+            background: rgba(56, 239, 125, 0.95);
         }
 
         .container {
             max-width: 900px;
             margin: 0 auto;
             background: #0a0a0a;
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 12px;
+            padding: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
         }
 
         h1 {
             color: #fff;
-            font-size: 2.5em;
-            margin-bottom: 10px;
+            font-size: 2em;
+            margin-bottom: 8px;
             text-align: center;
             letter-spacing: 2px;
         }
 
         .tabs {
             display: flex;
-            gap: 10px;
-            margin: 20px 0;
+            gap: 8px;
+            margin: 12px 0;
             flex-wrap: wrap;
             justify-content: center;
         }
@@ -48,10 +74,10 @@
             background: rgba(255, 255, 255, 0.05);
             border: 2px solid rgba(102, 126, 234, 0.3);
             color: #e0e0e0;
-            padding: 12px 24px;
-            border-radius: 10px;
+            padding: 8px 16px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 0.9em;
             transition: all 0.3s ease;
             font-weight: 600;
         }
@@ -75,59 +101,18 @@
             display: block;
         }
 
-        .progress-container {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 25px 0;
-            backdrop-filter: blur(10px);
-        }
-
-        .progress-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 0.9em;
-            color: #b0b0b0;
-        }
-
-        .progress-bar-bg {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            height: 30px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            border-radius: 10px;
-            transition: width 0.3s ease, background 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 0.85em;
-        }
-
-        .progress-bar.complete {
-            background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
-        }
-
         .section {
-            margin: 25px 0;
+            margin: 12px 0;
             background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            padding: 20px;
-            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 3px solid #667eea;
         }
 
         .section-title {
             color: #fff;
-            font-size: 1.4em;
-            margin-bottom: 15px;
+            font-size: 1.2em;
+            margin-bottom: 8px;
             font-weight: 600;
             letter-spacing: 1px;
         }
@@ -135,9 +120,9 @@
         .checklist-item {
             display: flex;
             align-items: flex-start;
-            margin: 12px 0;
-            padding: 8px;
-            border-radius: 8px;
+            margin: 6px 0;
+            padding: 4px;
+            border-radius: 6px;
             transition: background 0.2s ease;
         }
 
@@ -146,10 +131,10 @@
         }
 
         .checklist-item input[type="checkbox"] {
-            margin-right: 12px;
-            margin-top: 4px;
-            width: 20px;
-            height: 20px;
+            margin-right: 10px;
+            margin-top: 3px;
+            width: 18px;
+            height: 18px;
             cursor: pointer;
             accent-color: #667eea;
             flex-shrink: 0;
@@ -157,8 +142,9 @@
 
         .checklist-item label {
             cursor: pointer;
-            line-height: 1.6;
+            line-height: 1.4;
             flex-grow: 1;
+            font-size: 0.95em;
         }
 
         .checklist-item label a {
@@ -176,41 +162,180 @@
         }
 
         .subsection {
-            margin-left: 32px;
-            margin-top: 8px;
+            margin-left: 28px;
+            margin-top: 4px;
         }
 
         .sub-item {
-            margin: 8px 0;
-            font-size: 0.95em;
+            margin: 4px 0;
+            font-size: 0.9em;
         }
 
         .child-item {
-            margin-left: 45px;
-            font-size: 0.9em;
+            margin-left: 40px;
+            font-size: 0.85em;
             color: #b0b0b0;
+        }
+
+        .info-item {
+            margin-left: 28px;
+            margin: 4px 0;
+            padding: 4px;
+            font-size: 0.88em;
+            line-height: 1.4;
+            color: #b0b0b0;
+        }
+
+        .info-item ul {
+            margin-left: 20px;
+            margin-top: 4px;
+        }
+
+        .info-item li {
+            margin: 2px 0;
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 4px;
+                border-width: 4px;
+            }
+
+            .progress-indicator {
+                top: 10px;
+                right: 10px;
+                padding: 6px 12px;
+                font-size: 0.8em;
+            }
+
+            .container {
+                padding: 12px;
+                border-radius: 8px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 6px;
+            }
+
+            .tabs {
+                gap: 6px;
+                margin: 8px 0;
+            }
+
+            .tab-button {
+                padding: 6px 12px;
+                font-size: 0.85em;
+                flex: 1 1 calc(50% - 3px);
+                text-align: center;
+            }
+
+            .section {
+                padding: 8px;
+                margin: 8px 0;
+            }
+
+            .section-title {
+                font-size: 1.1em;
+            }
+
+            .checklist-item {
+                margin: 4px 0;
+                padding: 3px;
+            }
+
+            .checklist-item input[type="checkbox"] {
+                width: 16px;
+                height: 16px;
+                margin-right: 8px;
+            }
+
+            .checklist-item label {
+                font-size: 0.9em;
+                line-height: 1.3;
+            }
+
+            .subsection {
+                margin-left: 20px;
+            }
+
+            .child-item {
+                margin-left: 30px;
+                font-size: 0.82em;
+            }
+
+            .info-item {
+                margin-left: 20px;
+                font-size: 0.85em;
+            }
+
+            .info-item ul {
+                margin-left: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 2px;
+                border-width: 3px;
+            }
+
+            .progress-indicator {
+                top: 8px;
+                right: 8px;
+                padding: 5px 10px;
+                font-size: 0.75em;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.3em;
+            }
+
+            .tab-button {
+                padding: 5px 10px;
+                font-size: 0.8em;
+            }
+
+            .section-title {
+                font-size: 1em;
+            }
+
+            .checklist-item label {
+                font-size: 0.85em;
+            }
+
+            .subsection {
+                margin-left: 15px;
+            }
+
+            .child-item {
+                margin-left: 25px;
+                font-size: 0.8em;
+            }
+
+            .info-item {
+                margin-left: 15px;
+                font-size: 0.82em;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="progress-indicator" id="progress-indicator">0%</div>
+
     <div class="container">
+        <h1>Medical Checklists</h1>
         
         <div class="tabs">
-            <button class="tab-button active" data-tab="violin">Chartcheck</button>
+            <button class="tab-button active" data-tab="violin">VIOLIN</button>
             <button class="tab-button" data-tab="trauma">Trauma</button>
             <button class="tab-button" data-tab="consult">Consult</button>
             <button class="tab-button" data-tab="problems">Problems/HPI</button>
-        </div>
-
-        <!-- Top Progress Bar -->
-        <div class="progress-container">
-            <div class="progress-label">
-                <span>Progress</span>
-                <span id="progress-text-top">0 / 0</span>
-            </div>
-            <div class="progress-bar-bg">
-                <div class="progress-bar" id="progress-bar-top">0%</div>
-            </div>
         </div>
 
         <!-- VIOLIN Tab -->
@@ -848,262 +973,148 @@
         <!-- Problems/HPI Tab -->
         <div class="tab-content" id="problems-content">
             <div class="section">
-                <div class="section-title">HPI</div>
                 <div class="checklist-item">
-                    <input type="checkbox" id="hpi-story">
-                    <label for="hpi-story"><strong>Story:</strong> ASK EVERYTHING BUT WRITE DOWN THE POSITIVES! FOCUS ON WHAT IS RELEVANT TO THE SURGICAL CONSULTATION</label>
+                    <input type="checkbox" id="hpi-section">
+                    <label for="hpi-section"><strong>HPI</strong></label>
                 </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="hpi-onset">
-                    <label for="hpi-onset">Onset: Sequence of events and why presenting today; preceding events</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="hpi-where">
-                    <label for="hpi-where">Where coming from and what did they do there?</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="hpi-interventions">
-                    <label for="hpi-interventions">Interventions, medications, studies, consultations</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="hpi-tubes">
-                    <label for="hpi-tubes">If they have tubes, drains or devices: are they functioning? What have the outputs been?</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="hpi-pqrs">
-                    <label for="hpi-pqrs">Palliating, provoking, Quality, radiation, severity</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="hpi-prior">
-                    <label for="hpi-prior">Prior episodes, evolution over time</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="hpi-trauma">
-                    <label for="hpi-trauma"><strong>Trauma Details:</strong> Time of injury, Mechanism (MVC/MCC speed, location of force transfer), Seatbelt/helmet/airbags/protective devices, Post-injury course, Identified injuries, Therapies/interventions</label>
+                <div class="info-item">
+                    <strong>Story:</strong> ASK EVERYTHING BUT WRITE DOWN THE POSITIVES! FOCUS ON WHAT IS RELEVANT TO THE SURGICAL CONSULTATION
+                    <ul>
+                        <li>Onset: Sequence of events and why presenting today; preceding events</li>
+                        <li>Where coming from and what did they do there?</li>
+                        <li>Interventions, medications, studies, consultations</li>
+                        <li>If they have tubes, drains or devices: are they functioning? What have the outputs been?</li>
+                        <li>Palliating, provoking, Quality, radiation, severity</li>
+                        <li>Prior episodes, evolution over time</li>
+                        <li><strong>Trauma Details:</strong> Time of injury, Mechanism (MVC/MCC speed, location of force transfer), Seatbelt/helmet/airbags/protective devices, Post-injury course, Identified injuries, Therapies/interventions</li>
+                    </ul>
                 </div>
             </div>
 
             <div class="section">
-                <div class="section-title">Review of Systems</div>
                 <div class="checklist-item">
-                    <input type="checkbox" id="ros-const">
-                    <label for="ros-const"><strong>Constitutional:</strong> fever, chills, night sweats, weight loss, anorexia (last MEAL), travel, sick contacts, diet changes</label>
+                    <input type="checkbox" id="ros-section">
+                    <label for="ros-section"><strong>Review of Systems</strong></label>
                 </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="ros-neuro">
-                    <label for="ros-neuro"><strong>Neurologic:</strong> headache, dizziness, numbness, tingling, weakness, presyncope/syncope, tremors, convulsions/seizures, unsteady gait</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="ros-skin">
-                    <label for="ros-skin"><strong>Skin:</strong> jaundice, rash, lesions, petechiae, itching</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="ros-enmt">
-                    <label for="ros-enmt"><strong>ENMT:</strong> vision changes, hearing changes, ear or eye pain, sore throat, congestion, runny nose, hoarseness, dysphagia</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="ros-resp">
-                    <label for="ros-resp"><strong>Respiratory:</strong> shortness of breath, cough, wheezing</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="ros-cv">
-                    <label for="ros-cv"><strong>Cardiovascular:</strong> chest pain, palpitations</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="ros-gi">
-                    <label for="ros-gi"><strong>Gastrointestinal:</strong> nausea, vomiting, last BM and gas, change in bowel habits, abdominal pain</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="ros-gu">
-                    <label for="ros-gu"><strong>Genitourinary:</strong> dysuria, urine retention (last void: ___), hematuria, discharge</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="ros-msk">
-                    <label for="ros-msk"><strong>Musculoskeletal:</strong> pain, joint swelling, stiffness, myalgias, trauma</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="ros-psych">
-                    <label for="ros-psych"><strong>Psychiatric:</strong> anxiety, depression, restlessness, suicidal ideation</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="ros-heme">
-                    <label for="ros-heme"><strong>Heme/Lymph:</strong> bleeding tendency, bruising tendency, petechiae, swollen nodes</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="ros-mens">
-                    <label for="ros-mens"><strong>Menstrual:</strong> LMP, menopausal</label>
+                <div class="info-item">
+                    <ul>
+                        <li><strong>Constitutional:</strong> fever, chills, night sweats, weight loss, anorexia (last MEAL), travel, sick contacts, diet changes</li>
+                        <li><strong>Neurologic:</strong> headache, dizziness, numbness, tingling, weakness, presyncope/syncope, tremors, convulsions/seizures, unsteady gait</li>
+                        <li><strong>Skin:</strong> jaundice, rash, lesions, petechiae, itching</li>
+                        <li><strong>ENMT:</strong> vision changes, hearing changes, ear or eye pain, sore throat, congestion, runny nose, hoarseness, dysphagia</li>
+                        <li><strong>Respiratory:</strong> shortness of breath, cough, wheezing</li>
+                        <li><strong>Cardiovascular:</strong> chest pain, palpitations</li>
+                        <li><strong>Gastrointestinal:</strong> nausea, vomiting, last BM and gas, change in bowel habits, abdominal pain</li>
+                        <li><strong>Genitourinary:</strong> dysuria, urine retention (last void), hematuria, discharge</li>
+                        <li><strong>Musculoskeletal:</strong> pain, joint swelling, stiffness, myalgias, trauma</li>
+                        <li><strong>Psychiatric:</strong> anxiety, depression, restlessness, suicidal ideation</li>
+                        <li><strong>Heme/Lymph:</strong> bleeding tendency, bruising tendency, petechiae, swollen nodes</li>
+                        <li><strong>Menstrual:</strong> LMP, menopausal</li>
+                    </ul>
                 </div>
             </div>
 
             <div class="section">
-                <div class="section-title">Past Medical and Surgical History</div>
                 <div class="checklist-item">
-                    <input type="checkbox" id="pmh-dx">
-                    <label for="pmh-dx">Previous diagnoses</label>
+                    <input type="checkbox" id="pmh-section">
+                    <label for="pmh-section"><strong>Past Medical and Surgical History</strong></label>
                 </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="pmh-chronic">
-                    <label for="pmh-chronic">Chronic conditions</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="pmh-surgeries">
-                    <label for="pmh-surgeries">Previous surgeries</label>
+                <div class="info-item">
+                    <ul>
+                        <li>Previous diagnoses</li>
+                        <li>Chronic conditions</li>
+                        <li>Previous surgeries</li>
+                    </ul>
                 </div>
             </div>
 
             <div class="section">
-                <div class="section-title">Current Medications</div>
                 <div class="checklist-item">
-                    <input type="checkbox" id="meds-home">
-                    <label for="meds-home">Home medications</label>
+                    <input type="checkbox" id="meds-section">
+                    <label for="meds-section"><strong>Current Medications</strong></label>
                 </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="meds-hospital">
-                    <label for="meds-hospital">Current hospital medications</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="meds-allergies">
-                    <label for="meds-allergies">Allergies (cross-check)</label>
+                <div class="info-item">
+                    <ul>
+                        <li>Home medications</li>
+                        <li>Current hospital medications</li>
+                        <li>Allergies (cross-check)</li>
+                    </ul>
                 </div>
             </div>
 
             <div class="section">
-                <div class="section-title">Social History</div>
                 <div class="checklist-item">
-                    <input type="checkbox" id="soc-contact">
-                    <label for="soc-contact">Emergency contact #</label>
+                    <input type="checkbox" id="soc-section">
+                    <label for="soc-section"><strong>Social History</strong></label>
                 </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="soc-smoke">
-                    <label for="soc-smoke">Smoking history</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="soc-alcohol">
-                    <label for="soc-alcohol">Alcohol use</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="soc-drugs">
-                    <label for="soc-drugs">Recreational/illicit drugs</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="soc-other">
-                    <label for="soc-other">Caffeine, Sexual history, Nutrition/diet, Occupation, Religion/spiritual beliefs</label>
+                <div class="info-item">
+                    <ul>
+                        <li>Emergency contact #</li>
+                        <li>Smoking history</li>
+                        <li>Alcohol use</li>
+                        <li>Recreational/illicit drugs</li>
+                        <li>Caffeine, Sexual history, Nutrition/diet, Occupation, Religion/spiritual beliefs</li>
+                    </ul>
                 </div>
             </div>
 
             <div class="section">
-                <div class="section-title">Family History</div>
                 <div class="checklist-item">
-                    <input type="checkbox" id="fhx-hereditary">
-                    <label for="fhx-hereditary">Major hereditary diseases (cardiovascular, diabetes, cancer, bleeding disorders)</label>
+                    <input type="checkbox" id="fhx-section">
+                    <label for="fhx-section"><strong>Family History</strong></label>
                 </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="fhx-liver">
-                    <label for="fhx-liver">Liver/biliary/pancreatic disease</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="fhx-other">
-                    <label for="fhx-other">Other significant familial conditions</label>
+                <div class="info-item">
+                    <ul>
+                        <li>Major hereditary diseases (cardiovascular, diabetes, cancer, bleeding disorders)</li>
+                        <li>Liver/biliary/pancreatic disease</li>
+                        <li>Other significant familial conditions</li>
+                    </ul>
                 </div>
             </div>
 
             <div class="section">
-                <div class="section-title">Clinical Examination</div>
                 <div class="checklist-item">
-                    <input type="checkbox" id="exam-gen">
-                    <label for="exam-gen"><strong>Gen:</strong> Well appearing in no acute distress. Alert and oriented x3</label>
+                    <input type="checkbox" id="exam-section">
+                    <label for="exam-section"><strong>Clinical Examination</strong></label>
                 </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="exam-neuro">
-                    <label for="exam-neuro"><strong>Neuro:</strong> strength and sensation intact BUE+BLE, CN II–XII grossly intact, EOMI</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="exam-resp">
-                    <label for="exam-resp"><strong>Resp:</strong> Non-labored breathing. No use of accessory muscles, no retractions</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="exam-cv">
-                    <label for="exam-cv"><strong>CV:</strong> Hemodynamically stable</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="exam-pulse">
-                    <label for="exam-pulse"><strong>Pulse:</strong> palpable b/l DP/PT pulses, radial/ulnar pulses</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="exam-abd">
-                    <label for="exam-abd"><strong>Abd:</strong> soft, non-tender, non-distended; no voluntary or involuntary guarding; no rebound or jolt tenderness</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="exam-wound">
-                    <label for="exam-wound"><strong>Wound:</strong> Incisions clean, dry, intact</label>
+                <div class="info-item">
+                    <ul>
+                        <li><strong>Gen:</strong> Well appearing in no acute distress. Alert and oriented x3</li>
+                        <li><strong>Neuro:</strong> strength and sensation intact BUE+BLE, CN II–XII grossly intact, EOMI</li>
+                        <li><strong>Resp:</strong> Non-labored breathing. No use of accessory muscles, no retractions</li>
+                        <li><strong>CV:</strong> Hemodynamically stable</li>
+                        <li><strong>Pulse:</strong> palpable b/l DP/PT pulses, radial/ulnar pulses</li>
+                        <li><strong>Abd:</strong> soft, non-tender, non-distended; no voluntary or involuntary guarding; no rebound or jolt tenderness</li>
+                        <li><strong>Wound:</strong> Incisions clean, dry, intact</li>
+                    </ul>
                 </div>
             </div>
 
             <div class="section">
-                <div class="section-title">Trauma Examination</div>
                 <div class="checklist-item">
-                    <input type="checkbox" id="trauma-head">
-                    <label for="trauma-head"><strong>Head:</strong> Normocephalic, atraumatic, no deformities, abrasions, tenderness, oropharynx clear, no blood in nares or ears, hearing intact</label>
+                    <input type="checkbox" id="trauma-exam-section">
+                    <label for="trauma-exam-section"><strong>Trauma Examination</strong></label>
                 </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="trauma-neuro-exam">
-                    <label for="trauma-neuro-exam"><strong>Neuro:</strong> GCS 15, Pupils equal and reactive to light bilaterally, extraocular muscles intact, gross motor and sensory intact in all 4 extremities</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="trauma-face">
-                    <label for="trauma-face"><strong>Face:</strong> Atraumatic, no deformities, abrasions, tenderness</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="trauma-chest-exam">
-                    <label for="trauma-chest-exam"><strong>Chest:</strong> clear to auscultation bilaterally, non-tender, atraumatic, pulling on incentive spirometer</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="trauma-cvs">
-                    <label for="trauma-cvs"><strong>CVS:</strong> RRR, hemodynamically stable</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="trauma-abdomen">
-                    <label for="trauma-abdomen"><strong>Abdomen:</strong> soft, non-tender, non-distended, no voluntary or involuntary guarding, no jolt or rebound tenderness</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="trauma-pelvis">
-                    <label for="trauma-pelvis"><strong>Pelvis:</strong> Stable</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="trauma-ue">
-                    <label for="trauma-ue"><strong>Upper Extremities:</strong> Atraumatic, no deformities, abrasions, tenderness, Bilateral radial pulses palpable, brisk capillary refill</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="trauma-le">
-                    <label for="trauma-le"><strong>Lower Extremities:</strong> Atraumatic, no deformities, abrasions, tenderness, brisk capillary refill, Bilateral femoral, DP, PT pulses palpable</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="trauma-spine">
-                    <label for="trauma-spine"><strong>Spine:</strong> No obvious cervical, lumbar, or thoracic spine deformities, no step offs, no tenderness, trachea midline</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="trauma-perineum">
-                    <label for="trauma-perineum"><strong>Perineum:</strong> No gross blood in the perineum, rectal exam deferred, anal wink reflex intact</label>
-                </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="trauma-gcs">
-                    <label for="trauma-gcs"><strong>GCS:</strong> Eye opening (E4 spontaneously, E3 to voice, E2 to pain, E1 none), Verbal (V5 oriented, V4 confused, V3 inappropriate words, V2 incomprehensible, V1 none), Motor (M6 obeys, M5 localizes, M4 withdraws, M3 decorticate, M2 decerebrate, M1 none)</label>
+                <div class="info-item">
+                    <ul>
+                        <li><strong>Head:</strong> Normocephalic, atraumatic, no deformities, abrasions, tenderness, oropharynx clear, no blood in nares or ears, hearing intact</li>
+                        <li><strong>Neuro:</strong> GCS 15, Pupils equal and reactive to light bilaterally, extraocular muscles intact, gross motor and sensory intact in all 4 extremities</li>
+                        <li><strong>Face:</strong> Atraumatic, no deformities, abrasions, tenderness</li>
+                        <li><strong>Chest:</strong> clear to auscultation bilaterally, non-tender, atraumatic, pulling on incentive spirometer</li>
+                        <li><strong>CVS:</strong> RRR, hemodynamically stable</li>
+                        <li><strong>Abdomen:</strong> soft, non-tender, non-distended, no voluntary or involuntary guarding, no jolt or rebound tenderness</li>
+                        <li><strong>Pelvis:</strong> Stable</li>
+                        <li><strong>Upper Extremities:</strong> Atraumatic, no deformities, abrasions, tenderness, Bilateral radial pulses palpable, brisk capillary refill</li>
+                        <li><strong>Lower Extremities:</strong> Atraumatic, no deformities, abrasions, tenderness, brisk capillary refill, Bilateral femoral, DP, PT pulses palpable</li>
+                        <li><strong>Spine:</strong> No obvious cervical, lumbar, or thoracic spine deformities, no step offs, no tenderness, trachea midline</li>
+                        <li><strong>Perineum:</strong> No gross blood in the perineum, rectal exam deferred, anal wink reflex intact</li>
+                        <li><strong>GCS:</strong> Eye opening (E4 spontaneously, E3 to voice, E2 to pain, E1 none), Verbal (V5 oriented, V4 confused, V3 inappropriate words, V2 incomprehensible, V1 none), Motor (M6 obeys, M5 localizes, M4 withdraws, M3 decorticate, M2 decerebrate, M1 none)</li>
+                    </ul>
                 </div>
             </div>
 
-            <div style="margin-top:2rem; padding: 15px; background: rgba(59, 130, 246, 0.1); border-radius: 10px; border-left: 4px solid #3b82f6;">
-                <a href="https://www.isncscialgorithm.com/Form" target="_blank" style="color:#3b82f6; text-decoration:underline; font-weight: 600;">ASIA Neurological Exam Form & Algorithm →</a>
-            </div>
-        </div>
-
-        <!-- Bottom Progress Bar -->
-        <div class="progress-container">
-            <div class="progress-label">
-                <span>Progress</span>
-                <span id="progress-text-bottom">0 / 0</span>
-            </div>
-            <div class="progress-bar-bg">
-                <div class="progress-bar" id="progress-bar-bottom">0%</div>
+            <div style="margin-top:1rem; padding: 10px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; border-left: 3px solid #3b82f6;">
+                <a href="https://www.isncscialgorithm.com/Form" target="_blank" style="color:#3b82f6; text-decoration:underline; font-weight: 600; font-size: 0.9em;">ASIA Neurological Exam Form & Algorithm →</a>
             </div>
         </div>
     </div>
@@ -1140,26 +1151,17 @@
             const checkedCount = checked.length;
             const percentage = total > 0 ? Math.round((checkedCount / total) * 100) : 0;
 
-            // Update both progress bars
-            const topBar = document.getElementById('progress-bar-top');
-            const bottomBar = document.getElementById('progress-bar-bottom');
-            const topText = document.getElementById('progress-text-top');
-            const bottomText = document.getElementById('progress-text-bottom');
+            // Update progress indicator
+            const indicator = document.getElementById('progress-indicator');
+            indicator.textContent = percentage + '%';
 
-            topBar.style.width = percentage + '%';
-            topBar.textContent = percentage + '%';
-            topText.textContent = checkedCount + ' / ' + total;
-
-            bottomBar.style.width = percentage + '%';
-            bottomBar.textContent = percentage + '%';
-            bottomText.textContent = checkedCount + ' / ' + total;
-
+            // Update body border and indicator color
             if (percentage === 100) {
-                topBar.classList.add('complete');
-                bottomBar.classList.add('complete');
+                document.body.classList.add('complete');
+                indicator.classList.add('complete');
             } else {
-                topBar.classList.remove('complete');
-                bottomBar.classList.remove('complete');
+                document.body.classList.remove('complete');
+                indicator.classList.remove('complete');
             }
         }
 
