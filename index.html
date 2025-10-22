@@ -161,6 +161,22 @@
             opacity: 0.5;
         }
 
+        .bullet-header {
+            margin: 8px 0 4px 0;
+            padding-left: 20px;
+            font-weight: 600;
+            color: #fff;
+            font-size: 0.95em;
+            position: relative;
+        }
+
+        .bullet-header:before {
+            content: "•";
+            position: absolute;
+            left: 5px;
+            color: #667eea;
+        }
+
         .subsection {
             margin-left: 28px;
             margin-top: 4px;
@@ -256,6 +272,10 @@
                 line-height: 1.3;
             }
 
+            .bullet-header {
+                font-size: 0.9em;
+            }
+
             .subsection {
                 margin-left: 20px;
             }
@@ -309,6 +329,10 @@
                 font-size: 0.85em;
             }
 
+            .bullet-header {
+                font-size: 0.85em;
+            }
+
             .subsection {
                 margin-left: 15px;
             }
@@ -343,36 +367,31 @@
             <div class="section">
                 <div class="section-title">VIOLIN</div>
                 
+                <div class="bullet-header">Labs</div>
                 <div class="subsection">
-                    <div class="checklist-item">
-                        <input type="checkbox" id="labs">
-                        <label for="labs"><strong>Labs</strong></label>
+                    <div class="checklist-item sub-item">
+                        <input type="checkbox" id="cbc-coags">
+                        <label for="cbc-coags">CBC/COAGS: WBC, Hgb, HCT, PLT, Diff, PT, PTT/INR, Fibrinogen, ROTEM</label>
                     </div>
-                    <div class="subsection">
-                        <div class="checklist-item sub-item">
-                            <input type="checkbox" id="cbc-coags">
-                            <label for="cbc-coags">CBC/COAGS: WBC, Hgb, HCT, PLT, Diff, PT, PTT/INR, Fibrinogen, ROTEM</label>
-                        </div>
-                        <div class="checklist-item sub-item">
-                            <input type="checkbox" id="lytes">
-                            <label for="lytes">Lytes: BMP, Ca, Mg, P, Tbil, Dbili</label>
-                        </div>
-                        <div class="checklist-item sub-item">
-                            <input type="checkbox" id="gi-labs">
-                            <label for="gi-labs">GI Labs: ALK, GGT, AST/ALT</label>
-                        </div>
-                        <div class="checklist-item sub-item">
-                            <input type="checkbox" id="abg">
-                            <label for="abg">ABG: pH, PO2, PCO2, Bicarb, Base excess, Lactate</label>
-                        </div>
-                        <div class="checklist-item sub-item">
-                            <input type="checkbox" id="misc-labs">
-                            <label for="misc-labs">MISC: Trops, CK, CKMB, Hgb A1C, albumin, prealbumin, Procal, UA, Urine studies</label>
-                        </div>
-                        <div class="checklist-item sub-item">
-                            <input type="checkbox" id="micro">
-                            <label for="micro">Microbiology/pathology results</label>
-                        </div>
+                    <div class="checklist-item sub-item">
+                        <input type="checkbox" id="lytes">
+                        <label for="lytes">Lytes: BMP, Ca, Mg, P, Tbil, Dbili</label>
+                    </div>
+                    <div class="checklist-item sub-item">
+                        <input type="checkbox" id="gi-labs">
+                        <label for="gi-labs">GI Labs: ALK, GGT, AST/ALT</label>
+                    </div>
+                    <div class="checklist-item sub-item">
+                        <input type="checkbox" id="abg">
+                        <label for="abg">ABG: pH, PO2, PCO2, Bicarb, Base excess, Lactate</label>
+                    </div>
+                    <div class="checklist-item sub-item">
+                        <input type="checkbox" id="misc-labs">
+                        <label for="misc-labs">MISC: Trops, CK, CKMB, Hgb A1C, albumin, prealbumin, Procal, UA, Urine studies</label>
+                    </div>
+                    <div class="checklist-item sub-item">
+                        <input type="checkbox" id="micro">
+                        <label for="micro">Microbiology/pathology results</label>
                     </div>
                 </div>
 
@@ -425,7 +444,7 @@
                 </div>
                 <div class="checklist-item">
                     <input type="checkbox" id="pulm-exam">
-                    <label for="pulm-exam">Exam: CTAB, regular rate, O2 sat, O2 support/vent settings, RR, ABG, RSBI, spot trial results, Types of trach and size, date placed, wean to decannulation, chest tube outputs/air leaks/size/location, SOB, CP</label>
+                    <label for="pulm-exam">Exam: CTAB, regular rate, O2 sat, O2 support/vent settings, RR, ABG, RSBI, spot trial results, Types of trach and size ex. #8 cuffed subglottic tracheostomy, date placed, wean to decannulation, chest tube outputs/air leaks/size/location, SOB, CP</label>
                 </div>
                 <div class="checklist-item">
                     <input type="checkbox" id="pulm-meds">
@@ -487,24 +506,72 @@
                     <input type="checkbox" id="gi-exam">
                     <label for="gi-exam">Exam: abdominal exam, incision exam, drains/NGT/OGT quality/quantity of output, BM/Gas quality/quantity, Nausea, vomiting</label>
                 </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="gi-diet">
-                    <label for="gi-diet"><strong>Diet/Nutrition</strong></label>
-                </div>
+                
+                <div class="bullet-header">Diet/Nutrition</div>
                 <div class="subsection">
                     <div class="checklist-item sub-item">
                         <input type="checkbox" id="gi-advance">
                         <label for="gi-advance">Advance as tolerated to regular diet</label>
                     </div>
-                    <div class="checklist-item sub-item">
-                        <input type="checkbox" id="gi-tpn">
-                        <label for="gi-tpn">TPN/PPN considerations and ordering</label>
+                    
+                    <div class="bullet-header" style="margin-left: 0;">TPN/PPN</div>
+                    <div class="subsection">
+                        <div class="checklist-item child-item">
+                            <input type="checkbox" id="gi-tpn-contraindications">
+                            <label for="gi-tpn-contraindications">Used when there are contraindications to EN</label>
+                        </div>
+                        <div class="checklist-item child-item">
+                            <input type="checkbox" id="gi-tpn-critical">
+                            <label for="gi-tpn-critical">Critically Ill: Within 36 to 48 hours</label>
+                        </div>
+                        <div class="checklist-item child-item">
+                            <input type="checkbox" id="gi-tpn-postop">
+                            <label for="gi-tpn-postop">Noncritically ill postoperative patients: After at least five days, usually at 14 days</label>
+                        </div>
+                        <div class="checklist-item child-item">
+                            <input type="checkbox" id="gi-tpn-malnutrition">
+                            <label for="gi-tpn-malnutrition">Chronic malnutrition and anticipated prolonged bowel rest: Can be earlier than five to seven days</label>
+                        </div>
+                        <div class="checklist-item child-item">
+                            <input type="checkbox" id="gi-tpn-cosign">
+                            <label for="gi-tpn-cosign">Daily order needs to be cosigned</label>
+                        </div>
+                        <div class="checklist-item child-item">
+                            <input type="checkbox" id="gi-tpn-fat">
+                            <label for="gi-tpn-fat">Ensure fat emulsion is ordered</label>
+                        </div>
+                        <div class="checklist-item child-item">
+                            <input type="checkbox" id="gi-tpn-access">
+                            <label for="gi-tpn-access">Need central access for TPN</label>
+                        </div>
+                        <div class="checklist-item child-item">
+                            <input type="checkbox" id="gi-tpn-rate">
+                            <label for="gi-tpn-rate">Note rate</label>
+                        </div>
                     </div>
+
+                    <div class="bullet-header" style="margin-left: 0;">TF indications</div>
+                    <div class="subsection">
+                        <div class="checklist-item child-item">
+                            <input type="checkbox" id="gi-tf-dysphagia">
+                            <label for="gi-tf-dysphagia">Severe dysphagia (may need postpyloric access to reduce aspiration risk)</label>
+                        </div>
+                        <div class="checklist-item child-item">
+                            <input type="checkbox" id="gi-tf-duration">
+                            <label for="gi-tf-duration">Persisted for at least two weeks and expected to persist for at least four weeks</label>
+                        </div>
+                        <div class="checklist-item child-item">
+                            <input type="checkbox" id="gi-tf-vent">
+                            <label for="gi-tf-vent">Requirement of mechanical ventilation for 4 weeks or more (NG tube 4 weeks or more)</label>
+                        </div>
+                    </div>
+
                     <div class="checklist-item sub-item">
-                        <input type="checkbox" id="gi-tf">
-                        <label for="gi-tf">TF indications and advance to goal rate</label>
+                        <input type="checkbox" id="gi-tf-goal">
+                        <label for="gi-tf-goal">Advance to goal rate</label>
                     </div>
                 </div>
+
                 <div class="checklist-item">
                     <input type="checkbox" id="gi-stress">
                     <label for="gi-stress">Stress ulcer prophylaxis</label>
@@ -533,10 +600,15 @@
                     <input type="checkbox" id="renal-exam">
                     <label for="renal-exam">Exam: I/Os, fluid balance, UOP, foley/voids, HD method/rate/target, Dysuria/urine retention</label>
                 </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="renal-ivf">
-                    <label for="renal-ivf">IVF - Maintenance fluid rate</label>
+                
+                <div class="bullet-header">IVF</div>
+                <div class="subsection">
+                    <div class="checklist-item sub-item">
+                        <input type="checkbox" id="renal-ivf-maint">
+                        <label for="renal-ivf-maint">Maintenance fluid rate: <a href="https://www.mdcalc.com/calc/72/maintenance-fluids-calculations" target="_blank" rel="noopener noreferrer">Calculator</a></label>
+                    </div>
                 </div>
+
                 <div class="checklist-item">
                     <input type="checkbox" id="renal-foley">
                     <label for="renal-foley">Dc foley, BS/SC vs. void</label>
@@ -579,7 +651,7 @@
                 </div>
                 <div class="checklist-item">
                     <input type="checkbox" id="heme-dvt">
-                    <label for="heme-dvt">Check start DVT prophylaxis or home AC (aspirin/plavix) when appropriate</label>
+                    <label for="heme-dvt">Check start DVT prophylaxis or home AC ex. aspirin/plavix when appropriate</label>
                 </div>
                 <div class="checklist-item">
                     <input type="checkbox" id="heme-dc-ac">
@@ -631,7 +703,7 @@
                 </div>
                 <div class="checklist-item">
                     <input type="checkbox" id="endo-insulin">
-                    <label for="endo-insulin">Convert ISS or insulin gtt to basal bolus regimen when stable</label>
+                    <label for="endo-insulin">Convert ISS or insulin gtt to basal bolus regimen when stable (otherwise those are preferred)</label>
                 </div>
                 <div class="checklist-item">
                     <input type="checkbox" id="endo-dc">
@@ -661,9 +733,13 @@
                     <input type="checkbox" id="skin-hcp">
                     <label for="skin-hcp">HCP/GOALS OF CARE</label>
                 </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="skin-dispo">
-                    <label for="skin-dispo">DISPO: Downgrade or discharge</label>
+                
+                <div class="bullet-header">DISPO</div>
+                <div class="subsection">
+                    <div class="checklist-item sub-item">
+                        <input type="checkbox" id="skin-dispo">
+                        <label for="skin-dispo">Downgrade or discharge</label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -752,10 +828,8 @@
                     <input type="checkbox" id="trauma-diet">
                     <label for="trauma-diet">Diet order vs. NPO/IVF</label>
                 </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="trauma-patient-care">
-                    <label for="trauma-patient-care"><strong>Patient care</strong></label>
-                </div>
+                
+                <div class="bullet-header">Patient care</div>
                 <div class="subsection">
                     <div class="checklist-item child-item">
                         <input type="checkbox" id="trauma-glucose">
@@ -810,6 +884,7 @@
                         <label for="trauma-activity">Activity: OOB ad lib/with assistance/Bedrest, weight bearing status</label>
                     </div>
                 </div>
+
                 <div class="checklist-item">
                     <input type="checkbox" id="trauma-pain">
                     <label for="trauma-pain">Pain meds</label>
@@ -881,10 +956,8 @@
                     <input type="checkbox" id="consult-diet">
                     <label for="consult-diet">Diet order vs. NPO/IVF</label>
                 </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="consult-patient-care">
-                    <label for="consult-patient-care"><strong>Patient care</strong></label>
-                </div>
+                
+                <div class="bullet-header">Patient care</div>
                 <div class="subsection">
                     <div class="checklist-item child-item">
                         <input type="checkbox" id="consult-glucose">
@@ -939,6 +1012,7 @@
                         <label for="consult-activity">Activity: OOB ad lib/with assistance/Bedrest, weight bearing status</label>
                     </div>
                 </div>
+
                 <div class="checklist-item">
                     <input type="checkbox" id="consult-pain">
                     <label for="consult-pain">Pain meds</label>
